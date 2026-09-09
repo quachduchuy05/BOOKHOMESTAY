@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('Lịch sử đặt phòng')}"></head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<div class="container py-4">
+    <!-- Flash Messages -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold m-0"><i class="fa-regular fa-calendar-check text-danger me-2"></i>Lịch Sử Đặt Phòng</h3>
+            <p class="text-muted small m-0">Quản lý và theo dõi trạng thái các kỳ nghỉ của bạn</p>
+        </div>
+        <a th:href="@{/tim-kiem}" class="btn btn-primary btn-pill btn-sm px-3">
+            <i class="fa-solid fa-magnifying-glass me-1"></i> Khám phá thêm homestay
+        </a>
+    </div>
+
+    <!-- Bookings Table Container -->
+    <div class="table-container-modern shadow-sm border-0 rounded-4" th:if="${!bookings.isEmpty()}">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Chỗ nghỉ & Phòng</th>
+                        <th>Lịch lưu trú</th>
+                        <th>Tổng chi phí</th>
+                        <th>Thanh toán</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="b : ${bookings}">
+                        <td>
+                            <span class="fw-bold text-dark" th:text="${b.bookingCode}">BK001</span>
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark" th:text="${b.details[0].room.homestay.name}">Tên Homestay</div>
+                            <div class="small text-muted" th:text="${b.details[0].room.name}">Tên phòng</div>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">
+                                <i class="fa-regular fa-calendar me-1 text-primary"></i>
+                                <span th:text="${b.details[0].checkinDate}">2026-06-01</span> 
+                                <i class="fa-solid fa-arrow-right mx-1 text-muted small"></i> 
+                                <span th:text="${b.details[0].checkoutDate}">2026-06-03</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.finalAmount,0,'POINT',0,'COMMA')} + ' VNĐ'">1,200,000 VNĐ</span>
+                        </td>
+                        <td>
+                            <span th:if="${b.payment != null and b.payment.status.name() == 'PAID'}" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                <i class="fa-solid fa-circle-check me-1"></i>Đã thanh toán
+                            </span>
+                            <span th:unless="${b.payment != null and b.payment.status.name() == 'PAID'}" class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">
+                                <i class="fa-solid fa-clock me-1"></i>Chưa thanh toán
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge" th:classappend="'badge-status-' + ${b.status}" th:text="${b.status}">PENDING</span>
+                        </td>
+                        <td class="text-end">
+                            <!-- Nut Huy don cho PENDING / CONFIRMED -->
+                            <form th:if="${b.status.name() == 'PENDING' or b.status.name() == 'CONFIRMED'}"
+                                  th:action="@{/khach-hang/don-dat-phong/{id}/huy(id=${b.id})}" method="post" class="d-inline">
+                                <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn đặt phòng này?')">
+                                    <i class="fa-solid fa-xmark me-1"></i> Hủy đơn
+                                </button>
+                            </form>
+
+                            <!-- Khối Đánh giá cho đơn HOÀN THÀNH + ĐÃ THANH TOÁN -->
+                            <div th:if="${(b.status.name() == 'COMPLETED' or b.status.name() == 'CHECKED_OUT') and b.payment != null and b.payment.status.name() == 'PAID'}">
+                                <!-- Đã đánh giá -->
+                                <div th:if="${reviewsMap != null and reviewsMap.containsKey(b.id)}">
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle py-2 px-3 rounded-pill fw-semibold">
+                                        <i class="fa-solid fa-star text-warning me-1"></i>
+                                        <span class="text-dark fw-bold" th:text="${reviewsMap.get(b.id).rating} + '★'">5★</span> Đã đánh giá
+                                    </span>
+                                </div>
+                                <!-- Chưa đánh giá -->
+                                <div th:unless="${reviewsMap != null and reviewsMap.containsKey(b.id)}">
+                                    <button type="button" class="btn btn-sm btn-warning rounded-pill px-3 fw-bold text-dark shadow-sm hover-lift"
+                                            data-bs-toggle="modal" data-bs-target="#reviewModal"
+                                            th:data-booking-id="${b.id}"
+                                            th:data-homestay-name="${b.details[0].room.homestay.name}"
+                                            onclick="openReviewModal(this)">
+                                        <i class="fa-solid fa-star me-1 text-danger"></i> Đánh giá ngay
+                                    </button>
+                                </div>
+                            </div>
+
+                            <span th:unless="${b.status.name() == 'PENDING' or b.status.name() == 'CONFIRMED' or ((b.status.name() == 'COMPLETED' or b.status.name() == 'CHECKED_OUT') and b.payment != null and b.payment.status.name() == 'PAID')}" class="text-muted small">--</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${bookings.isEmpty()}" class="p-5 text-center bg-white rounded-4 border">
+        <i class="fa-regular fa-calendar-xmark display-4 text-muted mb-3"></i>
+        <h5 class="fw-bold">Bạn chưa có đơn đặt phòng nào</h5>
+        <p class="text-muted small mb-4">Hãy bắt đầu chuyến phiêu lưu tiếp theo của bạn ngay hôm nay!</p>
+        <a th:href="@{/}" class="btn btn-primary btn-pill px-4">
+            <i class="fa-solid fa-compass me-1"></i> Khám phá chỗ ở ngay
+        </a>
+    </div>
+</div>
+
+<!-- Modal Đánh Giá Homestay -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <form th:action="@{/khach-hang/danh-gia}" method="post">
+                <input type="hidden" id="modalBookingId" name="bookingId" value="" />
+                
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark" id="reviewModalLabel">
+                            <i class="fa-solid fa-star text-warning me-2"></i>Đánh giá kỳ nghỉ
+                        </h5>
+                        <p class="text-muted small mb-0 mt-1" id="modalHomestayName">Homestay</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body px-4 py-3">
+                    <!-- Rating Stars Picker -->
+                    <div class="text-center my-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase d-block mb-2">Chất lượng dịch vụ & trải nghiệm</label>
+                        <div class="rating-stars-input fs-1 text-secondary" style="cursor: pointer;">
+                            <i class="fa-solid fa-star star-btn text-warning" data-val="1"></i>
+                            <i class="fa-solid fa-star star-btn text-warning" data-val="2"></i>
+                            <i class="fa-solid fa-star star-btn text-warning" data-val="3"></i>
+                            <i class="fa-solid fa-star star-btn text-warning" data-val="4"></i>
+                            <i class="fa-solid fa-star star-btn text-warning" data-val="5"></i>
+                        </div>
+                        <input type="hidden" id="modalRating" name="rating" value="5" />
+                        <span id="starRatingText" class="small fw-bold text-success mt-1 d-block">Tuyệt vời (5 sao)</span>
+                    </div>
+
+                    <!-- Comment textarea -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Nhận xét chi tiết của bạn</label>
+                        <textarea class="form-control rounded-3" name="comment" rows="4" 
+                                  placeholder="Chia sẻ cảm nhận của bạn về không gian, độ sạch sẽ, sự thân thiện của chủ nhà..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary btn-pill px-4 fw-bold">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Gửi đánh giá
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openReviewModal(btn) {
+    const bookingId = btn.getAttribute('data-booking-id');
+    const homestayName = btn.getAttribute('data-homestay-name');
+    document.getElementById('modalBookingId').value = bookingId;
+    document.getElementById('modalHomestayName').textContent = 'Chỗ nghỉ: ' + homestayName;
+    setRating(5);
+}
+
+const starTexts = {
+    1: 'Rất tệ (1 sao)',
+    2: 'Tạm được (2 sao)',
+    3: 'Bình thường (3 sao)',
+    4: 'Hài lòng (4 sao)',
+    5: 'Tuyệt vời (5 sao)'
+};
+
+function setRating(val) {
+    document.getElementById('modalRating').value = val;
+    document.getElementById('starRatingText').textContent = starTexts[val] || (val + ' sao');
+    const stars = document.querySelectorAll('.star-btn');
+    stars.forEach(star => {
+        const starVal = parseInt(star.getAttribute('data-val'));
+        if (starVal <= val) {
+            star.classList.remove('text-secondary');
+            star.classList.add('text-warning');
+        } else {
+            star.classList.remove('text-warning');
+            star.classList.add('text-secondary');
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const stars = document.querySelectorAll('.star-btn');
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const val = parseInt(star.getAttribute('data-val'));
+            setRating(val);
+        });
+    });
+});
+</script>
+
+<div th:replace="~{dung-chung/layout :: footer}"></div>
+</body>
+</html>

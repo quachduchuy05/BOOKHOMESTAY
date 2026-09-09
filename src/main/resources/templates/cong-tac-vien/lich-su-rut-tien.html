@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('Lịch Sử Rút Tiền - Cộng Tác Viên')}"></head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h3 class="fw-bold m-0"><i class="fa-solid fa-clock-rotate-left text-warning me-2"></i>Lịch Sử Rút Tiền</h3>
+            <p class="text-muted small m-0">Theo dõi toàn bộ các yêu cầu rút hoa hồng và trạng thái xử lý từ Quản trị viên</p>
+        </div>
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a th:href="@{/cong-tac-vien/tong-quan}" class="btn btn-outline-secondary btn-pill btn-sm px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Tổng quan
+            </a>
+            <a th:href="@{/cong-tac-vien/rut-tien}" class="btn btn-success btn-pill btn-sm px-3 shadow-sm">
+                <i class="fa-solid fa-plus me-1"></i> Tạo lệnh rút mới
+            </a>
+        </div>
+    </div>
+
+    <!-- Bảng lịch sử rút tiền -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Mã GD</th>
+                        <th>Số tiền rút</th>
+                        <th>Ngân hàng nhận</th>
+                        <th>Thời gian yêu cầu</th>
+                        <th>Trạng thái</th>
+                        <th>Thời gian xử lý</th>
+                        <th class="pe-4">Ghi chú từ Admin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(withdrawals)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-folder-open fs-1 d-block mb-3 opacity-50"></i>
+                            Bạn chưa có yêu cầu rút tiền nào trong lịch sử.
+                        </td>
+                    </tr>
+                    <tr th:each="w : ${withdrawals}">
+                        <td class="ps-4 font-monospace text-muted" th:text="'#WD' + ${w.id}">#WD1</td>
+                        <td>
+                            <strong class="text-dark fs-6" th:text="${#numbers.formatDecimal(w.amount, 0, 'POINT', 0, 'POINT')} + ' VNĐ'">0 VNĐ</strong>
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark" th:text="${w.tenNganHang}">Vietcombank</div>
+                            <small class="text-muted font-monospace" th:text="${w.soTaiKhoan}">123456789</small>
+                        </td>
+                        <td class="small text-muted" th:text="${#temporals.format(w.requestedAt, 'dd/MM/yyyy HH:mm')}">
+                            01/01/2026 12:00
+                        </td>
+                        <td>
+                            <span th:if="${w.status.name() == 'PENDING'}" class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 rounded-pill">
+                                <i class="fa-solid fa-clock me-1"></i>Chờ duyệt
+                            </span>
+                            <span th:if="${w.status.name() == 'APPROVED'}" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill">
+                                <i class="fa-solid fa-circle-check me-1"></i>Đã chuyển khoản
+                            </span>
+                            <span th:if="${w.status.name() == 'REJECTED'}" class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill">
+                                <i class="fa-solid fa-circle-xmark me-1"></i>Từ chối
+                            </span>
+                        </td>
+                        <td class="small text-muted" th:text="${w.processedAt != null ? #temporals.format(w.processedAt, 'dd/MM/yyyy HH:mm') : '-'}">
+                            -
+                        </td>
+                        <td class="pe-4 text-muted small" th:text="${w.adminNote != null ? w.adminNote : '-'}">
+                            -
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{dung-chung/layout :: footer}"></div>
+</body>
+</html>

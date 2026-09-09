@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('Lịch Sử Hoa Hồng - Cộng Tác Viên')}"></head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h3 class="fw-bold m-0"><i class="fa-solid fa-receipt text-primary me-2"></i>Lịch Sử Hoa Hồng Đơn Hàng</h3>
+            <p class="text-muted small m-0">Danh sách các khoản hoa hồng được ghi nhận từ những đơn phòng đặt qua mã tiếp thị của bạn</p>
+        </div>
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a th:href="@{/cong-tac-vien/tong-quan}" class="btn btn-outline-secondary btn-pill btn-sm px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Tổng quan
+            </a>
+            <a th:href="@{/cong-tac-vien/rut-tien}" class="btn btn-success btn-pill btn-sm px-3 shadow-sm">
+                <i class="fa-solid fa-money-bill-transfer me-1"></i> Rút tiền ngay
+            </a>
+        </div>
+    </div>
+
+    <!-- Bảng hoa hồng -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Giá trị đơn</th>
+                        <th>Tỷ lệ</th>
+                        <th>Tiền hoa hồng</th>
+                        <th>Trạng thái</th>
+                        <th class="pe-4 text-end">Thời gian ghi nhận</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(commissions)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-box-open fs-1 d-block mb-3 opacity-50"></i>
+                            Bạn chưa có khoản hoa hồng nào. Hãy chia sẻ link giới thiệu để bắt đầu nhận thưởng!
+                        </td>
+                    </tr>
+                    <tr th:each="commission : ${commissions}">
+                        <td class="ps-4">
+                            <span class="fw-bold text-primary font-monospace" th:text="${commission.booking.bookingCode}">BK123456</span>
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark" th:text="${commission.booking.customerName}">Nguyễn Văn A</div>
+                            <small class="text-muted" th:text="${commission.booking.customerPhone}">0987654321</small>
+                        </td>
+                        <td>
+                            <strong th:text="${#numbers.formatDecimal(commission.bookingAmount, 0, 'POINT', 0, 'POINT')} + ' VNĐ'">0 VNĐ</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border font-monospace" th:text="${commission.commissionRate} + '%'">5.0%</span>
+                        </td>
+                        <td>
+                            <strong class="text-success fs-6" th:text="'+ ' + ${#numbers.formatDecimal(commission.commissionAmount, 0, 'POINT', 0, 'POINT')} + ' VNĐ'">+ 0 VNĐ</strong>
+                        </td>
+                        <td>
+                            <span th:if="${commission.status.name() == 'AVAILABLE'}" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill">
+                                <i class="fa-solid fa-circle-check me-1"></i>Khả dụng
+                            </span>
+                            <span th:if="${commission.status.name() == 'PENDING'}" class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 rounded-pill">
+                                <i class="fa-solid fa-clock me-1"></i>Đang chờ
+                            </span>
+                            <span th:if="${commission.status.name() == 'WITHDRAWN'}" class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 rounded-pill">
+                                <i class="fa-solid fa-check-double me-1"></i>Đã rút
+                            </span>
+                            <span th:if="${commission.status.name() == 'CANCELLED'}" class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill">
+                                <i class="fa-solid fa-xmark me-1"></i>Đã huỷ
+                            </span>
+                        </td>
+                        <td class="pe-4 text-end text-muted small" th:text="${#temporals.format(commission.createdAt, 'dd/MM/yyyy HH:mm')}">
+                            01/01/2026 12:00
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{dung-chung/layout :: footer}"></div>
+</body>
+</html>

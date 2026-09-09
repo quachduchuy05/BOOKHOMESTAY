@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('Quản lý Đặt Phòng - Đối tác')}"></head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold m-0"><i class="fa-solid fa-clipboard-list text-danger me-2"></i>Danh Sách Đơn Đặt Phòng</h3>
+            <p class="text-muted small m-0">Quản lý nhận phòng, trả phòng và trạng thái thanh toán từ khách lưu trú</p>
+        </div>
+        <a th:href="@{/chu-nha/tong-quan}" class="btn btn-outline-secondary btn-pill btn-sm px-3">
+            <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Tổng quan
+        </a>
+    </div>
+
+    <div class="table-container-modern shadow-sm border-0 rounded-4" th:if="${!bookings.isEmpty()}">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Homestay & Phòng</th>
+                        <th>Thời gian ở</th>
+                        <th>Tổng tiền</th>
+                        <th>Thanh toán</th>
+                        <th>Trạng thái đơn</th>
+                        <th class="text-end">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr th:each="b : ${bookings}">
+                    <td>
+                        <span class="fw-bold text-dark" th:text="${b.bookingCode}">BK001</span>
+                    </td>
+                    <td>
+                        <div class="fw-semibold text-dark" th:text="${b.customerName}">Nguyễn Văn A</div>
+                        <div class="small text-muted"><i class="fa-solid fa-phone me-1"></i><span th:text="${b.customerPhone}">0901234567</span></div>
+                    </td>
+                    <td>
+                        <div class="fw-semibold text-dark" th:text="${b.details[0].room.homestay.name}">Tên Homestay</div>
+                        <div class="small text-muted" th:text="${b.details[0].room.name}">Phòng</div>
+                    </td>
+                    <td>
+                        <div class="small fw-semibold text-dark">
+                            <i class="fa-regular fa-calendar me-1 text-primary"></i>
+                            <span th:text="${b.details[0].checkinDate}">2026-06-01</span> 
+                            <i class="fa-solid fa-arrow-right mx-1 text-muted small"></i> 
+                            <span th:text="${b.details[0].checkoutDate}">2026-06-03</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.finalAmount,0,'POINT',0,'COMMA')} + ' đ'">1,000,000 đ</span>
+                    </td>
+                    <td>
+                        <span th:if="${b.payment != null and b.payment.status.name() == 'PAID'}" 
+                              class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                            <i class="fa-solid fa-circle-check me-1"></i>Đã thanh toán
+                        </span>
+                        <span th:unless="${b.payment != null and b.payment.status.name() == 'PAID'}" 
+                              class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">
+                            <i class="fa-solid fa-clock me-1"></i>Chưa thanh toán
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge" th:classappend="'badge-status-' + ${b.status}" th:text="${b.status}">PENDING</span>
+                    </td>
+                    <td class="text-end">
+                        <!-- Xác nhận / Từ chối khi PENDING -->
+                        <div th:if="${b.status.name() == 'PENDING'}" class="d-inline-flex gap-1">
+                            <form th:action="@{/chu-nha/don-dat-phong/{id}/xac-nhan(id=${b.id})}" method="post" class="d-inline">
+                                <button class="btn btn-sm btn-success rounded-pill px-3" title="Xác nhận đơn">
+                                    <i class="fa-solid fa-check me-1"></i>Duyệt
+                                </button>
+                            </form>
+                            <form th:action="@{/chu-nha/don-dat-phong/{id}/tu-choi(id=${b.id})}" method="post" class="d-inline">
+                                <button class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Từ chối đơn" onclick="return confirm('Bạn có chắc muốn từ chối?')">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Check-in khi CONFIRMED -->
+                        <form th:if="${b.status.name() == 'CONFIRMED'}" th:action="@{/chu-nha/don-dat-phong/{id}/nhan-phong(id=${b.id})}" method="post" class="d-inline">
+                            <button class="btn btn-sm btn-primary rounded-pill px-3">
+                                <i class="fa-solid fa-key me-1"></i>Nhận phòng
+                            </button>
+                        </form>
+
+                        <!-- Check-out khi CHECKED_IN -->
+                        <form th:if="${b.status.name() == 'CHECKED_IN'}" th:action="@{/chu-nha/don-dat-phong/{id}/tra-phong(id=${b.id})}" method="post" class="d-inline">
+                            <button class="btn btn-sm btn-secondary rounded-pill px-3">
+                                <i class="fa-solid fa-door-open me-1"></i>Trả phòng
+                            </button>
+                        </form>
+
+                        <!-- Xác nhận đã thanh toán nếu chưa PAID -->
+                        <form th:if="${b.payment != null and b.payment.status.name() != 'PAID' and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED'}"
+                              th:action="@{/chu-nha/don-dat-phong/{id}/thanh-toan(id=${b.id})}" method="post" class="d-inline ms-1">
+                            <button class="btn btn-sm btn-outline-success rounded-pill px-2" title="Xác nhận khách đã thanh toán">
+                                <i class="fa-solid fa-money-bill-wave me-1"></i>Đã thu tiền
+                            </button>
+                        </form>
+
+                        <!-- Hoàn thành đơn nếu CHECKED_OUT mà chưa hoàn tất -->
+                        <form th:if="${b.status.name() == 'CHECKED_OUT'}" th:action="@{/chu-nha/don-dat-phong/{id}/hoan-thanh(id=${b.id})}" method="post" class="d-inline ms-1">
+                            <button class="btn btn-sm btn-info rounded-pill px-2 text-white" title="Hoàn thành chu trình đơn">
+                                <i class="fa-solid fa-flag-checkered me-1"></i>Hoàn thành
+                            </button>
+                        </form>
+
+                        <span th:if="${b.status.name() == 'COMPLETED'}" class="text-success small fw-semibold">
+                            <i class="fa-solid fa-circle-check"></i> Đã hoàn tất
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${bookings.isEmpty()}" class="p-5 text-center bg-white rounded-4 border">
+        <i class="fa-regular fa-clipboard display-4 text-muted mb-3"></i>
+        <h5 class="fw-bold">Chưa có đơn đặt phòng nào</h5>
+        <p class="text-muted small mb-0">Các đơn đặt phòng của khách sẽ hiển thị tại đây khi có phát sinh.</p>
+    </div>
+</div>
+
+<div th:replace="~{dung-chung/layout :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('Yêu Cầu Rút Tiền - Cộng Tác Viên')}"></head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h3 class="fw-bold m-0"><i class="fa-solid fa-money-bill-transfer text-success me-2"></i>Rút Tiền Hoa Hồng</h3>
+            <p class="text-muted small m-0">Gửi yêu cầu chuyển khoản hoa hồng về tài khoản ngân hàng của bạn</p>
+        </div>
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a th:href="@{/cong-tac-vien/tong-quan}" class="btn btn-outline-secondary btn-pill btn-sm px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Tổng quan
+            </a>
+            <a th:href="@{/cong-tac-vien/lich-su-rut-tien}" class="btn btn-outline-primary btn-pill btn-sm px-3">
+                <i class="fa-solid fa-clock-rotate-left me-1"></i> Lịch sử rút tiền
+            </a>
+        </div>
+    </div>
+
+    <!-- Thông báo kết quả -->
+    <div th:if="${param.success}" class="alert alert-success border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+        <i class="fa-solid fa-circle-check fs-2 text-success"></i>
+        <div>
+            <strong class="d-block">Gửi yêu cầu rút tiền thành công!</strong>
+            <span class="small">Quản trị viên sẽ kiểm tra và chuyển khoản tới số tài khoản của bạn trong vòng 24 giờ làm việc.</span>
+        </div>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+        <i class="fa-solid fa-triangle-exclamation fs-2 text-danger"></i>
+        <div>
+            <strong class="d-block">Không thể gửi yêu cầu!</strong>
+            <span class="small" th:text="${errorMessage}">Lỗi xử lý</span>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <!-- Cột form rút tiền -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-wallet text-success me-2"></i>Tạo lệnh rút tiền mới</h5>
+
+                <form method="post" th:action="@{/cong-tac-vien/rut-tien}">
+                    <!-- Số dư khả dụng hiện tại -->
+                    <div class="p-3 bg-light rounded-4 mb-4 border d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="small text-muted d-block">Số dư khả dụng hiện tại</span>
+                            <span class="fs-4 fw-bold text-success" th:text="${#numbers.formatDecimal(availableBalance, 0, 'POINT', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3"
+                                th:onclick="'fillMaxAmount(' + ${availableBalance} + ')'">
+                            Rút toàn bộ
+                        </button>
+                    </div>
+
+                    <!-- Ô nhập số tiền -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-secondary">Số tiền muốn rút (VNĐ):</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-money-bill-wave text-success"></i></span>
+                            <input type="number" id="amountInput" name="amount" min="10000" step="1000"
+                                   th:max="${availableBalance}"
+                                   class="form-control fw-bold text-dark" placeholder="Ví dụ: 100000" required>
+                            <span class="input-group-text bg-light fw-bold">VNĐ</span>
+                        </div>
+                        <div class="form-text text-muted">Số tiền rút tối thiểu: 10.000 VNĐ.</div>
+                    </div>
+
+                    <!-- Nút submit -->
+                    <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill shadow-sm fw-bold">
+                        <i class="fa-solid fa-paper-plane me-2"></i>Gửi Yêu Cầu Rút Tiền
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Cột thông tin tài khoản nhận tiền -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
+                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-building-columns text-primary me-2"></i>Tài khoản thụ hưởng</h6>
+                <div class="p-3 bg-white rounded-3 shadow-sm mb-3">
+                    <div class="mb-2">
+                        <small class="text-muted d-block">Ngân hàng:</small>
+                        <strong class="text-dark fs-6" th:text="${collaborator.tenNganHang}">-</strong>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted d-block">Số tài khoản:</small>
+                        <strong class="text-primary fs-5 font-monospace" th:text="${collaborator.soTaiKhoanNhanHoaHong}">-</strong>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Chủ tài khoản:</small>
+                        <strong class="text-dark" th:text="${collaborator.user.fullName}">-</strong>
+                    </div>
+                </div>
+
+                <div class="small text-muted">
+                    <i class="fa-solid fa-circle-info text-info me-1"></i>
+                    Tiền sẽ được chuyển chính xác vào số tài khoản trên sau khi Quản trị viên duyệt. Nếu muốn đổi số tài khoản, vui lòng liên hệ bộ phận hỗ trợ.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{dung-chung/layout :: footer}"></div>
+
+<script>
+function fillMaxAmount(balance) {
+    if (balance && balance > 0) {
+        document.getElementById("amountInput").value = Math.floor(balance);
+    }
+}
+</script>
+</body>
+</html>
