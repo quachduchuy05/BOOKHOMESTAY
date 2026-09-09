@@ -109,18 +109,8 @@
                                 <label class="form-check-label small fw-semibold" for="ckCtv">
                                     Đăng ký làm <strong>Cộng tác viên / Sale</strong> (hưởng hoa hồng giới thiệu)
                                 </label>
-                            </div>
-                            <!-- CTV Bank Fields -->
-                            <div id="ctvFields" class="pt-3 border-top mt-2" style="display:none;">
-                                <div class="row g-2">
-                                    <div class="col-sm-6">
-                                        <label class="small fw-semibold text-muted">Ngân hàng thụ hưởng</label>
-                                        <input class="form-control form-control-sm" th:field="*{bankName}" placeholder="VD: Vietcombank, MB Bank">
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label class="small fw-semibold text-muted">Số tài khoản nhận hoa hồng</label>
-                                        <input class="form-control form-control-sm" th:field="*{bankAccountNumber}" placeholder="Số tài khoản ngân hàng">
-                                    </div>
+                                <div class="form-text small text-muted mt-1">
+                                    <i class="fa-solid fa-circle-info text-primary me-1"></i>Tài khoản ngân hàng nhận hoa hồng sẽ được thêm/cập nhật sau khi đăng nhập.
                                 </div>
                             </div>
                         </div>
@@ -142,9 +132,6 @@
 
 <div th:replace="~{dung-chung/layout :: footer}"></div>
 <script th:inline="javascript">
-    document.getElementById('ckCtv').addEventListener('change', function () {
-        document.getElementById('ctvFields').style.display = this.checked ? 'block' : 'none';
-    });
 
     document.querySelectorAll('input[name=kenhOtpRadio]').forEach(function (radio) {
         radio.addEventListener('change', function () {

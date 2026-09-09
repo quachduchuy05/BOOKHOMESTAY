@@ -35,6 +35,7 @@ public class CollaboratorController {
     public String withdrawalForm(@AuthenticationPrincipal CustomUserDetails user, Model model) {
         Collaborator collaborator = collaboratorService.getMyCollaborator(user.getId());
         model.addAttribute("collaborator", collaborator);
+        model.addAttribute("availableBalance", collaboratorService.getAvailableBalance(user.getId()));
         return "cong-tac-vien/rut-tien";
     }
 
@@ -48,8 +49,27 @@ public class CollaboratorController {
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("collaborator", collaboratorService.getMyCollaborator(user.getId()));
+            model.addAttribute("availableBalance", collaboratorService.getAvailableBalance(user.getId()));
             return "cong-tac-vien/rut-tien";
         }
+    }
+
+    @PostMapping("/cap-nhat-ngan-hang")
+    public String updateBankInfo(@AuthenticationPrincipal CustomUserDetails user,
+                                 @RequestParam String tenNganHang,
+                                 @RequestParam String soTaiKhoanNhanHoaHong,
+                                 @RequestParam(required = false, defaultValue = "tong-quan") String redirectPage,
+                                 org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            collaboratorService.updateBankInfo(user.getId(), tenNganHang, soTaiKhoanNhanHoaHong);
+            redirectAttributes.addFlashAttribute("bankSuccessMessage", "Cập nhật thông tin tài khoản ngân hàng thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("bankErrorMessage", e.getMessage());
+        }
+        if ("rut-tien".equals(redirectPage)) {
+            return "redirect:/cong-tac-vien/rut-tien";
+        }
+        return "redirect:/cong-tac-vien/tong-quan";
     }
 
     @GetMapping("/lich-su-rut-tien")

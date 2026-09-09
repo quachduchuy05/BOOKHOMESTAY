@@ -41,10 +41,21 @@
                         <i class="fa-solid fa-store me-1"></i>Kênh đối tác
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
-                        <li><a class="dropdown-item" th:href="@{/chu-nha/tong-quan}"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Tổng quan</a></li>
-                        <li><a class="dropdown-item" th:href="@{/chu-nha/danh-sach-homestay}"><i class="fa-solid fa-hotel me-2 text-info"></i>Homestay của tôi</a></li>
-                        <li><a class="dropdown-item" th:href="@{/chu-nha/don-dat-phong}"><i class="fa-solid fa-receipt me-2 text-success"></i>Đơn đặt phòng</a></li>
-                        <li><a class="dropdown-item" th:href="@{/chu-nha/danh-gia}"><i class="fa-solid fa-star me-2 text-warning"></i>Đánh giá của khách</a></li>
+                        <th:block sec:authorize="hasRole('HOST')">
+                            <li><h6 class="dropdown-header text-uppercase fw-bold small text-muted">Kênh Chủ nhà</h6></li>
+                            <li><a class="dropdown-item" th:href="@{/chu-nha/tong-quan}"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Tổng quan</a></li>
+                            <li><a class="dropdown-item" th:href="@{/chu-nha/danh-sach-homestay}"><i class="fa-solid fa-hotel me-2 text-info"></i>Homestay của tôi</a></li>
+                            <li><a class="dropdown-item" th:href="@{/chu-nha/don-dat-phong}"><i class="fa-solid fa-receipt me-2 text-success"></i>Đơn đặt phòng</a></li>
+                            <li><a class="dropdown-item" th:href="@{/chu-nha/danh-gia}"><i class="fa-solid fa-star me-2 text-warning"></i>Đánh giá của khách</a></li>
+                        </th:block>
+                        <th:block sec:authorize="hasRole('COLLABORATOR')">
+                            <li sec:authorize="hasRole('HOST')"><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header text-uppercase fw-bold small text-muted">Kênh Cộng tác viên</h6></li>
+                            <li><a class="dropdown-item" th:href="@{/cong-tac-vien/tong-quan}"><i class="fa-solid fa-handshake me-2 text-warning"></i>Tổng quan CTV</a></li>
+                            <li><a class="dropdown-item" th:href="@{/cong-tac-vien/rut-tien}"><i class="fa-solid fa-money-bill-transfer me-2 text-success"></i>Rút hoa hồng</a></li>
+                            <li><a class="dropdown-item" th:href="@{/cong-tac-vien/lich-su-rut-tien}"><i class="fa-solid fa-clock-rotate-left me-2 text-info"></i>Lịch sử rút tiền</a></li>
+                            <li><a class="dropdown-item" th:href="@{/cong-tac-vien/hoa-hong}"><i class="fa-solid fa-receipt me-2 text-primary"></i>Chi tiết hoa hồng</a></li>
+                        </th:block>
                     </ul>
                 </li>
                 <li class="nav-item dropdown" sec:authorize="hasRole('ADMIN')">

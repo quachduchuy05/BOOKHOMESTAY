@@ -21,12 +21,39 @@
         </div>
     </div>
 
+    <!-- Thông báo kết quả cập nhật ngân hàng -->
+    <div th:if="${bankSuccessMessage}" class="alert alert-success border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+        <i class="fa-solid fa-circle-check fs-3 text-success"></i>
+        <div th:text="${bankSuccessMessage}">Cập nhật thành công!</div>
+    </div>
+    <div th:if="${bankErrorMessage}" class="alert alert-danger border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+        <i class="fa-solid fa-triangle-exclamation fs-3 text-danger"></i>
+        <div th:text="${bankErrorMessage}">Có lỗi xảy ra!</div>
+    </div>
+
+    <!-- Alert nhắc nhở cập nhật ngân hàng nếu chưa có -->
+    <div th:if="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}" 
+         class="alert alert-warning border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="p-3 bg-white rounded-circle shadow-sm text-warning fs-3">
+                <i class="fa-solid fa-building-columns"></i>
+            </div>
+            <div>
+                <strong class="d-block text-dark">Bạn chưa thiết lập tài khoản ngân hàng nhận hoa hồng!</strong>
+                <span class="small text-muted">Vui lòng cập nhật ngân hàng và số tài khoản để sẵn sàng nhận thanh toán hoa hồng khi rút tiền.</span>
+            </div>
+        </div>
+        <button class="btn btn-warning btn-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
+            <i class="fa-solid fa-pen-to-square me-1"></i> Cập nhật ngân hàng ngay
+        </button>
+    </div>
+
     <!-- Alert trạng thái CTV -->
     <div th:if="${collaborator.status.name() == 'PENDING'}" class="alert alert-warning border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
         <i class="fa-solid fa-clock-rotate-left fs-3 text-warning"></i>
         <div>
             <strong class="d-block">Tài khoản Cộng tác viên đang chờ duyệt!</strong>
-            <span class="small">Quản trị viên đang kiểm tra thông tin ngân hàng của bạn. Bạn vẫn có thể chia sẻ link, hoa hồng sẽ được ghi nhận và có thể rút sau khi được phê duyệt.</span>
+            <span class="small">Quản trị viên đang kiểm tra thông tin tài khoản của bạn. Bạn vẫn có thể chia sẻ link, hoa hồng sẽ được ghi nhận và có thể rút sau khi được phê duyệt.</span>
         </div>
     </div>
 
@@ -133,12 +160,17 @@
 
                 <div class="col-lg-5">
                     <div class="p-3 bg-light rounded-4 border">
-                        <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-building-columns text-primary me-2"></i>Tài khoản nhận hoa hồng:</h6>
-                        <div class="small text-secondary mb-1">
-                            Ngân hàng: <strong class="text-dark" th:text="${collaborator.tenNganHang}">-</strong>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-building-columns text-primary me-2"></i>Tài khoản nhận hoa hồng:</h6>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
+                                <i class="fa-solid fa-pen-to-square me-1"></i> <span th:text="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()} ? 'Thiết lập' : 'Thay đổi'">Thay đổi</span>
+                            </button>
                         </div>
                         <div class="small text-secondary mb-1">
-                            Số tài khoản: <strong class="text-dark font-monospace" th:text="${collaborator.soTaiKhoanNhanHoaHong}">-</strong>
+                            Ngân hàng: <strong class="text-dark" th:text="${collaborator.tenNganHang ?: 'Chưa cập nhật'}">-</strong>
+                        </div>
+                        <div class="small text-secondary mb-1">
+                            Số tài khoản: <strong class="text-dark font-monospace" th:text="${collaborator.soTaiKhoanNhanHoaHong ?: 'Chưa cập nhật'}">-</strong>
                         </div>
                         <div class="small text-secondary">
                             Chủ tài khoản: <strong class="text-dark" th:text="${collaborator.user.fullName}">-</strong>
@@ -183,6 +215,46 @@
                     <small class="text-muted">Theo dõi tiến độ duyệt lệnh rút tiền của Quản trị viên</small>
                 </div>
             </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cập nhật thông tin ngân hàng -->
+<div class="modal fade" id="modalBankInfo" tabindex="-1" aria-labelledby="modalBankInfoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-primary text-white border-0 py-3">
+                <h5 class="modal-title fw-bold" id="modalBankInfoLabel">
+                    <i class="fa-solid fa-building-columns me-2"></i>Tài khoản ngân hàng nhận hoa hồng
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/cong-tac-vien/cap-nhat-ngan-hang}" method="post">
+                <input type="hidden" name="redirectPage" value="tong-quan">
+                <div class="modal-body p-4">
+                    <p class="small text-muted mb-3">
+                        Vui lòng nhập chính xác thông tin tài khoản ngân hàng chính chủ của bạn để nhận tiền hoa hồng khi rút tiền.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Tên ngân hàng thụ hưởng <span class="text-danger">*</span></label>
+                        <input type="text" name="tenNganHang" class="form-control" th:value="${collaborator.tenNganHang}" placeholder="VD: Vietcombank, Techcombank, MB Bank..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Số tài khoản ngân hàng <span class="text-danger">*</span></label>
+                        <input type="text" name="soTaiKhoanNhanHoaHong" class="form-control font-monospace fw-bold" th:value="${collaborator.soTaiKhoanNhanHoaHong}" placeholder="VD: 0123456789" required>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border">
+                        <small class="text-muted d-block">Tên chủ tài khoản thụ hưởng (theo họ tên tài khoản):</small>
+                        <strong class="text-dark" th:text="${collaborator.user.fullName}">-</strong>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Lưu thông tin
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
