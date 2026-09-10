@@ -63,4 +63,32 @@ class OtpServiceTest {
         // Single-use check: calling verify again should fail
         assertFalse(otpService.verifyOtp(testEmail, generatedCode), "OTP should not be reusable");
     }
+
+    @Test
+    void testVerifyOtpMaxFailedAttempts() throws Exception {
+        String testEmail = "fail@example.com";
+        otpService.sendOtp(testEmail, OtpChannel.EMAIL);
+
+        // Retrieve the generated code via reflection
+        Field otpStoreField = OtpServiceImpl.class.getDeclaredField("otpStore");
+        otpStoreField.setAccessible(true);
+        Map<?, ?> store = (Map<?, ?>) otpStoreField.get(otpService);
+        Object entry = store.get(testEmail);
+        assertNotNull(entry);
+
+        Field codeField = entry.getClass().getDeclaredField("code");
+        codeField.setAccessible(true);
+        String correctCode = (String) codeField.get(entry);
+
+        // Fail 4 times with incorrect code
+        for (int i = 0; i < 4; i++) {
+            assertFalse(otpService.verifyOtp(testEmail, "000000"));
+        }
+
+        // 5th failed attempt should invalidate OTP
+        assertFalse(otpService.verifyOtp(testEmail, "000000"));
+
+        // Now even correct code should fail because OTP was invalidated
+        assertFalse(otpService.verifyOtp(testEmail, correctCode));
+    }
 }
