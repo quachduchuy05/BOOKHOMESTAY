@@ -33,12 +33,16 @@ public class CustomerController {
     private final VietQrService vietQrService;
     private final ReviewService reviewService;
     private final FavoriteService favoriteService;
+    private final BookingHomeStay.BookingHomeStay.repository.RoomRepository roomRepository;
 
     @GetMapping("/dat-phong/moi")
     public String newBookingForm(@RequestParam Long roomId, Model model) {
         BookingRequest form = new BookingRequest();
         form.setRoomId(roomId);
+        form.setPaymentPolicy(BookingHomeStay.BookingHomeStay.entity.PaymentPolicy.PAY_AT_PROPERTY.name());
+        form.setPaymentMethod(null);
         model.addAttribute("bookingRequest", form);
+        roomRepository.findById(roomId).ifPresent(r -> model.addAttribute("room", r));
         return "khach-hang/dat-phong-form";
     }
 
@@ -96,6 +100,17 @@ public class CustomerController {
     public String cancel(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails currentUser) {
         bookingService.cancelBooking(id, currentUser.getId());
         return "redirect:/khach-hang/don-dat-phong";
+    }
+
+    @GetMapping("/don-dat-phong/{id}/thanh-toan")
+    public String payBooking(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
+        Booking booking = bookingService.getBookingForCustomer(id, currentUser.getId());
+        if (booking.getStatus() != BookingHomeStay.BookingHomeStay.entity.BookingStatus.PENDING_PAYMENT) {
+            return "redirect:/khach-hang/don-dat-phong";
+        }
+        model.addAttribute("booking", booking);
+        model.addAttribute("qrCodeUrl", vietQrService.buildQrUrl(booking));
+        return "khach-hang/dat-phong-thanh-cong";
     }
 
     // Danh sach homestay yeu thich cua khach hang

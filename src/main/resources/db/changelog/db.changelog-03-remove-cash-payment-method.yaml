@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 03-remove-cash-from-payment-method
+      author: antigravity
+      validCheckSum:
+        - "9:a60962e06629d3b11dc8ca8524c4d04b"
+        - "9:2ae30b1647dc1f08b8b4c4ee4eedb404"
+        - "ANY"
+      changes:
+        - sql:
+            comment: "Cho phep payment_method nhan NULL va cap nhat cac ban ghi cu CASH thanh NULL"
+            sql: "ALTER TABLE payments MODIFY COLUMN payment_method ENUM('VNPAY', 'MOMO', 'CASH', 'BANK_TRANSFER') NULL DEFAULT NULL"
+        - sql:
+            comment: "Chuyen cac gia tri CASH ve NULL"
+            sql: "UPDATE payments SET payment_method = NULL WHERE payment_method = 'CASH'"
+        - sql:
+            comment: "Loai bo gia tri CASH khoi kieu ENUM cua payment_method va them DIRECT cho thanh toan tai quay"
+            sql: "ALTER TABLE payments MODIFY COLUMN payment_method ENUM('VNPAY', 'MOMO', 'BANK_TRANSFER', 'DIRECT') NULL DEFAULT NULL"

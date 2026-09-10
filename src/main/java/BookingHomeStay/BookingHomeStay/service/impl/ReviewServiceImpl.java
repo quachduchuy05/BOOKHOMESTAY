@@ -41,7 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         // Kiem tra trang thai thanh toan: phai da thanh toan (PAID)
-        boolean isPaid = booking.getPayment() != null && booking.getPayment().getStatus() == PaymentStatus.PAID;
+        boolean isPaid = booking.isFullyPaid();
         if (!isPaid) {
             throw new IllegalStateException("Đơn đặt phòng cần được hoàn tất thanh toán trước khi gửi đánh giá.");
         }
@@ -82,7 +82,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (!b.getUser().getId().equals(userId)) return false;
 
         boolean isFinished = b.getStatus() == BookingStatus.COMPLETED || b.getStatus() == BookingStatus.CHECKED_OUT;
-        boolean isPaid = b.getPayment() != null && b.getPayment().getStatus() == PaymentStatus.PAID;
+        boolean isPaid = b.isFullyPaid();
 
         return isFinished && isPaid && !reviewRepository.existsByBookingId(bookingId);
     }

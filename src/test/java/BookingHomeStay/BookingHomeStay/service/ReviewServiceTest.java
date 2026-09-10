@@ -52,7 +52,8 @@ class ReviewServiceTest {
                 .id(100L)
                 .user(user)
                 .status(BookingStatus.COMPLETED)
-                .payment(payment)
+                .finalAmount(BigDecimal.valueOf(1000000))
+                .payments(new java.util.ArrayList<>(List.of(payment)))
                 .details(List.of(detail))
                 .build();
     }
@@ -83,7 +84,7 @@ class ReviewServiceTest {
 
     @Test
     void testCreateReviewFailsWhenUnpaid() {
-        booking.getPayment().setStatus(PaymentStatus.UNPAID);
+        booking.getPayments().get(0).setStatus(PaymentStatus.UNPAID);
         when(bookingRepository.findById(100L)).thenReturn(Optional.of(booking));
 
         ReviewRequest req = ReviewRequest.builder()

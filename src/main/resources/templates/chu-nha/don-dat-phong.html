@@ -55,14 +55,21 @@
                         <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.finalAmount,0,'POINT',0,'COMMA')} + ' đ'">1,000,000 đ</span>
                     </td>
                     <td>
-                        <span th:if="${b.payment != null and b.payment.status.name() == 'PAID'}" 
+                        <span th:if="${b.isFullyPaid()}" 
                               class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
-                            <i class="fa-solid fa-circle-check me-1"></i>Đã thanh toán
+                            <i class="fa-solid fa-circle-check me-1"></i>Đã thanh toán đủ
                         </span>
-                        <span th:unless="${b.payment != null and b.payment.status.name() == 'PAID'}" 
-                              class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">
-                            <i class="fa-solid fa-clock me-1"></i>Chưa thanh toán
-                        </span>
+                        <div th:unless="${b.isFullyPaid()}">
+                            <span th:if="${b.status.name() == 'PENDING_PAYMENT'}" class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 mb-1">
+                                <i class="fa-solid fa-clock me-1"></i>Khách chờ thanh toán
+                            </span>
+                            <span th:if="${b.paymentPolicy.name() == 'PAY_AT_PROPERTY' or (b.status.name() != 'PENDING_PAYMENT' and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED')}" class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 mb-1">
+                                <i class="fa-solid fa-building-user me-1"></i>Thu tại quầy
+                            </span>
+                            <div class="small text-muted mt-1" th:if="${b.remainingBalance > 0}">
+                                Nợ: <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.remainingBalance,0,'POINT',0,'COMMA')} + 'đ'"></span>
+                            </div>
+                        </div>
                     </td>
                     <td>
                         <span class="badge" th:classappend="'badge-status-' + ${b.status}" th:text="${b.status}">PENDING</span>
@@ -97,7 +104,7 @@
                         </form>
 
                         <!-- Xác nhận đã thanh toán nếu chưa PAID -->
-                        <form th:if="${b.payment != null and b.payment.status.name() != 'PAID' and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED'}"
+                        <form th:if="${!b.isFullyPaid() and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED'}"
                               th:action="@{/chu-nha/don-dat-phong/{id}/thanh-toan(id=${b.id})}" method="post" class="d-inline ms-1">
                             <button class="btn btn-sm btn-outline-success rounded-pill px-2" title="Xác nhận khách đã thanh toán">
                                 <i class="fa-solid fa-money-bill-wave me-1"></i>Đã thu tiền

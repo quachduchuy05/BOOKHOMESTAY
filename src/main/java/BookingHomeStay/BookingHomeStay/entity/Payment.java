@@ -12,12 +12,17 @@ public class Payment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booking_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
+    private PaymentPhase paymentPhase = PaymentPhase.FULL_PAYMENT;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
     private PaymentMethod paymentMethod;
 
     private String transactionCode;

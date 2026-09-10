@@ -81,6 +81,8 @@ public class BookingServiceImpl implements BookingService {
         // ===== TASK 4: xac dinh nguon goc don (truc tiep / qua CTV) =====
         BookingSource source = BookingSource.DIRECT;
         String matchedReferralCode = null;
+        // Tam thoi bo qua logic lien quan den CTV theo yeu cau
+        /*
         if (request.getReferralCode() != null && !request.getReferralCode().isBlank()) {
             var ctv = collaboratorRepository.findByMaGioiThieuAndStatus(
                     request.getReferralCode().trim(), CollaboratorStatus.APPROVED);
@@ -89,6 +91,25 @@ public class BookingServiceImpl implements BookingService {
                 matchedReferralCode = ctv.get().getMaGioiThieu();
             }
         }
+        */
+
+        PaymentPolicy policy;
+        try { policy = PaymentPolicy.valueOf(request.getPaymentPolicy()); }
+        catch (Exception e) { policy = PaymentPolicy.PAY_AT_PROPERTY; }
+
+        BigDecimal requiredDeposit = BigDecimal.ZERO;
+        BigDecimal remainingBalance = finalAmount;
+
+        if (policy == PaymentPolicy.FULL_PREPAYMENT) {
+            requiredDeposit = finalAmount;
+            remainingBalance = BigDecimal.ZERO;
+        } else if (policy == PaymentPolicy.DEPOSIT) {
+            requiredDeposit = finalAmount.multiply(new BigDecimal("0.30"));
+            remainingBalance = finalAmount.subtract(requiredDeposit);
+        }
+
+        BookingStatus initialStatus = (requiredDeposit.compareTo(BigDecimal.ZERO) > 0) ? BookingStatus.PENDING_PAYMENT : BookingStatus.CONFIRMED;
+        LocalDateTime expiredAt = (initialStatus == BookingStatus.PENDING_PAYMENT) ? LocalDateTime.now().plusHours(2) : null;
 
         Booking booking = Booking.builder()
                 .bookingCode("BK" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
@@ -102,9 +123,13 @@ public class BookingServiceImpl implements BookingService {
                 .serviceFee(serviceFee)
                 .finalAmount(finalAmount)
                 .note(request.getNote())
-                .status(BookingStatus.PENDING)
+                .status(initialStatus)
                 .source(source)
                 .collaboratorCode(matchedReferralCode)
+                .paymentPolicy(policy)
+                .requiredDeposit(requiredDeposit)
+                .remainingBalance(remainingBalance)
+                .expiredAt(expiredAt)
                 .build();
 
         BookingDetail detail = BookingDetail.builder()
@@ -119,22 +144,15 @@ public class BookingServiceImpl implements BookingService {
         booking.getDetails().add(detail);
         booking = bookingRepository.save(booking);
 
+        // Tam thoi bo qua tao hoa hong cho CTV theo yeu cau
+        /*
         if (matchedReferralCode != null) {
             collaboratorService.createCommissionForBooking(booking);
         }
+        */
 
-        PaymentMethod method;
-        try { method = PaymentMethod.valueOf(request.getPaymentMethod()); }
-        catch (Exception e) { method = PaymentMethod.CASH; }
-
-        Payment payment = Payment.builder()
-                .booking(booking)
-                .paymentMethod(method)
-                .amount(finalAmount)
-                .status(PaymentStatus.UNPAID)
-                .build();
-        paymentRepository.save(payment);
-        booking.setPayment(payment);
+        // Khong tao Payment tu dong nua, Payment se tao khi thanh toan VNPAY thanh cong hoac khi thanh toan tai quay
+        // TODO: Goi API VNPAY tao URL thanh toan va tra ve cho Frontend
 
         return booking;
     }
@@ -151,7 +169,9 @@ public class BookingServiceImpl implements BookingService {
         if (!booking.getUser().getId().equals(userId)) {
             throw new OwnershipException("Ban khong co quyen huy don nay");
         }
-        if (booking.getStatus() != BookingStatus.PENDING && booking.getStatus() != BookingStatus.CONFIRMED) {
+        if (booking.getStatus() != BookingStatus.PENDING 
+                && booking.getStatus() != BookingStatus.PENDING_PAYMENT 
+                && booking.getStatus() != BookingStatus.CONFIRMED) {
             throw new IllegalStateException("Khong the huy don o trang thai hien tai");
         }
         booking.setStatus(BookingStatus.CANCELLED);
@@ -193,7 +213,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = getForHostOrThrow(bookingId, hostUserId);
         
         // Neu da thanh toan -> Hoan thanh COMPLETED, chua thanh toan -> CHECKED_OUT
-        if (booking.getPayment() != null && booking.getPayment().getStatus() == PaymentStatus.PAID) {
+        if (booking.isFullyPaid()) {
             booking.setStatus(BookingStatus.COMPLETED);
         } else {
             booking.setStatus(BookingStatus.CHECKED_OUT);
@@ -217,21 +237,20 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public void markPaymentPaid(Long bookingId, Long hostUserId) {
         Booking booking = getForHostOrThrow(bookingId, hostUserId);
-        Payment payment = booking.getPayment();
-        if (payment == null) {
-            payment = Payment.builder()
-                    .booking(booking)
-                    .paymentMethod(PaymentMethod.CASH)
-                    .amount(booking.getFinalAmount())
-                    .status(PaymentStatus.PAID)
-                    .paymentTime(LocalDateTime.now())
-                    .build();
-        } else {
-            payment.setStatus(PaymentStatus.PAID);
-            payment.setPaymentTime(LocalDateTime.now());
+        if (booking.isFullyPaid()) {
+            return; // Da thanh toan du
         }
-        paymentRepository.save(payment);
-        booking.setPayment(payment);
+
+        Payment remainingPayment = Payment.builder()
+                .booking(booking)
+                .paymentPhase(PaymentPhase.REMAINING)
+                .paymentMethod(PaymentMethod.DIRECT)
+                .amount(booking.getRemainingBalance())
+                .status(PaymentStatus.PAID)
+                .paymentTime(LocalDateTime.now())
+                .build();
+        paymentRepository.save(remainingPayment);
+        booking.getPayments().add(remainingPayment);
 
         // Neu don da CHECKED_OUT ma gio thanh toan xong thi chuyen sang COMPLETED
         if (booking.getStatus() == BookingStatus.CHECKED_OUT) {
@@ -245,10 +264,17 @@ public class BookingServiceImpl implements BookingService {
     public void completeBooking(Long bookingId, Long hostUserId) {
         Booking booking = getForHostOrThrow(bookingId, hostUserId);
         booking.setStatus(BookingStatus.COMPLETED);
-        if (booking.getPayment() != null) {
-            booking.getPayment().setStatus(PaymentStatus.PAID);
-            booking.getPayment().setPaymentTime(LocalDateTime.now());
-            paymentRepository.save(booking.getPayment());
+        if (!booking.isFullyPaid()) {
+            Payment remainingPayment = Payment.builder()
+                    .booking(booking)
+                    .paymentPhase(PaymentPhase.REMAINING)
+                    .paymentMethod(PaymentMethod.DIRECT)
+                    .amount(booking.getRemainingBalance())
+                    .status(PaymentStatus.PAID)
+                    .paymentTime(LocalDateTime.now())
+                    .build();
+            paymentRepository.save(remainingPayment);
+            booking.getPayments().add(remainingPayment);
         }
         bookingRepository.save(booking);
     }
@@ -256,6 +282,15 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getAllBookings() {
         return bookingRepository.findAll();
+    }
+
+    @Override
+    public Booking getBookingForCustomer(Long bookingId, Long customerUserId) {
+        Booking booking = findOrThrow(bookingId);
+        if (!booking.getUser().getId().equals(customerUserId)) {
+            throw new OwnershipException("Bạn không có quyền truy cập đơn này");
+        }
+        return booking;
     }
 
     private Booking findOrThrow(Long id) {
