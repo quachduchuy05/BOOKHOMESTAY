@@ -47,4 +47,15 @@ public interface AdminService {
     // Task 1: Admin khoa/mo khoa tai khoan nguoi dung (khong xoa cung de giu lich
     // su don hang)
     void toggleUserLock(Long userId);
+
+    // Quan ly giao dich thanh toan & doi soat
+    List<BookingHomeStay.BookingHomeStay.entity.Payment> getPayments(
+            BookingHomeStay.BookingHomeStay.entity.PaymentStatus status,
+            BookingHomeStay.BookingHomeStay.entity.PaymentMethod method,
+            java.time.LocalDate fromDate,
+            java.time.LocalDate toDate,
+            String keyword
+    );
+
+    void reconcilePayment(Long paymentId, String adminUsername);
 }

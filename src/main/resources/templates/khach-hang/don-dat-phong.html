@@ -61,27 +61,50 @@
                             <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.finalAmount,0,'POINT',0,'COMMA')} + ' VNĐ'">1,200,000 VNĐ</span>
                         </td>
                         <td>
-                            <span th:if="${b.payment != null and b.payment.status.name() == 'PAID'}" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
-                                <i class="fa-solid fa-circle-check me-1"></i>Đã thanh toán
+                            <span th:if="${b.isFullyPaid()}" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                <i class="fa-solid fa-circle-check me-1"></i>Đã thanh toán đủ
                             </span>
-                            <span th:unless="${b.payment != null and b.payment.status.name() == 'PAID'}" class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">
-                                <i class="fa-solid fa-clock me-1"></i>Chưa thanh toán
-                            </span>
+                            <div th:unless="${b.isFullyPaid()}">
+                                <span th:if="${b.status.name() == 'PENDING_PAYMENT'}" class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 mb-1">
+                                    <i class="fa-solid fa-clock me-1"></i>Chờ thanh toán online
+                                </span>
+                                <span th:if="${b.paymentPolicy.name() == 'PAY_AT_PROPERTY'}" class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 mb-1">
+                                    <i class="fa-solid fa-building-user me-1"></i>Thanh toán tại quầy
+                                </span>
+                                <span th:if="${b.paymentPolicy.name() == 'DEPOSIT' and b.status.name() != 'PENDING_PAYMENT' and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED'}" class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 mb-1">
+                                    <i class="fa-solid fa-circle-check me-1"></i>Đã cọc 30%
+                                </span>
+                                <div class="small text-muted mt-1" th:if="${b.remainingBalance > 0}">
+                                    Còn lại trả tại quầy: <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.remainingBalance,0,'POINT',0,'COMMA')} + 'đ'"></span>
+                                </div>
+                                <div th:if="${b.status.name() == 'PENDING_PAYMENT' and b.expiredAt != null}" 
+                                     class="booking-row-countdown small text-danger font-monospace mt-1" 
+                                     th:data-expired-at="${#temporals.format(b.expiredAt, 'yyyy-MM-dd''T''HH:mm:ss')}">
+                                    <i class="fa-solid fa-stopwatch me-1"></i>Còn: <span class="timer-display fw-bold">--:--:--</span>
+                                </div>
+                            </div>
                         </td>
                         <td>
                             <span class="badge" th:classappend="'badge-status-' + ${b.status}" th:text="${b.status}">PENDING</span>
                         </td>
                         <td class="text-end">
-                            <!-- Nut Huy don cho PENDING / CONFIRMED -->
-                            <form th:if="${b.status.name() == 'PENDING' or b.status.name() == 'CONFIRMED'}"
+                            <!-- Nut Huy don cho PENDING / PENDING_PAYMENT / CONFIRMED -->
+                            <form th:if="${b.status.name() == 'PENDING' or b.status.name() == 'PENDING_PAYMENT' or b.status.name() == 'CONFIRMED'}"
                                   th:action="@{/khach-hang/don-dat-phong/{id}/huy(id=${b.id})}" method="post" class="d-inline">
                                 <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn đặt phòng này?')">
                                     <i class="fa-solid fa-xmark me-1"></i> Hủy đơn
                                 </button>
                             </form>
+                            
+                            <!-- Nut Thanh toan ngay cho PENDING_PAYMENT -->
+                            <a th:if="${b.status.name() == 'PENDING_PAYMENT'}"
+                               th:href="@{/khach-hang/don-dat-phong/{id}/thanh-toan(id=${b.id})}"
+                               class="btn btn-sm btn-primary rounded-pill px-3 ms-1">
+                                <i class="fa-solid fa-credit-card me-1"></i> Thanh toán ngay
+                            </a>
 
                             <!-- Khối Đánh giá cho đơn HOÀN THÀNH + ĐÃ THANH TOÁN -->
-                            <div th:if="${(b.status.name() == 'COMPLETED' or b.status.name() == 'CHECKED_OUT') and b.payment != null and b.payment.status.name() == 'PAID'}">
+                            <div th:if="${(b.status.name() == 'COMPLETED' or b.status.name() == 'CHECKED_OUT') and b.isFullyPaid()}" class="mt-2">
                                 <!-- Đã đánh giá -->
                                 <div th:if="${reviewsMap != null and reviewsMap.containsKey(b.id)}">
                                     <span class="badge bg-warning-subtle text-warning border border-warning-subtle py-2 px-3 rounded-pill fw-semibold">
@@ -101,7 +124,7 @@
                                 </div>
                             </div>
 
-                            <span th:unless="${b.status.name() == 'PENDING' or b.status.name() == 'CONFIRMED' or ((b.status.name() == 'COMPLETED' or b.status.name() == 'CHECKED_OUT') and b.payment != null and b.payment.status.name() == 'PAID')}" class="text-muted small">--</span>
+                            <span th:unless="${b.status.name() == 'PENDING' or b.status.name() == 'PENDING_PAYMENT' or b.status.name() == 'CONFIRMED' or ((b.status.name() == 'COMPLETED' or b.status.name() == 'CHECKED_OUT') and b.isFullyPaid())}" class="text-muted small">--</span>
                         </td>
                     </tr>
                 </tbody>
@@ -212,6 +235,38 @@ document.addEventListener('DOMContentLoaded', () => {
             setRating(val);
         });
     });
+
+    // Countdown timer for booking rows
+    const countdownRows = document.querySelectorAll('.booking-row-countdown');
+    if (countdownRows.length > 0) {
+        function updateRowTimers() {
+            const now = new Date().getTime();
+            countdownRows.forEach(row => {
+                const expStr = row.getAttribute('data-expired-at');
+                if (!expStr) return;
+                const target = new Date(expStr).getTime();
+                const diff = target - now;
+                const display = row.querySelector('.timer-display');
+                if (diff <= 0) {
+                    if (display) display.textContent = "00:00:00 (Hết hạn)";
+                    row.classList.remove('text-danger');
+                    row.classList.add('text-muted');
+                } else {
+                    const h = Math.floor(diff / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+                    if (display) {
+                        display.textContent = 
+                            String(h).padStart(2, '0') + ':' +
+                            String(m).padStart(2, '0') + ':' +
+                            String(s).padStart(2, '0');
+                    }
+                }
+            });
+        }
+        updateRowTimers();
+        setInterval(updateRowTimers, 1000);
+    }
 });
 </script>
 

@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: 05-create-room-availability
+      author: antigravity
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: room_availability
+      changes:
+        - createTable:
+            tableName: room_availability
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: room_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_room_avail_room
+                    references: rooms(id)
+              - column:
+                  name: date
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: AVAILABLE
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: room_availability
+            columnNames: room_id, date
+            constraintName: uk_room_date
+
+  - changeSet:
+      id: 05-add-payment-reconciliation-columns
+      author: antigravity
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: payments
+                columnName: is_reconciled
+      changes:
+        - addColumn:
+            tableName: payments
+            columns:
+              - column:
+                  name: is_reconciled
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: reconciled_at
+                  type: DATETIME
+              - column:
+                  name: reconciled_by
+                  type: VARCHAR(100)

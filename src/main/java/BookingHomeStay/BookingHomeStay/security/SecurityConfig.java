@@ -35,11 +35,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/dang-ky/gui-otp"))
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/dang-ky/gui-otp", "/quen-mat-khau/gui-otp"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/", "/trang-chu", "/tim-kiem", "/tim-kiem/**", "/homestay/**", "/dang-nhap", "/dang-ky",
-                    "/dang-ky/gui-otp", "/css/**", "/js/**", "/images/**"
+                    "/dang-ky/gui-otp", "/quen-mat-khau", "/quen-mat-khau/**", "/dat-lai-mat-khau", "/dat-lai-mat-khau/**",
+                    "/css/**", "/js/**", "/images/**"
                 ).permitAll()
                 // Cong tac vien dung chung khong gian voi Chu nha (ca hai deu "ban hang phong")
                 .requestMatchers("/khach-hang/**").hasAnyRole("CUSTOMER", "COLLABORATOR")

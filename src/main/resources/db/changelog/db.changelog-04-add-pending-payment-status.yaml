@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 04-add-pending-payment-to-booking-status
+      author: antigravity
+      changes:
+        - sql:
+            comment: "Them PENDING_PAYMENT vao ENUM status cua bang bookings"
+            sql: "ALTER TABLE bookings MODIFY COLUMN status ENUM('PENDING','PENDING_PAYMENT','CONFIRMED','CHECKED_IN','CHECKED_OUT','COMPLETED','CANCELLED','REJECTED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'PENDING'"

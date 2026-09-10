@@ -41,8 +41,14 @@ public class VietQrServiceImpl implements VietQrService {
 
     @Override
     public String buildQrUrl(Booking booking) {
-        BigDecimal amount = booking.getFinalAmount() != null ? booking.getFinalAmount() : BigDecimal.ZERO;
-        String noiDung = "Thanh toan don " + booking.getBookingCode();
+        BigDecimal amount = (booking.getRequiredDeposit() != null && booking.getRequiredDeposit().compareTo(BigDecimal.ZERO) > 0)
+                ? booking.getRequiredDeposit()
+                : (booking.getFinalAmount() != null ? booking.getFinalAmount() : BigDecimal.ZERO);
+
+        String prefix = (booking.getPaymentPolicy() != null && booking.getPaymentPolicy().name().equals("DEPOSIT")) 
+                ? "Coc don " 
+                : "Thanh toan don ";
+        String noiDung = prefix + booking.getBookingCode();
 
         String encodedAccountName = URLEncoder.encode(accountName, StandardCharsets.UTF_8);
         String encodedNoiDung = URLEncoder.encode(noiDung, StandardCharsets.UTF_8);

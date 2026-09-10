@@ -55,6 +55,19 @@ public class Booking {
     private String note;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private BookingHomeStay.BookingHomeStay.entity.PaymentPolicy paymentPolicy = BookingHomeStay.BookingHomeStay.entity.PaymentPolicy.PAY_AT_PROPERTY;
+
+    @Column(nullable = false, precision = 13, scale = 2)
+    @Builder.Default
+    private BigDecimal requiredDeposit = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 13, scale = 2)
+    @Builder.Default
+    private BigDecimal remainingBalance = BigDecimal.ZERO;
+
+    @Enumerated(EnumType.STRING)
     @Builder.Default
     private BookingHomeStay.BookingHomeStay.entity.BookingStatus status = BookingHomeStay.BookingHomeStay.entity.BookingStatus.PENDING;
 
@@ -62,11 +75,26 @@ public class Booking {
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookingHomeStay.BookingHomeStay.entity.BookingDetail> details = new ArrayList<>();
 
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
-    private BookingHomeStay.BookingHomeStay.entity.Payment payment;
+    @Builder.Default
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingHomeStay.BookingHomeStay.entity.Payment> payments = new ArrayList<>();
+
+    public boolean isFullyPaid() {
+        if (payments == null || payments.isEmpty()) return false;
+        BigDecimal paidAmount = payments.stream()
+                .filter(p -> p.getStatus() == BookingHomeStay.BookingHomeStay.entity.PaymentStatus.PAID)
+                .map(BookingHomeStay.BookingHomeStay.entity.Payment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return paidAmount.compareTo(finalAmount) >= 0;
+    }
 
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    /**
+     * Thời hạn thanh toán (giữ phòng 2 tiếng). Áp dụng cho đơn PENDING_PAYMENT.
+     */
+    private LocalDateTime expiredAt;
 
     // ===== TASK 4: nguon goc don hang, dung ve bieu do tron o Dashboard Admin
     // =====

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('Đặt lại mật khẩu')}"></head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<div class="auth-wrapper">
+    <div class="auth-card-modern">
+        <div class="row g-0">
+            <!-- Side Image / Brand Showcase -->
+            <div class="col-lg-5 d-none d-lg-block auth-side-image">
+                <div class="mb-4">
+                    <span class="badge bg-white text-dark px-3 py-2 fw-bold mb-3"><i class="fa-solid fa-key text-warning me-1"></i>Bảo mật</span>
+                    <h3 class="fw-bold text-white mb-2">Tạo mật khẩu mới</h3>
+                    <p class="small text-white-50">Nhập mã OTP 6 số đã được gửi tới email và thiết lập mật khẩu mới an toàn cho tài khoản của bạn.</p>
+                </div>
+                <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px);">
+                    <small class="d-block text-white mb-1"><i class="fa-solid fa-circle-info me-1"></i>Yêu cầu mật khẩu:</small>
+                    <small class="d-block text-white-50">• Tối thiểu 6 ký tự</small>
+                    <small class="d-block text-white-50">• Nên kết hợp chữ, số và ký tự đặc biệt</small>
+                </div>
+            </div>
+
+            <!-- Reset Password Form -->
+            <div class="col-lg-7">
+                <div class="auth-form-wrap">
+                    <div class="mb-4">
+                        <h3 class="fw-bold mb-1">Đặt lại mật khẩu</h3>
+                        <p class="text-muted small">Nhập mã xác thực OTP và mật khẩu mới của bạn</p>
+                    </div>
+
+                    <!-- Alerts -->
+                    <div class="alert alert-success py-2 small d-flex align-items-center gap-2" th:if="${successMessage}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span th:text="${successMessage}"></span>
+                    </div>
+                    <div class="alert alert-danger py-2 small d-flex align-items-center gap-2" th:if="${errorMessage}">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span th:text="${errorMessage}"></span>
+                    </div>
+
+                    <form th:action="@{/dat-lai-mat-khau}" th:object="${resetPasswordForm}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Địa chỉ Email</label>
+                            <div class="input-icon-group">
+                                <i class="fa-regular fa-envelope input-icon"></i>
+                                <input type="email" class="form-control" th:field="*{email}" placeholder="name@example.com" required readonly>
+                            </div>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Mã xác thực OTP (6 chữ số)</label>
+                            <div class="input-icon-group">
+                                <i class="fa-solid fa-shield-halved input-icon"></i>
+                                <input type="text" class="form-control" th:field="*{otpCode}" placeholder="Nhập 6 số OTP" maxlength="6" required style="letter-spacing: 4px; font-weight: bold; font-size: 1.1rem;">
+                            </div>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('otpCode')}" th:errors="*{otpCode}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Mật khẩu mới</label>
+                            <div class="input-icon-group">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="newPass" class="form-control" th:field="*{newPassword}" placeholder="Tối thiểu 6 ký tự" required>
+                                <button type="button" class="btn-toggle-eye" onclick="togglePass('newPass', this)">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">Xác nhận mật khẩu mới</label>
+                            <div class="input-icon-group">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="confirmPass" class="form-control" th:field="*{confirmPassword}" placeholder="Nhập lại mật khẩu mới" required>
+                                <button type="button" class="btn-toggle-eye" onclick="togglePass('confirmPass', this)">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+                        </div>
+
+                        <button class="btn btn-primary btn-pill w-100 py-2 fw-bold mb-3" type="submit">
+                            <i class="fa-solid fa-check-circle me-1"></i> Xác nhận đổi mật khẩu
+                        </button>
+                    </form>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top small">
+                        <a th:href="@{/quen-mat-khau}" class="text-muted text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i>Gửi lại mã OTP</a>
+                        <a th:href="@{/dang-nhap}" class="fw-bold text-danger text-decoration-none">Đăng nhập</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{dung-chung/layout :: footer}"></div>
+<script>
+    function togglePass(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
+</body>
+</html>

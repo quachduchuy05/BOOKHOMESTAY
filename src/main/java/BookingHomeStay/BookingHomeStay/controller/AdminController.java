@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 /**
  * Toan bo chuc nang danh cho Quan tri vien (ADMIN).
@@ -251,5 +252,58 @@ public class AdminController {
     public String bookings(Model model) {
         model.addAttribute("bookings", bookingService.getAllBookings());
         return "quan-tri/don-dat-phong";
+    }
+
+    // ================= QUAN LY GIAO DICH THANH TOAN (task 2.4) =================
+
+    @GetMapping("/giao-dich")
+    public String payments(
+            @RequestParam(required = false) BookingHomeStay.BookingHomeStay.entity.PaymentStatus status,
+            @RequestParam(required = false) BookingHomeStay.BookingHomeStay.entity.PaymentMethod method,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fromDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate toDate,
+            @RequestParam(required = false) String keyword,
+            Model model) {
+
+        List<BookingHomeStay.BookingHomeStay.entity.Payment> payments = adminService.getPayments(status, method, fromDate, toDate, keyword);
+
+        java.math.BigDecimal totalPaid = payments.stream()
+                .filter(p -> p.getStatus() == BookingHomeStay.BookingHomeStay.entity.PaymentStatus.PAID)
+                .map(BookingHomeStay.BookingHomeStay.entity.Payment::getAmount)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+        java.math.BigDecimal totalPending = payments.stream()
+                .filter(p -> p.getStatus() != BookingHomeStay.BookingHomeStay.entity.PaymentStatus.PAID)
+                .map(BookingHomeStay.BookingHomeStay.entity.Payment::getAmount)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+        long reconciledCount = payments.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getIsReconciled()))
+                .count();
+
+        model.addAttribute("payments", payments);
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("selectedMethod", method);
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("totalPaid", totalPaid);
+        model.addAttribute("totalPending", totalPending);
+        model.addAttribute("reconciledCount", reconciledCount);
+
+        return "quan-tri/giao-dich";
+    }
+
+    @PostMapping("/giao-dich/{id}/doi-soat")
+    public String reconcilePayment(@PathVariable Long id,
+                                   @org.springframework.security.core.annotation.AuthenticationPrincipal BookingHomeStay.BookingHomeStay.security.CustomUserDetails currentUser,
+                                   org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            adminService.reconcilePayment(id, currentUser != null ? currentUser.getUsername() : "Admin");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã đối soát giao dịch #" + id + " thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/quan-tri/giao-dich";
     }
 }

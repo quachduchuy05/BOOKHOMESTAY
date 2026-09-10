@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('Quản lý giao dịch thanh toán')}"></head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<div class="container py-4">
+    <!-- Flash Messages -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a th:href="@{/quan-tri/tong-quan}" class="text-decoration-none text-muted">Bảng điều khiển</a></li>
+                    <li class="breadcrumb-item active text-danger" aria-current="page">Giao dịch thanh toán</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold m-0"><i class="fa-solid fa-money-bill-wave text-warning me-2"></i>Quản Lý & Đối Soát Giao Dịch</h3>
+            <p class="text-muted small m-0">Theo dõi toàn bộ các luồng thanh toán (VietQR, Trực tiếp), đối soát tiền cọc và tiền phòng</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white">
+                <span class="text-muted small fw-semibold">Tổng giao dịch</span>
+                <h3 class="fw-bold text-dark mt-1 mb-0" th:text="${payments.size()}">0</h3>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white">
+                <span class="text-muted small fw-semibold">Doanh thu đã thu</span>
+                <h3 class="fw-bold text-success mt-1 mb-0" th:text="${#numbers.formatDecimal(totalPaid, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</h3>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white">
+                <span class="text-muted small fw-semibold">Chờ thanh toán</span>
+                <h3 class="fw-bold text-warning-emphasis mt-1 mb-0" th:text="${#numbers.formatDecimal(totalPending, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</h3>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 rounded-4 shadow-sm p-3 bg-white">
+                <span class="text-muted small fw-semibold">Đã đối soát</span>
+                <h3 class="fw-bold text-primary mt-1 mb-0" th:text="${reconciledCount}">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="card border-0 rounded-4 shadow-sm p-4 mb-4 bg-white">
+        <form th:action="@{/quan-tri/giao-dich}" method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted">Tìm kiếm mã đơn / mã GD / khách</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                    <input type="text" name="keyword" th:value="${keyword}" class="form-control border-start-0" placeholder="Nhập từ khóa...">
+                </div>
+            </div>
+
+            <div class="col-md-2 col-6">
+                <label class="form-label small fw-semibold text-muted">Trạng thái thanh toán</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="PAID" th:selected="${selectedStatus?.name() == 'PAID'}">Đã thanh toán (PAID)</option>
+                    <option value="UNPAID" th:selected="${selectedStatus?.name() == 'UNPAID'}">Chưa thanh toán (UNPAID)</option>
+                    <option value="PENDING" th:selected="${selectedStatus?.name() == 'PENDING'}">Đang xử lý (PENDING)</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 col-6">
+                <label class="form-label small fw-semibold text-muted">Phương thức</label>
+                <select name="method" class="form-select form-select-sm">
+                    <option value="">-- Tất cả phương thức --</option>
+                    <option value="VIETQR" th:selected="${selectedMethod?.name() == 'VIETQR'}">VietQR (Ngân hàng)</option>
+                    <option value="DIRECT" th:selected="${selectedMethod?.name() == 'DIRECT'}">Tại chỗ / Tiền mặt</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 col-6">
+                <label class="form-label small fw-semibold text-muted">Từ ngày</label>
+                <input type="date" name="fromDate" th:value="${fromDate}" class="form-control form-control-sm">
+            </div>
+
+            <div class="col-md-2 col-6">
+                <label class="form-label small fw-semibold text-muted">Đến ngày</label>
+                <input type="date" name="toDate" th:value="${toDate}" class="form-control form-control-sm">
+            </div>
+
+            <div class="col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100 rounded-3" title="Tìm kiếm">
+                    <i class="fa-solid fa-filter"></i> Lọc
+                </button>
+                <a th:href="@{/quan-tri/giao-dich}" class="btn btn-light btn-sm rounded-3" title="Đặt lại">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Payments Table -->
+    <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-muted">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Chỗ nghỉ</th>
+                        <th>Số tiền</th>
+                        <th>Giai đoạn</th>
+                        <th>Phương thức</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái</th>
+                        <th>Đối soát</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="small">
+                    <tr th:if="${payments.isEmpty()}">
+                        <td colspan="11" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-receipt fs-1 text-black-50 mb-3 d-block"></i>
+                            Chưa có giao dịch thanh toán nào phù hợp với điều kiện tìm kiếm.
+                        </td>
+                    </tr>
+                    <tr th:each="p : ${payments}">
+                        <td class="ps-4 fw-bold" th:text="'#' + ${p.id}">#1</td>
+                        <td>
+                            <span class="fw-semibold text-dark" th:text="${p.booking?.bookingCode}">BK123456</span>
+                            <div th:if="${p.transactionCode}" class="text-muted" style="font-size: 0.75rem;" th:text="${p.transactionCode}">TX98765</div>
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark" th:text="${p.booking?.customerName}">Nguyễn Văn B</div>
+                            <div class="text-muted" th:text="${p.booking?.customerPhone}">0912345678</div>
+                        </td>
+                        <td>
+                            <span class="fw-semibold text-dark" th:text="${p.booking?.details[0]?.room?.homestay?.name}">Homestay Đà Lạt</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(p.amount, 0, 'POINT', 0, 'COMMA')} + ' đ'">500.000 đ</span>
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill bg-light text-dark border" 
+                                  th:text="${p.paymentPhase?.name() == 'DEPOSIT' ? 'Đặt cọc' : (p.paymentPhase?.name() == 'REMAINING' ? 'Phần còn lại' : 'Toàn bộ')}">Đặt cọc</span>
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill"
+                                  th:classappend="${p.paymentMethod?.name() == 'VIETQR' ? 'bg-primary-subtle text-primary' : 'bg-secondary-subtle text-secondary'}"
+                                  th:text="${p.paymentMethod?.name() == 'VIETQR' ? 'VietQR' : (p.paymentMethod?.name() == 'DIRECT' ? 'Tại quầy' : 'Chưa chọn')}">VietQR</span>
+                        </td>
+                        <td>
+                            <span th:if="${p.paymentTime != null}" th:text="${#temporals.format(p.paymentTime, 'dd/MM/yyyy HH:mm')}">10/09/2026 14:30</span>
+                            <span th:if="${p.paymentTime == null}" class="text-muted">-</span>
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill px-2 py-1"
+                                  th:classappend="${p.status?.name() == 'PAID' ? 'bg-success' : (p.status?.name() == 'PENDING' ? 'bg-warning text-dark' : 'bg-secondary')}"
+                                  th:text="${p.status?.name() == 'PAID' ? 'Đã thanh toán' : (p.status?.name() == 'PENDING' ? 'Đang xử lý' : 'Chưa trả')}">Đã thanh toán</span>
+                        </td>
+                        <td>
+                            <span th:if="${p.isReconciled}" class="badge bg-success-subtle text-success rounded-pill px-2 py-1">
+                                <i class="fa-solid fa-circle-check me-1"></i>Đã đối soát
+                            </span>
+                            <span th:if="${!p.isReconciled}" class="badge bg-warning-subtle text-warning-emphasis rounded-pill px-2 py-1">
+                                <i class="fa-solid fa-clock me-1"></i>Chưa đối soát
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-inline-flex gap-1">
+                                <form th:if="${!p.isReconciled}" th:action="@{/quan-tri/giao-dich/{id}/doi-soat(id=${p.id})}" method="post" class="d-inline m-0">
+                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2" title="Xác nhận đối soát">
+                                        <i class="fa-solid fa-check me-1"></i>Đối soát
+                                    </button>
+                                </form>
+                                <a th:href="@{/quan-tri/don-dat-phong}" class="btn btn-sm btn-light rounded-circle" title="Xem đơn đặt phòng">
+                                    <i class="fa-solid fa-eye text-muted"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{dung-chung/layout :: footer}"></div>
+</body>
+</html>

@@ -23,6 +23,7 @@ public class AdminServiceImpl implements AdminService {
     private final BookingRepository bookingRepository;
     private final RoomRepository roomRepository;
     private final CollaboratorRepository collaboratorRepository;
+    private final PaymentRepository paymentRepository;
 
     // Dem tong so nguoi dung / chu nha / homestay / don dang cho xu ly -> hien
     // thanh 4 the so lieu o dau trang Dashboard Admin.
@@ -170,5 +171,24 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay user id=" + userId));
         user.setStatus(user.getStatus() == UserStatus.BLOCKED ? UserStatus.ACTIVE : UserStatus.BLOCKED);
         userRepository.save(user);
+    }
+
+    @Override
+    public List<Payment> getPayments(PaymentStatus status, PaymentMethod method, java.time.LocalDate fromDate, java.time.LocalDate toDate, String keyword) {
+        java.time.LocalDateTime fromTime = fromDate != null ? fromDate.atStartOfDay() : null;
+        java.time.LocalDateTime toTime = toDate != null ? toDate.atTime(java.time.LocalTime.MAX) : null;
+        String kw = (keyword != null && !keyword.isBlank()) ? keyword.trim() : null;
+        return paymentRepository.filterPayments(status, method, fromTime, toTime, kw);
+    }
+
+    @Override
+    @Transactional
+    public void reconcilePayment(Long paymentId, String adminUsername) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giao dịch với ID: " + paymentId));
+        payment.setIsReconciled(true);
+        payment.setReconciledAt(java.time.LocalDateTime.now());
+        payment.setReconciledBy(adminUsername != null ? adminUsername : "Admin");
+        paymentRepository.save(payment);
     }
 }

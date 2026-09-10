@@ -11,6 +11,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     long countByStatus(BookingHomeStay.BookingHomeStay.entity.BookingStatus status);
     boolean existsByPromotionId(Long promotionId);
     long countBySource(BookingHomeStay.BookingHomeStay.entity.BookingSource source);
+    
+    List<Booking> findByStatusAndCreatedAtBefore(BookingHomeStay.BookingHomeStay.entity.BookingStatus status, java.time.LocalDateTime dateTime);
+    List<Booking> findByStatusAndExpiredAtBefore(BookingHomeStay.BookingHomeStay.entity.BookingStatus status, java.time.LocalDateTime dateTime);
 
     // Gom so luong don dat phong theo thang (dung cho bieu do o Dashboard quan tri).
     // Tra ve moi hang la [ "yyyy-MM", so_luong ] de ve Chart.js.

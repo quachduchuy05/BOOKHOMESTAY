@@ -17,6 +17,7 @@ public class BookingRequest {
     // Task 4: khach nhap ma gioi thieu cua Cong tac vien (neu co) - dung de gan
     // nguon goc don hang, phuc vu bieu do tron o Dashboard Admin.
     private String referralCode;
-    private String paymentMethod = "CASH";
+    private String paymentMethod;
+    private String paymentPolicy = "PAY_AT_PROPERTY";
     private String note;
 }

@@ -1,3 +1,3 @@
 package BookingHomeStay.BookingHomeStay.entity;
 
-public enum PaymentMethod { VNPAY, MOMO, CASH, BANK_TRANSFER }
+public enum PaymentMethod { VNPAY, MOMO, BANK_TRANSFER, DIRECT }

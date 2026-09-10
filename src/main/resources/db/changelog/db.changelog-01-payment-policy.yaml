@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 01-add-payment-policy
+      author: antigravity
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: bookings
+                columnName: payment_policy
+      changes:
+        - addColumn:
+            tableName: bookings
+            columns:
+              - column:
+                  name: payment_policy
+                  type: ENUM('FULL_PREPAYMENT', 'DEPOSIT', 'PAY_AT_PROPERTY')
+                  defaultValue: PAY_AT_PROPERTY
+                  constraints:
+                    nullable: false
+              - column:
+                  name: required_deposit
+                  type: DECIMAL(13,2)
+                  defaultValueNumeric: 0.00
+                  constraints:
+                    nullable: false
+              - column:
+                  name: remaining_balance
+                  type: DECIMAL(13,2)
+                  defaultValueNumeric: 0.00
+                  constraints:
+                    nullable: false
+        - addColumn:
+            tableName: payments
+            columns:
+              - column:
+                  name: payment_phase
+                  type: ENUM('FULL_PAYMENT', 'DEPOSIT', 'REMAINING')
+                  defaultValue: FULL_PAYMENT
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: idx_booking_id
+            tableName: payments
+            columns:
+              - column:
+                  name: booking_id
+        - dropIndex:
+            indexName: booking_id
+            tableName: payments
