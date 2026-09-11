@@ -15,6 +15,7 @@ public interface BookingService {
     void checkIn(Long bookingId, Long hostUserId);
     void checkOut(Long bookingId, Long hostUserId);
     void markPaymentPaid(Long bookingId, Long hostUserId);
+    void markPaymentPaidBySystem(Long bookingId, String transactionCode, Long sepayTransactionId, String gateway);
     void completeBooking(Long bookingId, Long hostUserId);
     List<Booking> getAllBookings();
     Booking getBookingForCustomer(Long bookingId, Long customerUserId);

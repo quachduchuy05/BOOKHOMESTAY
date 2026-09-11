@@ -27,10 +27,10 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class VietQrServiceImpl implements VietQrService {
 
-    @Value("${vietqr.bank-bin:970422}") // 970436 = Vietcombank (demo). Doi theo ngan hang that.
+    @Value("${vietqr.bank-bin:970422}")
     private String bankBin;
 
-    @Value("${vietqr.account-no:058888192005}")
+    @Value("${vietqr.account-no}")
     private String accountNo;
 
     @Value("${vietqr.account-name:BOOKING HOMESTAY}")
@@ -45,16 +45,12 @@ public class VietQrServiceImpl implements VietQrService {
                 ? booking.getRequiredDeposit()
                 : (booking.getFinalAmount() != null ? booking.getFinalAmount() : BigDecimal.ZERO);
 
-        String prefix = (booking.getPaymentPolicy() != null && booking.getPaymentPolicy().name().equals("DEPOSIT")) 
-                ? "Coc don " 
-                : "Thanh toan don ";
-        String noiDung = prefix + booking.getBookingCode();
+        // Giữ mã đơn bookingCode rõ ràng ở đầu để SePay nhận diện chính xác
+        String noiDung = booking.getBookingCode();
 
         String encodedAccountName = URLEncoder.encode(accountName, StandardCharsets.UTF_8);
         String encodedNoiDung = URLEncoder.encode(noiDung, StandardCharsets.UTF_8);
 
-        // Vi du URL sinh ra:
-        // https://img.vietqr.io/image/970436-0123456789-compact2.png?amount=1500000&addInfo=Thanh+toan+don+BK123&accountName=BOOKING+HOMESTAY
         return String.format(
                 "https://img.vietqr.io/image/%s-%s-%s.png?amount=%s&addInfo=%s&accountName=%s",
                 bankBin, accountNo, template,

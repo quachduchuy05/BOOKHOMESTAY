@@ -11,4 +11,6 @@ public interface CollaboratorWithdrawalRepository extends JpaRepository<Collabor
     List<CollaboratorWithdrawal> findByCollaboratorIdOrderByCreatedAtDesc(Long collaboratorId);
 
     List<CollaboratorWithdrawal> findByStatusOrderByCreatedAtAsc(WithdrawalStatus status);
+
+    List<CollaboratorWithdrawal> findAllByOrderByCreatedAtDesc();
 }

@@ -27,6 +27,12 @@ public class Payment {
 
     private String transactionCode;
 
+    @Column(name = "sepay_transaction_id", unique = true)
+    private Long sepayTransactionId;
+
+    @Column(name = "gateway", length = 50)
+    private String gateway;
+
     @Column(nullable = false, precision = 13, scale = 2)
     private BigDecimal amount;
 

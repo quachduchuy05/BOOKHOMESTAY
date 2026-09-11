@@ -31,9 +31,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final PaymentRepository paymentRepository;
     private final PromotionService promotionService;
-    private final CollaboratorRepository collaboratorRepository;
     private final EmailService emailService;
-    private final BookingHomeStay.BookingHomeStay.service.CollaboratorService collaboratorService;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
@@ -78,20 +76,9 @@ public class BookingServiceImpl implements BookingService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay tai khoan"));
 
-        // ===== TASK 4: xac dinh nguon goc don (truc tiep / qua CTV) =====
+        // Xác định nguồn gốc đơn
         BookingSource source = BookingSource.DIRECT;
         String matchedReferralCode = null;
-        // Tam thoi bo qua logic lien quan den CTV theo yeu cau
-        /*
-        if (request.getReferralCode() != null && !request.getReferralCode().isBlank()) {
-            var ctv = collaboratorRepository.findByMaGioiThieuAndStatus(
-                    request.getReferralCode().trim(), CollaboratorStatus.APPROVED);
-            if (ctv.isPresent()) {
-                source = BookingSource.COLLABORATOR;
-                matchedReferralCode = ctv.get().getMaGioiThieu();
-            }
-        }
-        */
 
         PaymentPolicy policy;
         try { policy = PaymentPolicy.valueOf(request.getPaymentPolicy()); }
@@ -297,32 +284,51 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public void markPaymentPaid(Long bookingId, Long hostUserId) {
         Booking booking = getForHostOrThrow(bookingId, hostUserId);
+        processPaymentSuccess(booking, null, null, null, PaymentMethod.DIRECT);
+    }
+
+    @Override
+    @Transactional
+    public void markPaymentPaidBySystem(Long bookingId, String transactionCode, Long sepayTransactionId, String gateway) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn đặt phòng #" + bookingId));
+        processPaymentSuccess(booking, transactionCode, sepayTransactionId, gateway, PaymentMethod.BANK_TRANSFER);
+    }
+
+    private void processPaymentSuccess(Booking booking, String transactionCode, Long sepayTransactionId, String gateway, PaymentMethod method) {
         if (booking.isFullyPaid()) {
-            return; // Da thanh toan du
+            return;
         }
 
         if (booking.getStatus() == BookingStatus.PENDING_PAYMENT) {
-            Payment depositPayment = null;
-            if (booking.getPayments() != null) {
-                depositPayment = booking.getPayments().stream()
-                        .filter(p -> p.getStatus() == PaymentStatus.UNPAID)
-                        .findFirst()
-                        .orElse(null);
-            }
+            Payment depositPayment = booking.getPayments() != null ? booking.getPayments().stream()
+                    .filter(p -> p.getStatus() == PaymentStatus.UNPAID)
+                    .findFirst()
+                    .orElse(null) : null;
 
             if (depositPayment != null) {
                 depositPayment.setStatus(PaymentStatus.PAID);
+                depositPayment.setPaymentMethod(method);
+                depositPayment.setTransactionCode(transactionCode);
+                depositPayment.setSepayTransactionId(sepayTransactionId);
+                depositPayment.setGateway(gateway);
                 depositPayment.setPaymentTime(LocalDateTime.now());
                 paymentRepository.save(depositPayment);
             } else {
                 PaymentPhase phase = (booking.getPaymentPolicy() == PaymentPolicy.DEPOSIT)
                         ? PaymentPhase.DEPOSIT
                         : PaymentPhase.FULL_PAYMENT;
+                BigDecimal amount = (booking.getPaymentPolicy() == PaymentPolicy.DEPOSIT)
+                        ? booking.getRequiredDeposit()
+                        : booking.getFinalAmount();
                 depositPayment = Payment.builder()
                         .booking(booking)
                         .paymentPhase(phase)
-                        .paymentMethod(PaymentMethod.BANK_TRANSFER)
-                        .amount(booking.getRequiredDeposit())
+                        .paymentMethod(method)
+                        .transactionCode(transactionCode)
+                        .sepayTransactionId(sepayTransactionId)
+                        .gateway(gateway)
+                        .amount(amount)
                         .status(PaymentStatus.PAID)
                         .paymentTime(LocalDateTime.now())
                         .build();
@@ -337,7 +343,10 @@ public class BookingServiceImpl implements BookingService {
         Payment remainingPayment = Payment.builder()
                 .booking(booking)
                 .paymentPhase(PaymentPhase.REMAINING)
-                .paymentMethod(PaymentMethod.DIRECT)
+                .paymentMethod(method)
+                .transactionCode(transactionCode)
+                .sepayTransactionId(sepayTransactionId)
+                .gateway(gateway)
                 .amount(booking.getRemainingBalance())
                 .status(PaymentStatus.PAID)
                 .paymentTime(LocalDateTime.now())
@@ -345,7 +354,6 @@ public class BookingServiceImpl implements BookingService {
         paymentRepository.save(remainingPayment);
         booking.getPayments().add(remainingPayment);
 
-        // Neu don da CHECKED_OUT ma gio thanh toan xong thi chuyen sang COMPLETED
         if (booking.getStatus() == BookingStatus.CHECKED_OUT) {
             booking.setStatus(BookingStatus.COMPLETED);
         }

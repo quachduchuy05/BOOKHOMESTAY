@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/db.changelog-05-add-pending-refund-booking.yaml
   - include:
       file: db/changelog/db.changelog-06-add-pending-refund-payment.yaml
+  - include:
+      file: db/changelog/db.changelog-07-add-sepay-to-payments.yaml

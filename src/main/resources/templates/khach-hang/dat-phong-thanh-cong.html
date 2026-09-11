@@ -107,7 +107,63 @@
     </div>
 </div>
 
+<!-- Modal Popup Thông Báo Thanh Toán Thành Công -->
+<div class="modal fade" id="paymentSuccessModal" tabindex="-1" aria-labelledby="paymentSuccessModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-center">
+            <div class="modal-body p-4 pt-5">
+                <!-- Animated Success Icon -->
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success text-white shadow"
+                         style="width: 86px; height: 86px; font-size: 40px; animation: successBounce 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                </div>
+
+                <h4 class="fw-bold text-dark mb-2">Thanh Toán Thành Công!</h4>
+                <p class="text-muted small mb-4">
+                    Hệ thống đã nhận được tiền chuyển khoản qua SePay. Đơn đặt phòng của bạn đã được chuyển sang trạng thái <strong>ĐÃ XÁC NHẬN</strong>.
+                </p>
+
+                <!-- Box Tóm tắt đơn phòng -->
+                <div class="bg-light p-3 rounded-3 text-start mb-4 border">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Mã đơn đặt phòng:</span>
+                        <span class="fw-bold text-dark font-monospace" th:text="${booking.bookingCode}">BK123456</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Trạng thái mới:</span>
+                        <span class="badge bg-success text-white px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i>CONFIRMED</span>
+                    </div>
+                    <div class="d-flex justify-content-between" th:if="${booking.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                        <span class="text-muted small">Còn lại trả tại quầy:</span>
+                        <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(booking.remainingBalance,0,'POINT',0,'COMMA')} + ' VNĐ'">0 VNĐ</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2">
+                    <a th:href="@{/khach-hang/don-dat-phong}" class="btn btn-primary btn-pill py-2 fw-bold shadow-sm">
+                        <i class="fa-solid fa-receipt me-2"></i>Xem danh sách đơn phòng
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary btn-pill py-2" onclick="window.location.reload();">
+                        <i class="fa-solid fa-rotate-right me-1"></i>Ở lại trang này
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{dung-chung/layout :: footer}"></div>
+
+<style>
+@keyframes successBounce {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.18); opacity: 1; }
+    100% { transform: scale(1); }
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -156,6 +212,127 @@ document.addEventListener('DOMContentLoaded', function () {
     updateTimer();
     const timerInterval = setInterval(updateTimer, 1000);
 });
+
+// Hiệu ứng pháo hoa giấy Confetti thuần JS
+function launchConfetti() {
+    try {
+        const canvas = document.createElement('canvas');
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = '99999';
+        document.body.appendChild(canvas);
+
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const pieces = [];
+        const colors = ['#28a745', '#ffc107', '#0d6efd', '#20c997', '#fd7e14', '#e83e8c'];
+        for (let i = 0; i < 80; i++) {
+            pieces.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height * 0.5,
+                size: Math.random() * 8 + 4,
+                speedY: Math.random() * 3 + 2,
+                speedX: Math.random() * 2 - 1,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                rotation: Math.random() * 360,
+                rotationSpeed: Math.random() * 6 - 3
+            });
+        }
+
+        let animationFrame;
+        const startTime = Date.now();
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(p => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                p.rotation += p.rotationSpeed;
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rotation * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+            });
+
+            if (Date.now() - startTime < 4500) {
+                animationFrame = requestAnimationFrame(render);
+            } else {
+                cancelAnimationFrame(animationFrame);
+                canvas.remove();
+            }
+        }
+        render();
+    } catch (e) {
+        console.log('Confetti error', e);
+    }
+}
+
+// Âm thanh chúc mừng nhẹ (Web Audio API)
+function playSuccessChime() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioCtx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // Đô - Mi - Sol - Đô
+        notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+            gain.gain.setValueAtTime(0.15, now + idx * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.35);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.12);
+            osc.stop(now + idx * 0.12 + 0.35);
+        });
+    } catch (e) {
+        console.log('AudioContext chime not supported', e);
+    }
+}
+
+// Realtime SePay Payment Polling
+document.addEventListener('DOMContentLoaded', function () {
+    const bookingCode = "[[${booking.bookingCode}]]";
+    const currentStatus = "[[${booking.status.name()}]]";
+
+    if (currentStatus === 'PENDING_PAYMENT') {
+        const pollInterval = setInterval(function () {
+            fetch('/api/v1/bookings/' + encodeURIComponent(bookingCode) + '/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.isPaid) {
+                        clearInterval(pollInterval);
+
+                        // Phát âm thanh và pháo hoa chúc mừng
+                        playSuccessChime();
+                        launchConfetti();
+
+                        // Ẩn vùng QR và đồng hồ đếm ngược
+                        const qrSection = document.getElementById('qr-section');
+                        if (qrSection) qrSection.style.display = 'none';
+                        const countdownBox = document.getElementById('booking-countdown-box');
+                        if (countdownBox) countdownBox.style.display = 'none';
+
+                        // Mở Modal Popup thông báo thành công
+                        const modalEl = document.getElementById('paymentSuccessModal');
+                        if (modalEl && window.bootstrap) {
+                            const modal = new bootstrap.Modal(modalEl);
+                            modal.show();
+                        }
+                    }
+                })
+                .catch(err => console.log('Polling payment status...', err));
+        }, 3000);
+    }
+});
 </script>
 </body>
-</html>
+</html>
