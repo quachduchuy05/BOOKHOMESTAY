@@ -21,4 +21,22 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m'), COUNT(b) " +
            "FROM Booking b GROUP BY FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m') ORDER BY 1")
     List<Object[]> countBookingsGroupedByMonth();
+
+    @Query(value = "SELECT DISTINCT b FROM Booking b LEFT JOIN b.details bd " +
+           "WHERE b.user.id = :userId " +
+           "AND ((:dateType = 'CHECKIN' AND (:startDate IS NULL OR bd.checkinDate >= :startDate) AND (:endDate IS NULL OR bd.checkinDate <= :endDate)) " +
+           "     OR (:dateType != 'CHECKIN' AND (:fromDateTime IS NULL OR b.createdAt >= :fromDateTime) AND (:toDateTime IS NULL OR b.createdAt <= :toDateTime))) " +
+           "ORDER BY b.createdAt DESC",
+           countQuery = "SELECT COUNT(DISTINCT b) FROM Booking b LEFT JOIN b.details bd " +
+           "WHERE b.user.id = :userId " +
+           "AND ((:dateType = 'CHECKIN' AND (:startDate IS NULL OR bd.checkinDate >= :startDate) AND (:endDate IS NULL OR bd.checkinDate <= :endDate)) " +
+           "     OR (:dateType != 'CHECKIN' AND (:fromDateTime IS NULL OR b.createdAt >= :fromDateTime) AND (:toDateTime IS NULL OR b.createdAt <= :toDateTime)))")
+    org.springframework.data.domain.Page<Booking> findByUserIdWithFilter(
+            @org.springframework.data.repository.query.Param("userId") Long userId,
+            @org.springframework.data.repository.query.Param("dateType") String dateType,
+            @org.springframework.data.repository.query.Param("startDate") java.time.LocalDate startDate,
+            @org.springframework.data.repository.query.Param("endDate") java.time.LocalDate endDate,
+            @org.springframework.data.repository.query.Param("fromDateTime") java.time.LocalDateTime fromDateTime,
+            @org.springframework.data.repository.query.Param("toDateTime") java.time.LocalDateTime toDateTime,
+            org.springframework.data.domain.Pageable pageable);
 }

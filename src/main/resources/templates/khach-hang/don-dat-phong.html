@@ -1,413 +1,591 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{dung-chung/layout :: head('Lịch sử đặt phòng')}"></head>
+
 <body>
-<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+    <nav th:replace="~{dung-chung/layout :: navbar}"></nav>
 
-<div class="container py-4">
-    <!-- Flash Messages -->
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
-        <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
-        <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold m-0"><i class="fa-regular fa-calendar-check text-danger me-2"></i>Lịch Sử Đặt Phòng</h3>
-            <p class="text-muted small m-0">Quản lý và theo dõi trạng thái các kỳ nghỉ của bạn</p>
+    <div class="container py-4">
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4"
+            role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <a th:href="@{/tim-kiem}" class="btn btn-primary btn-pill btn-sm px-3">
-            <i class="fa-solid fa-magnifying-glass me-1"></i> Khám phá thêm homestay
-        </a>
-    </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4"
+            role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
-    <!-- Bookings Table Container -->
-    <div class="table-container-modern shadow-sm border-0 rounded-4" th:if="${!bookings.isEmpty()}">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th>Mã đơn</th>
-                        <th>Chỗ nghỉ & Phòng</th>
-                        <th>Lịch lưu trú</th>
-                        <th>Tổng chi phí</th>
-                        <th>Thanh toán</th>
-                        <th>Trạng thái</th>
-                        <th class="text-end">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="b : ${bookings}">
-                        <td>
-                            <span class="fw-bold text-dark" th:text="${b.bookingCode}">BK001</span>
-                        </td>
-                        <td>
-                            <div class="fw-semibold text-dark" th:text="${b.details[0].room.homestay.name}">Tên Homestay</div>
-                            <div class="small text-muted" th:text="${b.details[0].room.name}">Tên phòng</div>
-                        </td>
-                        <td>
-                            <div class="small fw-semibold text-dark">
-                                <i class="fa-regular fa-calendar me-1 text-primary"></i>
-                                <span th:text="${b.details[0].checkinDate}">2026-06-01</span> 
-                                <i class="fa-solid fa-arrow-right mx-1 text-muted small"></i> 
-                                <span th:text="${b.details[0].checkoutDate}">2026-06-03</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.finalAmount,0,'POINT',0,'COMMA')} + ' VNĐ'">1,200,000 VNĐ</span>
-                        </td>
-                        <td>
-                            <span th:if="${b.isFullyPaid()}" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
-                                <i class="fa-solid fa-circle-check me-1"></i>Đã thanh toán đủ
-                            </span>
-                            <div th:unless="${b.isFullyPaid()}">
-                                <span th:if="${b.status.name() == 'PENDING_PAYMENT'}" class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 mb-1">
-                                    <i class="fa-solid fa-clock me-1"></i>Chờ thanh toán online
-                                </span>
-                                <span th:if="${b.paymentPolicy.name() == 'PAY_AT_PROPERTY'}" class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 mb-1">
-                                    <i class="fa-solid fa-building-user me-1"></i>Thanh toán tại quầy
-                                </span>
-                                <span th:if="${b.paymentPolicy.name() == 'DEPOSIT' and b.status.name() != 'PENDING_PAYMENT' and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED' and b.status.name() != 'PENDING_REFUND'}" class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 mb-1">
-                                    <i class="fa-solid fa-circle-check me-1"></i>Đã cọc 30%
-                                </span>
-                                <div class="small text-muted mt-1" th:if="${b.remainingBalance > 0}">
-                                    Còn lại trả tại quầy: <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.remainingBalance,0,'POINT',0,'COMMA')} + 'đ'"></span>
-                                </div>
-                                <div th:if="${b.status.name() == 'PENDING_PAYMENT' and b.expiredAt != null}" 
-                                     class="booking-row-countdown small text-danger font-monospace mt-1" 
-                                     th:data-expired-at="${#temporals.format(b.expiredAt, 'yyyy-MM-dd''T''HH:mm:ss')}">
-                                    <i class="fa-solid fa-stopwatch me-1"></i>Còn: <span class="timer-display fw-bold">--:--:--</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="badge" th:classappend="'badge-status-' + ${b.status}" th:text="${b.status}">PENDING</span>
-                        </td>
-                        <td class="text-end">
-                            <!-- Nut Huy don mo Modal xac nhan voi chinh sach hoan tien -->
-                            <button th:if="${b.status.name() == 'PENDING' or b.status.name() == 'PENDING_PAYMENT' or b.status.name() == 'CONFIRMED'}"
-                                    type="button" 
-                                    class="btn btn-sm btn-outline-danger rounded-pill px-3"
-                                    data-bs-toggle="modal" data-bs-target="#cancelModal"
-                                    th:data-booking-id="${b.id}"
-                                    th:data-booking-code="${b.bookingCode}"
-                                    th:data-room-name="${b.details[0].room.name}"
-                                    th:data-homestay-name="${b.details[0].room.homestay.name}"
-                                    th:data-checkin="${b.details[0].checkinDate}"
-                                    th:data-policy="${b.paymentPolicy}"
-                                    onclick="openCancelModal(this)">
-                                <i class="fa-solid fa-xmark me-1"></i> Hủy đơn
-                            </button>
-                            
-                            <!-- Nut Thanh toan ngay cho PENDING_PAYMENT -->
-                            <a th:if="${b.status.name() == 'PENDING_PAYMENT'}"
-                               th:href="@{/khach-hang/don-dat-phong/{id}/thanh-toan(id=${b.id})}"
-                               class="btn btn-sm btn-primary rounded-pill px-3 ms-1">
-                                <i class="fa-solid fa-credit-card me-1"></i> Thanh toán ngay
-                            </a>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold m-0"><i class="fa-regular fa-calendar-check text-danger me-2"></i>Lịch Sử Đặt Phòng
+                </h3>
+                <p class="text-muted small m-0">Quản lý và theo dõi trạng thái các kỳ nghỉ của bạn</p>
+            </div>
+            <a th:href="@{/tim-kiem}" class="btn btn-primary btn-pill btn-sm px-3">
+                <i class="fa-solid fa-magnifying-glass me-1"></i> Khám phá thêm homestay
+            </a>
+        </div>
 
-                            <!-- Khối Đánh giá cho đơn HOÀN THÀNH + ĐÃ THANH TOÁN -->
-                            <div th:if="${(b.status.name() == 'COMPLETED' or b.status.name() == 'CHECKED_OUT') and b.isFullyPaid()}" class="mt-2">
-                                <!-- Đã đánh giá -->
-                                <div th:if="${reviewsMap != null and reviewsMap.containsKey(b.id)}">
-                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle py-2 px-3 rounded-pill fw-semibold">
-                                        <i class="fa-solid fa-star text-warning me-1"></i>
-                                        <span class="text-dark fw-bold" th:text="${reviewsMap.get(b.id).rating} + '★'">5★</span> Đã đánh giá
+        <!-- Date Filter Card -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+            <div class="card-body p-3">
+                <form method="get" th:action="@{/khach-hang/don-dat-phong}" class="row g-2 align-items-end">
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <label class="form-label small fw-semibold text-muted mb-1">
+                            <i class="fa-regular fa-calendar-check me-1 text-primary"></i>Lọc theo loại ngày
+                        </label>
+                        <select name="dateType" class="form-select form-select-sm rounded-3">
+                            <option value="CREATED" th:selected="${dateType == null or dateType == 'CREATED'}">Ngày đặt (Giao dịch)</option>
+                            <option value="CHECKIN" th:selected="${dateType == 'CHECKIN'}">Ngày nhận phòng</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6">
+                        <label class="form-label small fw-semibold text-muted mb-1">
+                            <i class="fa-regular fa-calendar me-1 text-secondary"></i>Từ ngày
+                        </label>
+                        <input type="date" name="startDate" class="form-control form-control-sm rounded-3" th:value="${startDate}">
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6">
+                        <label class="form-label small fw-semibold text-muted mb-1">
+                            <i class="fa-regular fa-calendar me-1 text-secondary"></i>Đến ngày
+                        </label>
+                        <input type="date" name="endDate" class="form-control form-control-sm rounded-3" th:value="${endDate}">
+                    </div>
+                    <div class="col-lg-3 col-md-2 col-sm-6 d-flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 flex-fill">
+                            <i class="fa-solid fa-filter me-1"></i> Lọc
+                        </button>
+                        <a th:href="@{/khach-hang/don-dat-phong}" class="btn btn-sm btn-outline-secondary rounded-pill px-3" title="Đặt lại bộ lọc">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bookings Table Container -->
+        <div class="table-container-modern shadow-sm border-0 rounded-4" th:if="${!bookings.isEmpty()}">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Chỗ nghỉ & Phòng</th>
+                            <th>Lịch lưu trú</th>
+                            <th>Tổng chi phí</th>
+                            <th>Thanh toán</th>
+                            <th>Trạng thái</th>
+                            <th class="text-end">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="b : ${bookings}">
+                            <td>
+                                <span class="fw-bold text-dark" th:text="${b.bookingCode}">BK001</span>
+                                <div class="small text-muted" th:if="${b.createdAt != null}" th:text="${#temporals.format(b.createdAt, 'dd/MM/yyyy HH:mm')}">11/09/2026 13:30</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark" th:text="${b.details[0].room.homestay.name}">Tên
+                                    Homestay</div>
+                                <div class="small text-muted" th:text="${b.details[0].room.name}">Tên phòng</div>
+                            </td>
+                            <td>
+                                <div class="small fw-semibold text-dark">
+                                    <i class="fa-regular fa-calendar me-1 text-primary"></i>
+                                    <span th:text="${b.details[0].checkinDate}">2026-06-01</span>
+                                    <i class="fa-solid fa-arrow-right mx-1 text-muted small"></i>
+                                    <span th:text="${b.details[0].checkoutDate}">2026-06-03</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-danger"
+                                    th:text="${#numbers.formatDecimal(b.finalAmount,0,'POINT',0,'COMMA')} + ' VNĐ'">1,200,000
+                                    VNĐ</span>
+                            </td>
+                            <td>
+                                <span th:if="${b.isFullyPaid()}"
+                                    class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                    <i class="fa-solid fa-circle-check me-1"></i>Đã thanh toán đủ
+                                </span>
+                                <div th:unless="${b.isFullyPaid()}">
+                                    <span th:if="${b.status.name() == 'PENDING_PAYMENT'}"
+                                        class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 mb-1">
+                                        <i class="fa-solid fa-clock me-1"></i>Chờ thanh toán online
                                     </span>
+                                    <span th:if="${b.paymentPolicy.name() == 'PAY_AT_PROPERTY'}"
+                                        class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 mb-1">
+                                        <i class="fa-solid fa-building-user me-1"></i>Thanh toán tại quầy
+                                    </span>
+                                    <span
+                                        th:if="${b.paymentPolicy.name() == 'DEPOSIT' and b.status.name() != 'PENDING_PAYMENT' and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED' and b.status.name() != 'PENDING_REFUND'}"
+                                        class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 mb-1">
+                                        <i class="fa-solid fa-circle-check me-1"></i>Đã cọc 30%
+                                    </span>
+                                    <span th:if="${b.status.name() == 'PENDING_REFUND'}"
+                                        class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 mb-1"
+                                        style="background-color: #f3e8ff !important; color: #7e22ce !important; border-color: #e9d5ff !important;">
+                                        <i class="fa-solid fa-money-bill-transfer me-1"></i>Chờ hoàn tiền
+                                    </span>
+                                    <div class="small text-muted mt-1"
+                                        th:if="${b.remainingBalance > 0 and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED' and b.status.name() != 'PENDING_REFUND'}">
+                                        Còn lại trả tại quầy: <span class="fw-bold text-danger"
+                                            th:text="${#numbers.formatDecimal(b.remainingBalance,0,'POINT',0,'COMMA')} + 'đ'"></span>
+                                    </div>
+                                    <div th:if="${b.status.name() == 'PENDING_PAYMENT' and b.expiredAt != null}"
+                                        class="booking-row-countdown small text-danger font-monospace mt-1"
+                                        th:data-expired-at="${#temporals.format(b.expiredAt, 'yyyy-MM-dd''T''HH:mm:ss')}">
+                                        <i class="fa-solid fa-stopwatch me-1"></i>Còn: <span
+                                            class="timer-display fw-bold">--:--:--</span>
+                                    </div>
                                 </div>
-                                <!-- Chưa đánh giá -->
-                                <div th:unless="${reviewsMap != null and reviewsMap.containsKey(b.id)}">
-                                    <button type="button" class="btn btn-sm btn-warning rounded-pill px-3 fw-bold text-dark shadow-sm hover-lift"
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="'badge-status-' + ${b.status}">
+                                    <th:block th:switch="${b.status.name()}">
+                                        <span th:case="'PENDING'"><i class="fa-solid fa-hourglass-half me-1"></i>Chờ xác
+                                            nhận</span>
+                                        <span th:case="'PENDING_PAYMENT'"><i class="fa-solid fa-clock me-1"></i>Chờ
+                                            thanh toán</span>
+                                        <span th:case="'CONFIRMED'"><i class="fa-solid fa-circle-check me-1"></i>Đã xác
+                                            nhận</span>
+                                        <span th:case="'CHECKED_IN'"><i class="fa-solid fa-key me-1"></i>Đã nhận
+                                            phòng</span>
+                                        <span th:case="'CHECKED_OUT'"><i
+                                                class="fa-solid fa-person-walking-dashed-line-arrow-right me-1"></i>Đã
+                                            trả phòng</span>
+                                        <span th:case="'COMPLETED'"><i class="fa-solid fa-flag-checkered me-1"></i>Hoàn
+                                            thành</span>
+                                        <span th:case="'CANCELLED'"><i class="fa-solid fa-ban me-1"></i>Đã hủy</span>
+                                        <span th:case="'REJECTED'"><i class="fa-solid fa-circle-xmark me-1"></i>Đã từ
+                                            chối</span>
+                                        <span th:case="'PENDING_REFUND'"><i
+                                                class="fa-solid fa-money-bill-transfer me-1"></i>Chờ hoàn tiền</span>
+                                        <span th:case="*" th:text="${b.status}">Trạng thái</span>
+                                    </th:block>
+                                </span>
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <div class="d-inline-flex align-items-center justify-content-end text-nowrap"
+                                     th:if="${b.status.name() == 'PENDING' or b.status.name() == 'PENDING_PAYMENT' or b.status.name() == 'CONFIRMED'}">
+                                    <!-- Nút Hủy -->
+                                    <button type="button" 
+                                            class="action-link-item action-link-cancel"
+                                            data-bs-toggle="modal" data-bs-target="#cancelModal" 
+                                            th:data-booking-id="${b.id}"
+                                            th:data-booking-code="${b.bookingCode}"
+                                            th:data-room-name="${b.details[0].room.name}"
+                                            th:data-homestay-name="${b.details[0].room.homestay.name}"
+                                            th:data-checkin="${b.details[0].checkinDate}" 
+                                            th:data-policy="${b.paymentPolicy}"
+                                            onclick="openCancelModal(this)">
+                                        <i class="fa-solid fa-xmark me-1"></i>Hủy
+                                    </button>
+
+                                    <!-- Thanh phân cách | -->
+                                    <span th:if="${b.status.name() == 'PENDING_PAYMENT'}" class="action-divider"></span>
+
+                                    <!-- Nút Thanh toán -->
+                                    <a th:if="${b.status.name() == 'PENDING_PAYMENT'}"
+                                       th:href="@{/khach-hang/don-dat-phong/{id}/thanh-toan(id=${b.id})}"
+                                       class="action-link-item action-link-pay">
+                                        <i class="fa-solid fa-credit-card me-1"></i>Thanh toán
+                                    </a>
+                                </div>
+
+                                <!-- Khối Đánh giá cho đơn HOÀN THÀNH + ĐÃ THANH TOÁN -->
+                                <div th:if="${(b.status.name() == 'COMPLETED' or b.status.name() == 'CHECKED_OUT') and b.isFullyPaid()}"
+                                    class="mt-2">
+                                    <!-- Đã đánh giá -->
+                                    <div th:if="${reviewsMap != null and reviewsMap.containsKey(b.id)}">
+                                        <span
+                                            class="badge bg-warning-subtle text-warning border border-warning-subtle py-2 px-3 rounded-pill fw-semibold">
+                                            <i class="fa-solid fa-star text-warning me-1"></i>
+                                            <span class="text-dark fw-bold"
+                                                th:text="${reviewsMap.get(b.id).rating} + '★'">5★</span> Đã đánh giá
+                                        </span>
+                                    </div>
+                                    <!-- Chưa đánh giá -->
+                                    <div th:unless="${reviewsMap != null and reviewsMap.containsKey(b.id)}">
+                                        <button type="button"
+                                            class="btn btn-sm btn-warning rounded-pill px-3 fw-bold text-dark shadow-sm hover-lift"
                                             data-bs-toggle="modal" data-bs-target="#reviewModal"
                                             th:data-booking-id="${b.id}"
                                             th:data-homestay-name="${b.details[0].room.homestay.name}"
                                             onclick="openReviewModal(this)">
-                                        <i class="fa-solid fa-star me-1 text-danger"></i> Đánh giá ngay
-                                    </button>
+                                            <i class="fa-solid fa-star me-1 text-danger"></i> Đánh giá ngay
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <span th:unless="${b.status.name() == 'PENDING' or b.status.name() == 'PENDING_PAYMENT' or b.status.name() == 'CONFIRMED' or ((b.status.name() == 'COMPLETED' or b.status.name() == 'CHECKED_OUT') and b.isFullyPaid())}" class="text-muted small">--</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                                <span
+                                    th:unless="${b.status.name() == 'PENDING' or b.status.name() == 'PENDING_PAYMENT' or b.status.name() == 'CONFIRMED' or ((b.status.name() == 'COMPLETED' or b.status.name() == 'CHECKED_OUT') and b.isFullyPaid())}"
+                                    class="text-muted small">--</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination Toolbar (Nút trước/sau + Ô nhập số trang + Tổng số trang) -->
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-4 flex-wrap gap-2" th:if="${totalItems != null and totalItems > 0}">
+            <div class="small text-muted">
+                Hiển thị <span class="fw-bold text-dark" th:text="${startItem}">1</span>
+                - <span class="fw-bold text-dark" th:text="${endItem}">5</span>
+                trên tổng số <span class="fw-bold text-danger" th:text="${totalItems}">25</span> giao dịch
+            </div>
+            
+            <div class="d-flex align-items-center gap-2">
+                <!-- Nút Trang trước -->
+                <a th:if="${currentPage > 1}"
+                   th:href="@{/khach-hang/don-dat-phong(page=${currentPage - 1}, dateType=${dateType}, startDate=${startDate}, endDate=${endDate})}"
+                   class="btn btn-sm btn-outline-secondary rounded-3 px-2 py-1 shadow-sm"
+                   title="Trang trước">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </a>
+                <button th:unless="${currentPage > 1}"
+                        type="button" 
+                        class="btn btn-sm btn-outline-secondary rounded-3 px-2 py-1 disabled opacity-50" 
+                        disabled>
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <!-- Ô nhập số trang ở giữa -->
+                <div class="d-flex align-items-center small text-muted px-1">
+                    <span class="me-1">Trang</span>
+                    <form th:action="@{/khach-hang/don-dat-phong}" method="get" class="d-inline m-0 p-0" id="paginationJumpForm">
+                        <input type="hidden" name="dateType" th:value="${dateType}" th:if="${dateType != null}" />
+                        <input type="hidden" name="startDate" th:value="${startDate}" th:if="${startDate != null}" />
+                        <input type="hidden" name="endDate" th:value="${endDate}" th:if="${endDate != null}" />
+                        <input type="number" 
+                               name="page" 
+                               class="form-control form-control-sm text-center fw-bold text-dark border shadow-none px-1" 
+                               style="width: 54px; height: 32px; display: inline-block; border-radius: 6px;" 
+                               min="1" 
+                               th:max="${totalPages}" 
+                               th:value="${currentPage}"
+                               onkeydown="if(event.key === 'Enter'){ event.preventDefault(); this.form.submit(); }"
+                               onchange="this.form.submit();"
+                               title="Nhập số trang và nhấn Enter để chuyển" />
+                    </form>
+                    <span class="ms-1">/ <span class="fw-bold text-dark" th:text="${totalPages}">1</span></span>
+                </div>
+
+                <!-- Nút Trang sau -->
+                <a th:if="${currentPage < totalPages}"
+                   th:href="@{/khach-hang/don-dat-phong(page=${currentPage + 1}, dateType=${dateType}, startDate=${startDate}, endDate=${endDate})}"
+                   class="btn btn-sm btn-outline-secondary rounded-3 px-2 py-1 shadow-sm"
+                   title="Trang sau">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+                <button th:unless="${currentPage < totalPages}"
+                        type="button" 
+                        class="btn btn-sm btn-outline-secondary rounded-3 px-2 py-1 disabled opacity-50" 
+                        disabled>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${bookings.isEmpty()}" class="p-5 text-center bg-white rounded-4 border shadow-sm">
+            <i class="fa-regular fa-calendar-xmark display-4 text-muted mb-3"></i>
+            <h5 class="fw-bold">Không tìm thấy đơn đặt phòng nào</h5>
+            <p class="text-muted small mb-4" th:if="${startDate != null or endDate != null}">
+                Không có giao dịch nào trong khoảng thời gian đã chọn. Hãy thử chọn khoảng ngày khác.
+            </p>
+            <p class="text-muted small mb-4" th:unless="${startDate != null or endDate != null}">
+                Hãy bắt đầu chuyến phiêu lưu tiếp theo của bạn ngay hôm nay!
+            </p>
+            <div class="d-flex justify-content-center gap-2">
+                <a th:if="${startDate != null or endDate != null}" th:href="@{/khach-hang/don-dat-phong}" class="btn btn-outline-secondary btn-pill px-4">
+                    <i class="fa-solid fa-rotate-left me-1"></i> Xóa bộ lọc
+                </a>
+                <a th:href="@{/}" class="btn btn-primary btn-pill px-4">
+                    <i class="fa-solid fa-compass me-1"></i> Khám phá chỗ ở ngay
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Empty State -->
-    <div th:if="${bookings.isEmpty()}" class="p-5 text-center bg-white rounded-4 border">
-        <i class="fa-regular fa-calendar-xmark display-4 text-muted mb-3"></i>
-        <h5 class="fw-bold">Bạn chưa có đơn đặt phòng nào</h5>
-        <p class="text-muted small mb-4">Hãy bắt đầu chuyến phiêu lưu tiếp theo của bạn ngay hôm nay!</p>
-        <a th:href="@{/}" class="btn btn-primary btn-pill px-4">
-            <i class="fa-solid fa-compass me-1"></i> Khám phá chỗ ở ngay
-        </a>
-    </div>
-</div>
+    <!-- Modal Đánh Giá Homestay -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <form th:action="@{/khach-hang/danh-gia}" method="post">
+                    <input type="hidden" id="modalBookingId" name="bookingId" value="" />
 
-<!-- Modal Đánh Giá Homestay -->
-<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-            <form th:action="@{/khach-hang/danh-gia}" method="post">
-                <input type="hidden" id="modalBookingId" name="bookingId" value="" />
-                
-                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <div>
-                        <h5 class="modal-title fw-bold text-dark" id="reviewModalLabel">
-                            <i class="fa-solid fa-star text-warning me-2"></i>Đánh giá kỳ nghỉ
-                        </h5>
-                        <p class="text-muted small mb-0 mt-1" id="modalHomestayName">Homestay</p>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body px-4 py-3">
-                    <!-- Rating Stars Picker -->
-                    <div class="text-center my-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase d-block mb-2">Chất lượng dịch vụ & trải nghiệm</label>
-                        <div class="rating-stars-input fs-1 text-secondary" style="cursor: pointer;">
-                            <i class="fa-solid fa-star star-btn text-warning" data-val="1"></i>
-                            <i class="fa-solid fa-star star-btn text-warning" data-val="2"></i>
-                            <i class="fa-solid fa-star star-btn text-warning" data-val="3"></i>
-                            <i class="fa-solid fa-star star-btn text-warning" data-val="4"></i>
-                            <i class="fa-solid fa-star star-btn text-warning" data-val="5"></i>
+                    <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                        <div>
+                            <h5 class="modal-title fw-bold text-dark" id="reviewModalLabel">
+                                <i class="fa-solid fa-star text-warning me-2"></i>Đánh giá kỳ nghỉ
+                            </h5>
+                            <p class="text-muted small mb-0 mt-1" id="modalHomestayName">Homestay</p>
                         </div>
-                        <input type="hidden" id="modalRating" name="rating" value="5" />
-                        <span id="starRatingText" class="small fw-bold text-success mt-1 d-block">Tuyệt vời (5 sao)</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
-                    <!-- Comment textarea -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Nhận xét chi tiết của bạn</label>
-                        <textarea class="form-control rounded-3" name="comment" rows="4" 
-                                  placeholder="Chia sẻ cảm nhận của bạn về không gian, độ sạch sẽ, sự thân thiện của chủ nhà..." required></textarea>
-                    </div>
-                </div>
+                    <div class="modal-body px-4 py-3">
+                        <!-- Rating Stars Picker -->
+                        <div class="text-center my-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase d-block mb-2">Chất lượng
+                                dịch vụ & trải nghiệm</label>
+                            <div class="rating-stars-input fs-1 text-secondary" style="cursor: pointer;">
+                                <i class="fa-solid fa-star star-btn text-warning" data-val="1"></i>
+                                <i class="fa-solid fa-star star-btn text-warning" data-val="2"></i>
+                                <i class="fa-solid fa-star star-btn text-warning" data-val="3"></i>
+                                <i class="fa-solid fa-star star-btn text-warning" data-val="4"></i>
+                                <i class="fa-solid fa-star star-btn text-warning" data-val="5"></i>
+                            </div>
+                            <input type="hidden" id="modalRating" name="rating" value="5" />
+                            <span id="starRatingText" class="small fw-bold text-success mt-1 d-block">Tuyệt vời (5
+                                sao)</span>
+                        </div>
 
-                <div class="modal-footer border-top-0 pt-0 pb-4 px-4 d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
-                    <button type="submit" class="btn btn-primary btn-pill px-4 fw-bold">
-                        <i class="fa-solid fa-paper-plane me-1"></i> Gửi đánh giá
-                    </button>
-                </div>
-            </form>
+                        <!-- Comment textarea -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-dark">Nhận xét chi tiết của bạn</label>
+                            <textarea class="form-control rounded-3" name="comment" rows="4"
+                                placeholder="Chia sẻ cảm nhận của bạn về không gian, độ sạch sẽ, sự thân thiện của chủ nhà..."
+                                required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-top-0 pt-0 pb-4 px-4 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-light rounded-pill px-4"
+                            data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-pill px-4 fw-bold">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Gửi đánh giá
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Modal Xác Nhận Hủy Đặt Phòng Với Chính Sách Refund -->
-<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-            <form id="cancelBookingForm" method="post" action="">
-                <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" th:if="${_csrf != null}"/>
-                
-                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <div>
-                        <h5 class="modal-title fw-bold text-danger" id="cancelModalLabel">
-                            <i class="fa-solid fa-triangle-exclamation me-2"></i>Xác nhận hủy đặt phòng
-                        </h5>
-                        <p class="text-muted small mb-0 mt-1">Vui lòng kiểm tra kỹ chính sách hoàn tiền trước khi hủy</p>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+    <!-- Modal Xác Nhận Hủy Đặt Phòng Với Chính Sách Refund -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <form id="cancelBookingForm" method="post" action="">
+                    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"
+                        th:if="${_csrf != null}" />
 
-                <div class="modal-body px-4 py-3">
-                    <!-- Chi tiết đơn đặt -->
-                    <div class="bg-light p-3 rounded-3 mb-3 small">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-muted">Mã đơn:</span>
-                            <span class="fw-bold font-monospace text-dark" id="cancelModalCode">#--</span>
+                    <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                        <div>
+                            <h5 class="modal-title fw-bold text-danger" id="cancelModalLabel">
+                                <i class="fa-solid fa-triangle-exclamation me-2"></i>Xác nhận hủy đặt phòng
+                            </h5>
+                            <p class="text-muted small mb-0 mt-1">Vui lòng kiểm tra kỹ chính sách hoàn tiền trước khi
+                                hủy</p>
                         </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-muted">Chỗ nghỉ:</span>
-                            <span class="fw-semibold text-dark text-end" id="cancelModalHomestay">--</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Ngày nhận phòng:</span>
-                            <span class="fw-semibold text-primary" id="cancelModalCheckin">--</span>
-                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
-                    <!-- Dynamic Refund Evaluation Box -->
-                    <div id="refundNoticeEligible" class="alert alert-success border-0 rounded-3 small p-3 mb-3" style="display: none;">
-                        <div class="d-flex align-items-start gap-2">
-                            <i class="fa-solid fa-circle-check text-success fs-5 mt-1"></i>
-                            <div>
-                                <div class="fw-bold text-success mb-1">ĐỦ ĐIỀU KIỆN ĐƯỢC HOÀN TIỀN</div>
-                                <div class="text-secondary" id="refundEligibleText">
-                                    Thời gian hủy trước ngày nhận phòng từ 2 ngày trở lên.
+                    <div class="modal-body px-4 py-3">
+                        <!-- Chi tiết đơn đặt -->
+                        <div class="bg-light p-3 rounded-3 mb-3 small">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Mã đơn:</span>
+                                <span class="fw-bold font-monospace text-dark" id="cancelModalCode">#--</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Chỗ nghỉ:</span>
+                                <span class="fw-semibold text-dark text-end" id="cancelModalHomestay">--</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Ngày nhận phòng:</span>
+                                <span class="fw-semibold text-primary" id="cancelModalCheckin">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Refund Evaluation Box -->
+                        <div id="refundNoticeEligible" class="alert alert-success border-0 rounded-3 small p-3 mb-3"
+                            style="display: none;">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="fa-solid fa-circle-check text-success fs-5 mt-1"></i>
+                                <div>
+                                    <div class="fw-bold text-success mb-1">ĐỦ ĐIỀU KIỆN ĐƯỢC HOÀN TIỀN</div>
+                                    <div class="text-secondary" id="refundEligibleText">
+                                        Thời gian hủy trước ngày nhận phòng từ 2 ngày trở lên.
+                                    </div>
+                                    <div class="mt-2 text-dark small">
+                                        <i class="fa-solid fa-shield-check text-success me-1"></i>Toàn bộ số tiền
+                                        cọc/thanh toán trước sẽ được hoàn trả. Đơn sẽ chuyển sang trạng thái <strong>Chờ
+                                            hoàn tiền</strong> để chủ nhà hoàn tất chuyển trả tiền cho bạn.
+                                    </div>
                                 </div>
-                                <div class="mt-2 text-dark small">
-                                    <i class="fa-solid fa-shield-check text-success me-1"></i>Toàn bộ số tiền cọc/thanh toán trước sẽ được hoàn trả. Đơn sẽ chuyển sang trạng thái <strong>Chờ hoàn tiền (PENDING_REFUND)</strong> để chủ nhà hoàn tất chuyển trả tiền cho bạn.
+                            </div>
+                        </div>
+
+                        <div id="refundNoticeIneligible" class="alert alert-danger border-0 rounded-3 small p-3 mb-3"
+                            style="display: none;">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-danger fs-5 mt-1"></i>
+                                <div>
+                                    <div class="fw-bold text-danger mb-1">KHÔNG ĐƯỢC HOÀN TIỀN CỌC</div>
+                                    <div class="text-secondary" id="refundIneligibleText">
+                                        Thời gian hủy đơn quá sát ngày nhận phòng (&lt; 2 ngày).
+                                    </div>
+                                    <div class="mt-2 text-dark small">
+                                        Theo quy định của Homestay, tiền cọc / thanh toán trước <strong>sẽ KHÔNG được
+                                            hoàn lại</strong> nhằm bồi hoàn giữ chỗ. Đơn sẽ chuyển về trạng thái
+                                        <strong>Đã hủy</strong>.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="refundNoticePayAtProp" class="alert alert-info border-0 rounded-3 small p-3 mb-3"
+                            style="display: none;">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="fa-solid fa-circle-info text-info fs-5 mt-1"></i>
+                                <div>
+                                    <div class="fw-bold text-info mb-1">THANH TOÁN TẠI QUẦY</div>
+                                    <div class="text-secondary">
+                                        Đơn đặt này không thanh toán trước. Sau khi hủy, đơn sẽ chuyển về trạng thái
+                                        <strong>Đã hủy</strong> và bạn không mất khoản phí nào.
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div id="refundNoticeIneligible" class="alert alert-danger border-0 rounded-3 small p-3 mb-3" style="display: none;">
-                        <div class="d-flex align-items-start gap-2">
-                            <i class="fa-solid fa-triangle-exclamation text-danger fs-5 mt-1"></i>
-                            <div>
-                                <div class="fw-bold text-danger mb-1">KHÔNG ĐƯỢC HOÀN TIỀN CỌC</div>
-                                <div class="text-secondary" id="refundIneligibleText">
-                                    Thời gian hủy đơn quá sát ngày nhận phòng (&lt; 2 ngày).
-                                </div>
-                                <div class="mt-2 text-dark small">
-                                    Theo quy định của Homestay, tiền cọc / thanh toán trước <strong>sẽ KHÔNG được hoàn lại</strong> nhằm bồi hoàn giữ chỗ. Đơn sẽ chuyển về trạng thái <strong>Đã hủy (CANCELLED)</strong>.
-                                </div>
-                            </div>
-                        </div>
+                    <div class="modal-footer border-top-0 pt-0 pb-4 px-4 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Giữ
+                            đơn</button>
+                        <button type="submit" class="btn btn-danger btn-pill px-4 fw-bold shadow-sm">
+                            <i class="fa-solid fa-xmark me-1"></i> Đồng ý hủy đơn
+                        </button>
                     </div>
-
-                    <div id="refundNoticePayAtProp" class="alert alert-info border-0 rounded-3 small p-3 mb-3" style="display: none;">
-                        <div class="d-flex align-items-start gap-2">
-                            <i class="fa-solid fa-circle-info text-info fs-5 mt-1"></i>
-                            <div>
-                                <div class="fw-bold text-info mb-1">THANH TOÁN TẠI QUẦY</div>
-                                <div class="text-secondary">
-                                    Đơn đặt này không thanh toán trước. Sau khi hủy, đơn sẽ chuyển về trạng thái <strong>Đã hủy (CANCELLED)</strong> và bạn không mất khoản phí nào.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer border-top-0 pt-0 pb-4 px-4 d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Giữ đơn</button>
-                    <button type="submit" class="btn btn-danger btn-pill px-4 fw-bold shadow-sm">
-                        <i class="fa-solid fa-xmark me-1"></i> Đồng ý hủy đơn
-                    </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-function openCancelModal(btn) {
-    const bookingId = btn.getAttribute('data-booking-id');
-    const bookingCode = btn.getAttribute('data-booking-code');
-    const roomName = btn.getAttribute('data-room-name');
-    const homestayName = btn.getAttribute('data-homestay-name');
-    const checkinStr = btn.getAttribute('data-checkin');
-    const policy = btn.getAttribute('data-policy');
+    <script>
+        function openCancelModal(btn) {
+            const bookingId = btn.getAttribute('data-booking-id');
+            const bookingCode = btn.getAttribute('data-booking-code');
+            const roomName = btn.getAttribute('data-room-name');
+            const homestayName = btn.getAttribute('data-homestay-name');
+            const checkinStr = btn.getAttribute('data-checkin');
+            const policy = btn.getAttribute('data-policy');
 
-    document.getElementById('cancelBookingForm').action = '/khach-hang/don-dat-phong/' + bookingId + '/huy';
-    document.getElementById('cancelModalCode').textContent = '#' + (bookingCode ? bookingCode : bookingId);
-    document.getElementById('cancelModalHomestay').textContent = homestayName + ' - ' + roomName;
-    document.getElementById('cancelModalCheckin').textContent = checkinStr;
+            document.getElementById('cancelBookingForm').action = '/khach-hang/don-dat-phong/' + bookingId + '/huy';
+            document.getElementById('cancelModalCode').textContent = '#' + (bookingCode ? bookingCode : bookingId);
+            document.getElementById('cancelModalHomestay').textContent = homestayName + ' - ' + roomName;
+            document.getElementById('cancelModalCheckin').textContent = checkinStr;
 
-    // Calculate days between today and checkinDate
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const checkinDate = new Date(checkinStr + 'T00:00:00');
-    const diffTime = checkinDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            // Calculate days between today and checkinDate
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const checkinDate = new Date(checkinStr + 'T00:00:00');
+            const diffTime = checkinDate.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    const eligibleBox = document.getElementById('refundNoticeEligible');
-    const ineligibleBox = document.getElementById('refundNoticeIneligible');
-    const payAtPropBox = document.getElementById('refundNoticePayAtProp');
+            const eligibleBox = document.getElementById('refundNoticeEligible');
+            const ineligibleBox = document.getElementById('refundNoticeIneligible');
+            const payAtPropBox = document.getElementById('refundNoticePayAtProp');
 
-    eligibleBox.style.display = 'none';
-    ineligibleBox.style.display = 'none';
-    payAtPropBox.style.display = 'none';
+            eligibleBox.style.display = 'none';
+            ineligibleBox.style.display = 'none';
+            payAtPropBox.style.display = 'none';
 
-    if (policy === 'PAY_AT_PROPERTY') {
-        payAtPropBox.style.display = 'block';
-    } else {
-        if (diffDays >= 2) {
-            eligibleBox.style.display = 'block';
-            document.getElementById('refundEligibleText').textContent = 
-                'Thời gian hủy còn cách ngày nhận phòng ' + diffDays + ' ngày (≥ 2 ngày). Theo chính sách, toàn bộ số tiền cọc/thanh toán trước sẽ được hoàn trả lại cho bạn.';
-        } else {
-            ineligibleBox.style.display = 'block';
-            document.getElementById('refundIneligibleText').textContent = 
-                'Thời gian hủy chỉ còn ' + Math.max(0, diffDays) + ' ngày trước ngày nhận phòng (< 2 ngày).';
-        }
-    }
-}
-function openReviewModal(btn) {
-    const bookingId = btn.getAttribute('data-booking-id');
-    const homestayName = btn.getAttribute('data-homestay-name');
-    document.getElementById('modalBookingId').value = bookingId;
-    document.getElementById('modalHomestayName').textContent = 'Chỗ nghỉ: ' + homestayName;
-    setRating(5);
-}
-
-const starTexts = {
-    1: 'Rất tệ (1 sao)',
-    2: 'Tạm được (2 sao)',
-    3: 'Bình thường (3 sao)',
-    4: 'Hài lòng (4 sao)',
-    5: 'Tuyệt vời (5 sao)'
-};
-
-function setRating(val) {
-    document.getElementById('modalRating').value = val;
-    document.getElementById('starRatingText').textContent = starTexts[val] || (val + ' sao');
-    const stars = document.querySelectorAll('.star-btn');
-    stars.forEach(star => {
-        const starVal = parseInt(star.getAttribute('data-val'));
-        if (starVal <= val) {
-            star.classList.remove('text-secondary');
-            star.classList.add('text-warning');
-        } else {
-            star.classList.remove('text-warning');
-            star.classList.add('text-secondary');
-        }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const stars = document.querySelectorAll('.star-btn');
-    stars.forEach(star => {
-        star.addEventListener('click', () => {
-            const val = parseInt(star.getAttribute('data-val'));
-            setRating(val);
-        });
-    });
-
-    // Countdown timer for booking rows
-    const countdownRows = document.querySelectorAll('.booking-row-countdown');
-    if (countdownRows.length > 0) {
-        function updateRowTimers() {
-            const now = new Date().getTime();
-            countdownRows.forEach(row => {
-                const expStr = row.getAttribute('data-expired-at');
-                if (!expStr) return;
-                const target = new Date(expStr).getTime();
-                const diff = target - now;
-                const display = row.querySelector('.timer-display');
-                if (diff <= 0) {
-                    if (display) display.textContent = "00:00:00 (Hết hạn)";
-                    row.classList.remove('text-danger');
-                    row.classList.add('text-muted');
+            if (policy === 'PAY_AT_PROPERTY') {
+                payAtPropBox.style.display = 'block';
+            } else {
+                if (diffDays >= 2) {
+                    eligibleBox.style.display = 'block';
+                    document.getElementById('refundEligibleText').textContent =
+                        'Thời gian hủy còn cách ngày nhận phòng ' + diffDays + ' ngày (≥ 2 ngày). Theo chính sách, toàn bộ số tiền cọc/thanh toán trước sẽ được hoàn trả lại cho bạn.';
                 } else {
-                    const h = Math.floor(diff / (1000 * 60 * 60));
-                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const s = Math.floor((diff % (1000 * 60)) / 1000);
-                    if (display) {
-                        display.textContent = 
-                            String(h).padStart(2, '0') + ':' +
-                            String(m).padStart(2, '0') + ':' +
-                            String(s).padStart(2, '0');
-                    }
+                    ineligibleBox.style.display = 'block';
+                    document.getElementById('refundIneligibleText').textContent =
+                        'Thời gian hủy chỉ còn ' + Math.max(0, diffDays) + ' ngày trước ngày nhận phòng (< 2 ngày).';
+                }
+            }
+        }
+        function openReviewModal(btn) {
+            const bookingId = btn.getAttribute('data-booking-id');
+            const homestayName = btn.getAttribute('data-homestay-name');
+            document.getElementById('modalBookingId').value = bookingId;
+            document.getElementById('modalHomestayName').textContent = 'Chỗ nghỉ: ' + homestayName;
+            setRating(5);
+        }
+
+        const starTexts = {
+            1: 'Rất tệ (1 sao)',
+            2: 'Tạm được (2 sao)',
+            3: 'Bình thường (3 sao)',
+            4: 'Hài lòng (4 sao)',
+            5: 'Tuyệt vời (5 sao)'
+        };
+
+        function setRating(val) {
+            document.getElementById('modalRating').value = val;
+            document.getElementById('starRatingText').textContent = starTexts[val] || (val + ' sao');
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach(star => {
+                const starVal = parseInt(star.getAttribute('data-val'));
+                if (starVal <= val) {
+                    star.classList.remove('text-secondary');
+                    star.classList.add('text-warning');
+                } else {
+                    star.classList.remove('text-warning');
+                    star.classList.add('text-secondary');
                 }
             });
         }
-        updateRowTimers();
-        setInterval(updateRowTimers, 1000);
-    }
-});
-</script>
 
-<div th:replace="~{dung-chung/layout :: footer}"></div>
+        document.addEventListener('DOMContentLoaded', () => {
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const val = parseInt(star.getAttribute('data-val'));
+                    setRating(val);
+                });
+            });
+
+            // Countdown timer for booking rows
+            const countdownRows = document.querySelectorAll('.booking-row-countdown');
+            if (countdownRows.length > 0) {
+                function updateRowTimers() {
+                    const now = new Date().getTime();
+                    countdownRows.forEach(row => {
+                        const expStr = row.getAttribute('data-expired-at');
+                        if (!expStr) return;
+                        const target = new Date(expStr).getTime();
+                        const diff = target - now;
+                        const display = row.querySelector('.timer-display');
+                        if (diff <= 0) {
+                            if (display) display.textContent = "00:00:00 (Hết hạn)";
+                            row.classList.remove('text-danger');
+                            row.classList.add('text-muted');
+                        } else {
+                            const h = Math.floor(diff / (1000 * 60 * 60));
+                            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const s = Math.floor((diff % (1000 * 60)) / 1000);
+                            if (display) {
+                                display.textContent =
+                                    String(h).padStart(2, '0') + ':' +
+                                    String(m).padStart(2, '0') + ':' +
+                                    String(s).padStart(2, '0');
+                            }
+                        }
+                    });
+                }
+                updateRowTimers();
+                setInterval(updateRowTimers, 1000);
+            }
+        });
+    </script>
+
+    <div th:replace="~{dung-chung/layout :: footer}"></div>
 </body>
+
 </html>

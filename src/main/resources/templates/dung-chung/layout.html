@@ -6,6 +6,7 @@
     <meta name="_csrf" th:content="${_csrf?.token}"/>
     <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
     <title th:text="${title} + ' - BookingHomeStay Luxury'">BookingHomeStay Luxury</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/icons/homestay-svgrepo-com.svg}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,14 +15,14 @@
     <link rel="stylesheet" th:href="@{/css/style.css(v='2.1')}">
 </head>
 <body>
-<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark navbar-custom" id="mainNavbar">
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light navbar-custom" id="mainNavbar">
     <div class="container">
         <a class="navbar-brand" th:href="@{/}">
-            <span class="brand-icon"><i class="fa-solid fa-house-chimney-window"></i></span>
+            <img th:src="@{/images/icons/homestay-svgrepo-com.svg}" alt="BookingHomeStay Logo" class="brand-logo-img">
             <span>Booking<span style="color:var(--bhs-primary);">HomeStay</span></span>
         </a>
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-            <i class="fa-solid fa-bars text-light fs-4"></i>
+            <i class="fa-solid fa-bars text-dark fs-4"></i>
         </button>
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav me-auto ps-lg-3 gap-1">
@@ -48,7 +49,7 @@
                     </ul>
                 </li>
                 <li class="nav-item dropdown" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link dropdown-toggle btn btn-sm btn-outline-light px-3 py-1 text-light" href="#" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle btn btn-sm btn-outline-dark px-3 py-1 text-dark" href="#" data-bs-toggle="dropdown">
                         <i class="fa-solid fa-shield-halved me-1 text-warning"></i>Quản trị
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
@@ -66,9 +67,9 @@
                 <li class="nav-item" sec:authorize="isAuthenticated()">
                     <div class="nav-item-user d-flex align-items-center">
                         <span class="user-avatar"><i class="fa-solid fa-user"></i></span>
-                        <span class="text-light fw-semibold small pe-2" sec:authentication="name">Tài khoản</span>
+                        <span class="text-dark fw-semibold small pe-2" sec:authentication="name">Tài khoản</span>
                         <form th:action="@{/logout}" method="post" class="d-inline m-0">
-                            <button class="btn btn-sm btn-link text-white-50 p-0 text-decoration-none" title="Đăng xuất" type="submit">
+                            <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" title="Đăng xuất" type="submit">
                                 <i class="fa-solid fa-right-from-bracket ms-1"></i>
                             </button>
                         </form>
@@ -131,7 +132,7 @@
             <div class="row g-4 mb-5">
                 <div class="col-lg-4 col-md-6">
                     <div class="d-flex align-items-center gap-2 mb-3">
-                        <span class="brand-icon"><i class="fa-solid fa-house-chimney-window"></i></span>
+                        <img th:src="@{/images/icons/homestay-svgrepo-com.svg}" alt="BookingHomeStay Logo" class="brand-logo-img" style="width: 36px; height: 36px;">
                         <span class="footer-brand-title m-0">Booking<span style="color:var(--bhs-primary);">HomeStay</span></span>
                     </div>
                     <p class="small text-secondary mb-4 pe-lg-4">

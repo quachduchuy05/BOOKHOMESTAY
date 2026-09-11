@@ -164,6 +164,19 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public org.springframework.data.domain.Page<Booking> getMyBookings(
+            Long userId,
+            String dateType,
+            LocalDate startDate,
+            LocalDate endDate,
+            org.springframework.data.domain.Pageable pageable) {
+        LocalDateTime fromDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime toDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
+        String type = (dateType != null && dateType.equalsIgnoreCase("CHECKIN")) ? "CHECKIN" : "CREATED";
+        return bookingRepository.findByUserIdWithFilter(userId, type, startDate, endDate, fromDateTime, toDateTime, pageable);
+    }
+
+    @Override
     @Transactional
     public void cancelBooking(Long bookingId, Long userId) {
         Booking booking = findOrThrow(bookingId);

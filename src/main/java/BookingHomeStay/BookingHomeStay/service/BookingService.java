@@ -8,6 +8,12 @@ public interface BookingService {
     boolean isRoomAvailable(Long roomId, java.time.LocalDate checkIn, java.time.LocalDate checkOut);
     Booking createBooking(BookingRequest request, Long userId);
     List<Booking> getMyBookings(Long userId);
+    org.springframework.data.domain.Page<Booking> getMyBookings(
+            Long userId,
+            String dateType,
+            java.time.LocalDate startDate,
+            java.time.LocalDate endDate,
+            org.springframework.data.domain.Pageable pageable);
     void cancelBooking(Long bookingId, Long userId);
     List<Booking> getBookingsOfHost(Long hostUserId);
     void confirmBooking(Long bookingId, Long hostUserId);
