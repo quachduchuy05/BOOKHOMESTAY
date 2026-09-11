@@ -168,8 +168,33 @@
                         Vui lòng nhập chính xác thông tin tài khoản ngân hàng chính chủ của bạn để nhận tiền hoa hồng khi rút tiền.
                     </p>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Tên ngân hàng thụ hưởng <span class="text-danger">*</span></label>
-                        <input type="text" name="tenNganHang" class="form-control" th:value="${collaborator.tenNganHang}" placeholder="VD: Vietcombank, Techcombank, MB Bank..." required>
+                        <label class="form-label small fw-bold text-secondary">Ngân hàng thụ hưởng <span class="text-danger">*</span></label>
+                        <select name="tenNganHang" class="form-select" required>
+                            <option value="">-- Chọn ngân hàng tại Việt Nam --</option>
+                            <option value="Vietcombank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Vietcombank')}">Vietcombank - Ngân hàng Ngoại thương</option>
+                            <option value="VietinBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('VietinBank')}">VietinBank - Ngân hàng Công thương</option>
+                            <option value="BIDV" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('BIDV')}">BIDV - Ngân hàng Đầu tư và Phát triển</option>
+                            <option value="Agribank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Agribank')}">Agribank - Ngân hàng Nông nghiệp & PTNT</option>
+                            <option value="MB Bank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('MB')}">MB Bank - Ngân hàng Quân đội</option>
+                            <option value="Techcombank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Techcombank')}">Techcombank - Ngân hàng Kỹ thương</option>
+                            <option value="ACB" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('ACB')}">ACB - Ngân hàng Á Châu</option>
+                            <option value="VPBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('VPBank')}">VPBank - Ngân hàng Việt Nam Thịnh vượng</option>
+                            <option value="TPBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('TPBank')}">TPBank - Ngân hàng Tiên Phong</option>
+                            <option value="Sacombank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Sacombank')}">Sacombank - Ngân hàng Sài Gòn Thương Tín</option>
+                            <option value="HDBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('HDBank')}">HDBank - Ngân hàng Phát triển TP.HCM</option>
+                            <option value="VIB" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('VIB')}">VIB - Ngân hàng Quốc Tế</option>
+                            <option value="SHB" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('SHB')}">SHB - Ngân hàng Sài Gòn - Hà Nội</option>
+                            <option value="MSB" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('MSB')}">MSB - Ngân hàng Hàng Hải</option>
+                            <option value="SeABank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('SeABank')}">SeABank - Ngân hàng Đông Nam Á</option>
+                            <option value="OCB" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('OCB')}">OCB - Ngân hàng Phương Đông</option>
+                            <option value="Eximbank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Eximbank')}">Eximbank - Ngân hàng Xuất Nhập Khẩu</option>
+                            <option value="LPBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('LPBank')}">LPBank - Ngân hàng Lộc Phát</option>
+                            <option value="Nam A Bank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Nam A')}">Nam A Bank - Ngân hàng Nam Á</option>
+                            <option value="Bac A Bank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Bac A')}">Bac A Bank - Ngân hàng Bắc Á</option>
+                            <option value="PVcomBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('PVcomBank')}">PVcomBank - Ngân hàng Đại Chúng</option>
+                            <option value="Cake by VPBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Cake')}">Cake by VPBank (Ngân hàng số Cake)</option>
+                            <option value="Timo" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Timo')}">Timo (Ngân hàng số Timo by BVBank)</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-secondary">Số tài khoản ngân hàng <span class="text-danger">*</span></label>

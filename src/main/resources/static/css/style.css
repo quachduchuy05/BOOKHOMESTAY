@@ -192,7 +192,20 @@ a:hover {
     border-radius: var(--radius-md);
     box-shadow: var(--bhs-shadow-lg);
     padding: 8px;
+    z-index: 1060;
     animation: dropdownFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.user-profile-toggle {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    transition: opacity 0.2s ease;
+}
+
+.user-profile-toggle:active {
+    opacity: 0.85;
 }
 
 @keyframes dropdownFade {

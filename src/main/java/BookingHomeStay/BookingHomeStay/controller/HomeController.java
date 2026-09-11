@@ -21,7 +21,15 @@ public class HomeController {
     // Ho tro ca "/" va "/trang-chu" tro ve cung 1 noi dung (yeu cau task 2:
     // nguoi dung muon thay ro URL tieng Viet dang "localhost:8080/trang-chu").
     @GetMapping({"/", "/trang-chu"})
-    public String home(Model model) {
+    public String home(Model model, org.springframework.security.core.Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            for (org.springframework.security.core.GrantedAuthority authority : authentication.getAuthorities()) {
+                String role = authority.getAuthority();
+                if ("ROLE_ADMIN".equals(role)) return "redirect:/quan-tri/tong-quan";
+                if ("ROLE_COLLABORATOR".equals(role)) return "redirect:/cong-tac-vien/tong-quan";
+                if ("ROLE_HOST".equals(role)) return "redirect:/chu-nha/tong-quan";
+            }
+        }
         List<Homestay> featuredHomestays = homestayService.search(null, null, null, null);
         model.addAttribute("featuredHomestays", featuredHomestays);
         return "trang-chu";
@@ -32,7 +40,16 @@ public class HomeController {
                           @RequestParam(required = false) String district,
                           @RequestParam(required = false) Integer guests,
                           @RequestParam(required = false) BigDecimal maxPrice,
+                          org.springframework.security.core.Authentication authentication,
                           Model model) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            for (org.springframework.security.core.GrantedAuthority authority : authentication.getAuthorities()) {
+                String role = authority.getAuthority();
+                if ("ROLE_ADMIN".equals(role)) return "redirect:/quan-tri/tong-quan";
+                if ("ROLE_COLLABORATOR".equals(role)) return "redirect:/cong-tac-vien/tong-quan";
+                if ("ROLE_HOST".equals(role)) return "redirect:/chu-nha/tong-quan";
+            }
+        }
         List<Homestay> results = homestayService.search(province, district, guests, maxPrice);
         model.addAttribute("results", results);
         model.addAttribute("province", province);

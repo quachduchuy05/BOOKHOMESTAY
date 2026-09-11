@@ -54,7 +54,17 @@ public class HomestayController {
     }
 
     @GetMapping("/homestay/gan-day")
-    public String nearbyPage() { return "homestay-gan-day"; }
+    public String nearbyPage(org.springframework.security.core.Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            for (org.springframework.security.core.GrantedAuthority authority : authentication.getAuthorities()) {
+                String role = authority.getAuthority();
+                if ("ROLE_ADMIN".equals(role)) return "redirect:/quan-tri/tong-quan";
+                if ("ROLE_COLLABORATOR".equals(role)) return "redirect:/cong-tac-vien/tong-quan";
+                if ("ROLE_HOST".equals(role)) return "redirect:/chu-nha/tong-quan";
+            }
+        }
+        return "homestay-gan-day";
+    }
 
     @GetMapping("/homestay/api/gan-day")
     @ResponseBody
