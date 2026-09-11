@@ -39,6 +39,7 @@ public class HomeController {
     public String search(@RequestParam(required = false) String province,
                           @RequestParam(required = false) String district,
                           @RequestParam(required = false) Integer guests,
+                          @RequestParam(required = false) BigDecimal minPrice,
                           @RequestParam(required = false) BigDecimal maxPrice,
                           org.springframework.security.core.Authentication authentication,
                           Model model) {
@@ -50,10 +51,13 @@ public class HomeController {
                 if ("ROLE_HOST".equals(role)) return "redirect:/chu-nha/tong-quan";
             }
         }
-        List<Homestay> results = homestayService.search(province, district, guests, maxPrice);
+        List<Homestay> results = homestayService.search(province, district, guests, minPrice, maxPrice);
         model.addAttribute("results", results);
         model.addAttribute("province", province);
         model.addAttribute("district", district);
+        model.addAttribute("guests", guests);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
         // Task 12: neu da co san 1 tinh/thanh (vd bam tu "Diem den pho bien"),
         // nap san danh sach quan/huyen THAT SU co homestay trong tinh do de
         // nguoi dung loc tiep theo quan/huyen thay vi phai chon lai tinh/thanh.

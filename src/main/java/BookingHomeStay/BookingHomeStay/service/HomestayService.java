@@ -6,7 +6,10 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface HomestayService {
-    List<Homestay> search(String province, String district, Integer guests, BigDecimal maxPrice);
+    List<Homestay> search(String province, String district, Integer guests, BigDecimal minPrice, BigDecimal maxPrice);
+    default List<Homestay> search(String province, String district, Integer guests, BigDecimal maxPrice) {
+        return search(province, district, guests, null, maxPrice);
+    }
     List<String> getDistrictsOfProvince(String province);
     List<Homestay> findNearby(double lat, double lng, double radiusKm);
     Homestay getActiveBySlug(String slug);

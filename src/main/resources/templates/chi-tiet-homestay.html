@@ -138,16 +138,26 @@
 
             <!-- Room Selection List -->
             <div class="mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                     <div>
                         <h4 class="fw-bold m-0">Danh sách các phòng</h4>
                         <small class="text-muted">Vui lòng chọn loại phòng phù hợp với số lượng thành viên trong đoàn</small>
                     </div>
+                    <!-- Quick Room Price Filter -->
+                    <div class="d-flex flex-wrap gap-1 align-items-center" id="roomPriceFilterBar">
+                        <small class="fw-bold text-muted me-1"><i class="fa-solid fa-filter me-1"></i>Lọc giá:</small>
+                        <button type="button" class="btn btn-sm btn-outline-danger active py-1 px-2 rounded-pill room-price-btn" style="font-size: 12px;" onclick="filterRoomsByPrice(null, null, this)">Tất cả</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 rounded-pill room-price-btn" style="font-size: 12px;" onclick="filterRoomsByPrice(0, 500000, this)">&lt; 500k</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 rounded-pill room-price-btn" style="font-size: 12px;" onclick="filterRoomsByPrice(500000, 1000000, this)">500k - 1tr</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 rounded-pill room-price-btn" style="font-size: 12px;" onclick="filterRoomsByPrice(1000000, 2000000, this)">1tr - 2tr</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 rounded-pill room-price-btn" style="font-size: 12px;" onclick="filterRoomsByPrice(2000000, null, this)">&gt; 2tr</button>
+                    </div>
                 </div>
 
-                <div class="d-flex flex-column gap-3">
+                <div class="d-flex flex-column gap-3" id="roomListContainer">
                     <div th:each="room : ${homestay.rooms}" 
                          class="room-card-box" 
+                         th:attr="data-price=${room.pricePerNight}"
                          th:classappend="${room.status.name() != 'ACTIVE'} ? 'inactive' : ''">
                         <div>
                             <div class="d-flex align-items-center gap-2 mb-1">
@@ -335,6 +345,26 @@ function handleToggleFavorite(btn) {
         }
     })
     .catch(err => console.error(err));
+}
+
+function filterRoomsByPrice(min, max, btnEl) {
+    document.querySelectorAll('.room-price-btn').forEach(b => {
+        b.classList.remove('btn-outline-danger', 'active');
+        b.classList.add('btn-outline-secondary');
+    });
+    if (btnEl) {
+        btnEl.classList.remove('btn-outline-secondary');
+        btnEl.classList.add('btn-outline-danger', 'active');
+    }
+
+    const rooms = document.querySelectorAll('#roomListContainer .room-card-box');
+    rooms.forEach(card => {
+        const p = parseFloat(card.getAttribute('data-price') || '0');
+        let show = true;
+        if (min !== null && p < min) show = false;
+        if (max !== null && p > max) show = false;
+        card.style.display = show ? '' : 'none';
+    });
 }
 </script>
 <div th:replace="~{dung-chung/layout :: footer}"></div>

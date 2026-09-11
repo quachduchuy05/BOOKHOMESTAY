@@ -49,6 +49,10 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Ma OTP khong dung hoac da het han, vui long thu lai.");
         }
 
+        if (request.isRegisterAsHost() && request.isRegisterAsCollaborator()) {
+            throw new IllegalArgumentException("Không thể đồng thời đăng ký vừa làm Chủ nhà vừa làm Cộng tác viên.");
+        }
+
         Set<Role> roles = new HashSet<>();
         roles.add(roleRepository.findByName("ROLE_CUSTOMER").orElseThrow());
         if (request.isRegisterAsHost()) {
@@ -131,23 +135,14 @@ public class UserServiceImpl implements UserService {
                         ? originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
                 String filename = "avatar_" + userId + "_" + System.currentTimeMillis() + ext;
 
-                java.nio.file.Path uploadDir = java.nio.file.Paths.get("src/main/resources/static/images/avatars");
+                java.nio.file.Path uploadDir = java.nio.file.Paths.get("uploads/avatars");
                 if (!java.nio.file.Files.exists(uploadDir)) {
                     java.nio.file.Files.createDirectories(uploadDir);
                 }
                 java.nio.file.Path filePath = uploadDir.resolve(filename);
                 form.getAvatarFile().transferTo(filePath.toFile());
 
-                // Copy vao target/classes neu ton tai de hien thi ngay tren server
-                java.nio.file.Path targetDir = java.nio.file.Paths.get("target/classes/static/images/avatars");
-                if (java.nio.file.Files.exists(targetDir.getParent())) {
-                    if (!java.nio.file.Files.exists(targetDir)) {
-                        java.nio.file.Files.createDirectories(targetDir);
-                    }
-                    java.nio.file.Files.copy(filePath, targetDir.resolve(filename), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                }
-
-                user.setAvatar("/images/avatars/" + filename);
+                user.setAvatar("/uploads/avatars/" + filename);
             } catch (Exception e) {
                 // Neu upload file that bai, fallback sang avatar link neu co
                 if (form.getAvatar() != null && !form.getAvatar().isBlank()) {

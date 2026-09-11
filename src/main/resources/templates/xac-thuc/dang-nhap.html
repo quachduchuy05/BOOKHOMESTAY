@@ -14,18 +14,44 @@
                     <h3 class="fw-bold text-white mb-2">Chào mừng bạn trở lại!</h3>
                     <p class="small text-white-50">Đăng nhập để khám phá hàng ngàn homestay độc đáo và nhận các ưu đãi độc quyền từ BookingHomeStay.</p>
                 </div>
-                <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px);">
-                    <small class="d-block text-white-50 mb-1">Tài khoản quản trị demo:</small>
-                    <code class="text-white fw-bold small">admin@bookinghomestay.local / Admin@123</code>
+                <div class="d-flex flex-column gap-3 p-3 rounded-4" style="background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px);">
+                    <div class="d-flex align-items-center gap-3 text-white small">
+                        <div class="rounded-circle p-2 bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <i class="fa-solid fa-shield-halved text-warning"></i>
+                        </div>
+                        <div>
+                            <strong class="d-block">Bảo mật thông tin</strong>
+                            <span class="text-white-50">Mã hóa xác thực hai lớp an toàn</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 text-white small">
+                        <div class="rounded-circle p-2 bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <i class="fa-solid fa-headset text-info"></i>
+                        </div>
+                        <div>
+                            <strong class="d-block">Hỗ trợ 24/7</strong>
+                            <span class="text-white-50">Đội ngũ CSKH đồng hành mọi kỳ nghỉ</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Login Form -->
             <div class="col-lg-7">
                 <div class="auth-form-wrap">
+                    <!-- Nav Tabs: Dang Nhap / Dang Ky -->
+                    <div class="d-flex bg-light p-1 rounded-pill mb-4 border">
+                        <a th:href="@{/dang-nhap}" class="btn btn-primary btn-pill flex-fill py-2 fw-bold shadow-sm">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i> Đăng nhập
+                        </a>
+                        <a th:href="@{/dang-ky}" class="btn btn-light btn-pill flex-fill py-2 fw-semibold text-muted">
+                            <i class="fa-solid fa-user-plus me-1"></i> Đăng ký
+                        </a>
+                    </div>
+
                     <div class="mb-4">
-                        <h3 class="fw-bold mb-1">Đăng nhập</h3>
-                        <p class="text-muted small">Nhập thông tin tài khoản của bạn để tiếp tục</p>
+                        <h3 class="fw-bold mb-1">Đăng nhập tài khoản</h3>
+                        <p class="text-muted small">Nhập thông tin tài khoản của bạn để tiếp tục trải nghiệm</p>
                     </div>
 
                     <!-- Alerts -->
@@ -68,14 +94,16 @@
                             </div>
                         </div>
 
-                        <button class="btn btn-primary btn-pill w-100 py-2 fw-bold mb-3" type="submit">
+                        <button class="btn btn-primary btn-pill w-100 py-2 fw-bold mb-3 shadow-sm" type="submit">
                             <i class="fa-solid fa-right-to-bracket me-1"></i> Đăng nhập ngay
                         </button>
                     </form>
 
                     <div class="text-center pt-3 border-top">
-                        <span class="small text-muted">Chưa có tài khoản?</span>
-                        <a th:href="@{/dang-ky}" class="small fw-bold text-danger ms-1 text-decoration-none">Đăng ký thành viên mới</a>
+                        <span class="small text-muted d-block mb-2">Bạn chưa có tài khoản BookingHomeStay?</span>
+                        <a th:href="@{/dang-ky}" class="btn btn-outline-custom btn-pill w-100 py-2 fw-bold">
+                            <i class="fa-solid fa-user-plus me-1"></i> Đăng ký thành viên mới ngay
+                        </a>
                     </div>
                 </div>
             </div>

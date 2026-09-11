@@ -27,13 +27,13 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class VietQrServiceImpl implements VietQrService {
 
-    @Value("${vietqr.bank-bin:970422}")
+    @Value("${vietqr.bank-bin:970423}")
     private String bankBin;
 
-    @Value("${vietqr.account-no}")
+    @Value("${vietqr.account-no:58869818888}")
     private String accountNo;
 
-    @Value("${vietqr.account-name:BOOKING HOMESTAY}")
+    @Value("${vietqr.account-name:VU TRUONG GIANG}")
     private String accountName;
 
     @Value("${vietqr.template:compact2}")

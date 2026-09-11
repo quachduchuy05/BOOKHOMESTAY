@@ -4,19 +4,29 @@
 <body>
 <nav th:replace="~{dung-chung/layout :: navbar}"></nav>
 
-<div class="container py-4">
-    <!-- Flash Messages -->
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
-        <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
-        <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Mobile Sidebar Trigger -->
+    <div th:replace="~{dung-chung/admin-sidebar :: toggle}"></div>
 
-    <!-- Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div class="row g-4">
+        <!-- Admin Slidebar (Sidebar) -->
+        <div th:replace="~{dung-chung/admin-sidebar :: sidebar('giao-dich')}"></div>
+        <div th:replace="~{dung-chung/admin-sidebar :: offcanvas('giao-dich')}"></div>
+
+        <!-- Main Content Column -->
+        <div class="col-lg-9 col-xl-10">
+            <!-- Flash Messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+                <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Header -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1 small">
@@ -191,6 +201,8 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
         </div>
     </div>
 </div>

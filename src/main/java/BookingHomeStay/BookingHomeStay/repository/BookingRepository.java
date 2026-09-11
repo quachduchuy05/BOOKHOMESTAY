@@ -16,6 +16,26 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByStatusAndCreatedAtBefore(BookingHomeStay.BookingHomeStay.entity.BookingStatus status, java.time.LocalDateTime dateTime);
     List<Booking> findByStatusAndExpiredAtBefore(BookingHomeStay.BookingHomeStay.entity.BookingStatus status, java.time.LocalDateTime dateTime);
 
+    @Query("""
+        SELECT DISTINCT b FROM Booking b
+        WHERE (:bookingCode IS NULL OR LOWER(b.bookingCode) LIKE LOWER(CONCAT('%', :bookingCode, '%')))
+          AND (:customerName IS NULL OR LOWER(b.customerName) LIKE LOWER(CONCAT('%', :customerName, '%')))
+        ORDER BY b.createdAt DESC
+        """)
+    List<Booking> searchForAdmin(@org.springframework.data.repository.query.Param("bookingCode") String bookingCode,
+                                @org.springframework.data.repository.query.Param("customerName") String customerName);
+
+    @Query("""
+        SELECT DISTINCT b FROM Booking b JOIN b.details bd JOIN bd.room r JOIN r.homestay h JOIN h.host host
+        WHERE (host.id = :hostUserId OR host.user.id = :hostUserId)
+          AND (:bookingCode IS NULL OR LOWER(b.bookingCode) LIKE LOWER(CONCAT('%', :bookingCode, '%')))
+          AND (:customerName IS NULL OR LOWER(b.customerName) LIKE LOWER(CONCAT('%', :customerName, '%')))
+        ORDER BY b.createdAt DESC
+        """)
+    List<Booking> searchForHost(@org.springframework.data.repository.query.Param("hostUserId") Long hostUserId,
+                               @org.springframework.data.repository.query.Param("bookingCode") String bookingCode,
+                               @org.springframework.data.repository.query.Param("customerName") String customerName);
+
     // Gom so luong don dat phong theo thang (dung cho bieu do o Dashboard quan tri).
     // Tra ve moi hang la [ "yyyy-MM", so_luong ] de ve Chart.js.
     @Query("SELECT FUNCTION('DATE_FORMAT', b.createdAt, '%Y-%m'), COUNT(b) " +

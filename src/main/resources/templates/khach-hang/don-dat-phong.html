@@ -131,7 +131,7 @@
                                         <i class="fa-solid fa-money-bill-transfer me-1"></i>Chờ hoàn tiền
                                     </span>
                                     <div class="small text-muted mt-1"
-                                        th:if="${b.remainingBalance > 0 and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED' and b.status.name() != 'PENDING_REFUND'}">
+                                        th:if="${b.remainingBalance != null and b.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0 and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED' and b.status.name() != 'PENDING_REFUND'}">
                                         Còn lại trả tại quầy: <span class="fw-bold text-danger"
                                             th:text="${#numbers.formatDecimal(b.remainingBalance,0,'POINT',0,'COMMA')} + 'đ'"></span>
                                     </div>

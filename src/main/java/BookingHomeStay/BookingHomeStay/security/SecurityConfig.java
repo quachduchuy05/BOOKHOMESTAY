@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/", "/trang-chu", "/tim-kiem", "/tim-kiem/**", "/homestay/**", "/dang-nhap", "/dang-ky",
                     "/dang-ky/gui-otp", "/quen-mat-khau", "/quen-mat-khau/**", "/dat-lai-mat-khau", "/dat-lai-mat-khau/**",
-                    "/api/v1/sepay/webhook", "/api/v1/bookings/*/status", "/css/**", "/js/**", "/images/**"
+                    "/api/v1/sepay/webhook", "/api/v1/bookings/*/status", "/css/**", "/js/**", "/images/**", "/uploads/**"
                 ).permitAll()
                 // Cong tac vien dung chung khong gian voi Chu nha (ca hai deu "ban hang phong")
                 .requestMatchers("/khach-hang/**").hasAnyRole("CUSTOMER", "COLLABORATOR")

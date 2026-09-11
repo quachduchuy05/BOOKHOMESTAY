@@ -90,7 +90,7 @@
         <div class="p-4 bg-success-subtle border-top text-center text-success" th:if="${booking.status.name() == 'CONFIRMED' or booking.status.name() == 'COMPLETED'}">
             <i class="fa-solid fa-circle-check fs-3 mb-2 d-block"></i>
             <h6 class="fw-bold mb-0">Đơn đặt phòng đã được xác nhận thành công!</h6>
-            <div class="small text-muted mt-1" th:if="${booking.remainingBalance > 0}">
+            <div class="small text-muted mt-1" th:if="${booking.remainingBalance != null and booking.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
                 Số tiền còn lại (<span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(booking.remainingBalance,0,'POINT',0,'COMMA')} + ' VNĐ'"></span>) sẽ thanh toán trực tiếp tại quầy khi nhận/trả phòng.
             </div>
         </div>

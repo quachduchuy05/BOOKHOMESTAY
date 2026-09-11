@@ -15,6 +15,34 @@
         </a>
     </div>
 
+    <!-- Search Form by Booking Code and Customer Name (Task 10) -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+        <form method="get" th:action="@{/chu-nha/don-dat-phong}" class="row g-3 align-items-end">
+            <div class="col-md-5 col-12">
+                <label class="form-label small fw-bold text-muted">
+                    <i class="fa-solid fa-barcode text-primary me-1"></i>Mã đơn đặt phòng
+                </label>
+                <input type="text" class="form-control rounded-3" name="bookingCode" 
+                       placeholder="VD: BK..." th:value="${bookingCode}">
+            </div>
+            <div class="col-md-5 col-12">
+                <label class="form-label small fw-bold text-muted">
+                    <i class="fa-solid fa-user text-primary me-1"></i>Tên khách hàng
+                </label>
+                <input type="text" class="form-control rounded-3" name="customerName" 
+                       placeholder="VD: Nguyễn Văn A..." th:value="${customerName}">
+            </div>
+            <div class="col-md-2 col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary rounded-3 w-100 fw-semibold">
+                    <i class="fa-solid fa-magnifying-glass me-1"></i> Tìm
+                </button>
+                <a th:href="@{/chu-nha/don-dat-phong}" class="btn btn-outline-secondary rounded-3" title="Đặt lại bộ lọc">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
     <div class="table-container-modern shadow-sm border-0 rounded-4" th:if="${!bookings.isEmpty()}">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -69,7 +97,7 @@
                             <span th:if="${b.status.name() == 'PENDING_REFUND'}" class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 mb-1">
                                 <i class="fa-solid fa-money-bill-transfer me-1"></i>Chờ hoàn tiền
                             </span>
-                            <div class="small text-muted mt-1" th:if="${b.remainingBalance > 0 and b.status.name() != 'PENDING_REFUND' and b.status.name() != 'CANCELLED'}">
+                            <div class="small text-muted mt-1" th:if="${b.remainingBalance != null and b.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0 and b.status.name() != 'PENDING_REFUND' and b.status.name() != 'CANCELLED'}">
                                 Nợ: <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.remainingBalance,0,'POINT',0,'COMMA')} + 'đ'"></span>
                             </div>
                         </div>

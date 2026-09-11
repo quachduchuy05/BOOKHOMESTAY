@@ -4,17 +4,27 @@
 <body>
 <nav th:replace="~{dung-chung/layout :: navbar}"></nav>
 
-<div class="container py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <div>
-            <h3 class="fw-bold m-0"><i class="fa-solid fa-chart-line text-danger me-2"></i>Tổng Quan Hệ Thống Quản Trị</h3>
-            <p class="text-muted small m-0">Số liệu thời gian thực và biểu đồ phân tích hoạt động BookingHomeStay</p>
-        </div>
-        <span class="badge bg-primary-subtle text-primary px-3 py-2 fw-semibold">
-            <i class="fa-solid fa-shield-halved me-1"></i>Quyền Quản Trị Viên
-        </span>
-    </div>
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Mobile Sidebar Trigger -->
+    <div th:replace="~{dung-chung/admin-sidebar :: toggle}"></div>
+
+    <div class="row g-4">
+        <!-- Admin Slidebar (Sidebar) -->
+        <div th:replace="~{dung-chung/admin-sidebar :: sidebar('tong-quan')}"></div>
+        <div th:replace="~{dung-chung/admin-sidebar :: offcanvas('tong-quan')}"></div>
+
+        <!-- Main Content Column -->
+        <div class="col-lg-9 col-xl-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <div>
+                    <h3 class="fw-bold m-0"><i class="fa-solid fa-chart-line text-danger me-2"></i>Tổng Quan Hệ Thống Quản Trị</h3>
+                    <p class="text-muted small m-0">Số liệu thời gian thực và biểu đồ phân tích hoạt động BookingHomeStay</p>
+                </div>
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 fw-semibold">
+                    <i class="fa-solid fa-shield-halved me-1"></i>Quyền Quản Trị Viên
+                </span>
+            </div>
 
     <!-- 4 Stats Cards -->
     <div class="row g-4 mb-4">
@@ -136,6 +146,8 @@
                 <i class="fa-solid fa-receipt fs-3 text-danger mb-2"></i>
                 <div class="fw-bold small">Đơn đặt phòng</div>
             </a>
+        </div>
+    </div>
         </div>
     </div>
 </div>

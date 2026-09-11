@@ -22,8 +22,8 @@ public class HomestayServiceImpl implements HomestayService {
     private final HostRepository hostRepository;
 
     @Override
-    public List<Homestay> search(String province, String district, Integer guests, BigDecimal maxPrice) {
-        return homestayRepository.search(province, district, guests, maxPrice);
+    public List<Homestay> search(String province, String district, Integer guests, BigDecimal minPrice, BigDecimal maxPrice) {
+        return homestayRepository.search(province, district, guests, minPrice, maxPrice);
     }
 
     @Override

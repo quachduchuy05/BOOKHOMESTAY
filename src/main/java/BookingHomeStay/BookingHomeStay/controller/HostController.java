@@ -205,10 +205,14 @@ public class HostController {
         }
     }
 
-    // Danh sach TOAN BO don dat phong thuoc cac homestay cua Chu nha nay.
+    // Danh sach TOAN BO don dat phong thuoc cac homestay cua Chu nha nay, ho tro tim kiem theo ma don & ten khach.
     @GetMapping("/don-dat-phong")
-    public String bookings(@AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
-        model.addAttribute("bookings", bookingService.getBookingsOfHost(currentUser.getId()));
+    public String bookings(@RequestParam(required = false) String bookingCode,
+                           @RequestParam(required = false) String customerName,
+                           @AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
+        model.addAttribute("bookings", bookingService.searchBookingsOfHost(currentUser.getId(), bookingCode, customerName));
+        model.addAttribute("bookingCode", bookingCode);
+        model.addAttribute("customerName", customerName);
         return "chu-nha/don-dat-phong";
     }
 

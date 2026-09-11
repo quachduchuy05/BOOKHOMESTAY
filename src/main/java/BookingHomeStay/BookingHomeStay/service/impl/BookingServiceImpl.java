@@ -403,6 +403,26 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public List<Booking> searchBookingsForAdmin(String bookingCode, String customerName) {
+        String code = (bookingCode != null && !bookingCode.isBlank()) ? bookingCode.trim() : null;
+        String name = (customerName != null && !customerName.isBlank()) ? customerName.trim() : null;
+        if (code == null && name == null) {
+            return bookingRepository.findAll();
+        }
+        return bookingRepository.searchForAdmin(code, name);
+    }
+
+    @Override
+    public List<Booking> searchBookingsOfHost(Long hostUserId, String bookingCode, String customerName) {
+        String code = (bookingCode != null && !bookingCode.isBlank()) ? bookingCode.trim() : null;
+        String name = (customerName != null && !customerName.isBlank()) ? customerName.trim() : null;
+        if (code == null && name == null) {
+            return getBookingsOfHost(hostUserId);
+        }
+        return bookingRepository.searchForHost(hostUserId, code, name);
+    }
+
+    @Override
     public Booking getBookingForCustomer(Long bookingId, Long customerUserId) {
         Booking booking = findOrThrow(bookingId);
         if (!booking.getUser().getId().equals(customerUserId)) {

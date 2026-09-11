@@ -247,10 +247,14 @@ public class AdminController {
 
     // ================= DON DAT PHONG =================
 
-    // Xem TOAN BO don dat phong trong he thong (moi Chu nha, moi trang thai).
+    // Xem TOAN BO don dat phong trong he thong (moi Chu nha, moi trang thai), ho tro tim kiem theo ma don & ten khach.
     @GetMapping("/don-dat-phong")
-    public String bookings(Model model) {
-        model.addAttribute("bookings", bookingService.getAllBookings());
+    public String bookings(@RequestParam(required = false) String bookingCode,
+                           @RequestParam(required = false) String customerName,
+                           Model model) {
+        model.addAttribute("bookings", bookingService.searchBookingsForAdmin(bookingCode, customerName));
+        model.addAttribute("bookingCode", bookingCode);
+        model.addAttribute("customerName", customerName);
         return "quan-tri/don-dat-phong";
     }
 

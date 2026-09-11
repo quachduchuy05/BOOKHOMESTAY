@@ -3,7 +3,6 @@ package BookingHomeStay.BookingHomeStay.service;
 import BookingHomeStay.BookingHomeStay.dto.ChangePasswordForm;
 import BookingHomeStay.BookingHomeStay.dto.ProfileForm;
 import BookingHomeStay.BookingHomeStay.dto.ResetPasswordForm;
-import BookingHomeStay.BookingHomeStay.entity.OtpChannel;
 import BookingHomeStay.BookingHomeStay.entity.User;
 import BookingHomeStay.BookingHomeStay.repository.UserRepository;
 import BookingHomeStay.BookingHomeStay.service.impl.UserServiceImpl;

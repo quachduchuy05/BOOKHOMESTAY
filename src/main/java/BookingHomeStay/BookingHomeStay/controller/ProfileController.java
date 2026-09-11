@@ -59,7 +59,11 @@ public class ProfileController {
         }
 
         try {
-            userService.capNhatHoSo(currentUser.getId(), profileForm);
+            User updated = userService.capNhatHoSo(currentUser.getId(), profileForm);
+            if (currentUser != null && updated != null) {
+                currentUser.setAvatar(updated.getAvatar());
+                currentUser.setFullName(updated.getFullName());
+            }
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật hồ sơ cá nhân thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());

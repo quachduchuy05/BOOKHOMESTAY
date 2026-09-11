@@ -24,6 +24,22 @@ public class CustomUserDetails implements UserDetails {
         return user.getFullName();
     }
 
+    public void setFullName(String fullName) {
+        user.setFullName(fullName);
+    }
+
+    public String getAvatar() {
+        return user.getAvatar();
+    }
+
+    public void setAvatar(String avatar) {
+        user.setAvatar(avatar);
+    }
+
+    public User getUser() {
+        return user;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles().stream()
