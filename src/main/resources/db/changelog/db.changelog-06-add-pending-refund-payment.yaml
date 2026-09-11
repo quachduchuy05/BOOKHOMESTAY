@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 06-add-pending-refund-payment-status
+      author: antigravity
+      changes:
+        - sql:
+            dbms: mysql
+            sql: ALTER TABLE payments MODIFY COLUMN status ENUM('UNPAID','PAID','PENDING_REFUND','FAILED','REFUNDED') NOT NULL;

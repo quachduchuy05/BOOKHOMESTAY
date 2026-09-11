@@ -13,6 +13,8 @@ import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByBookingId(Long bookingId);
+    boolean existsBySepayTransactionId(Long sepayTransactionId);
+    Optional<Payment> findBySepayTransactionId(Long sepayTransactionId);
 
     @Query("""
         SELECT p FROM Payment p

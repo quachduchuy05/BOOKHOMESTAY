@@ -255,6 +255,13 @@ public class HostController {
         return "redirect:/chu-nha/don-dat-phong";
     }
 
+    // Xac nhan DA HOAN TIEN cho khach (REFUNDED va CANCELLED).
+    @PostMapping("/don-dat-phong/{id}/hoan-tien")
+    public String refund(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails currentUser) {
+        bookingService.refundBooking(id, currentUser.getId());
+        return "redirect:/chu-nha/don-dat-phong";
+    }
+
     // Danh sach danh gia cua khach hang cho cac homestay cua chu nha
     @GetMapping("/danh-gia")
     public String reviews(@AuthenticationPrincipal CustomUserDetails currentUser, Model model) {

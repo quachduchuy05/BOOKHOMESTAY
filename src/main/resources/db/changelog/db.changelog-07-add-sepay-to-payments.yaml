@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 07-add-sepay-to-payments
+      author: antigravity
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: payments
+                columnName: sepay_transaction_id
+      changes:
+        - addColumn:
+            tableName: payments
+            columns:
+              - column:
+                  name: sepay_transaction_id
+                  type: BIGINT
+                  constraints:
+                    unique: true
+              - column:
+                  name: gateway
+                  type: VARCHAR(50)

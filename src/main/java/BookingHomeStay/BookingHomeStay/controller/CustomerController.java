@@ -18,8 +18,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Chuc nang danh cho Khach hang. Duong dan goc: /khach-hang (truoc day la /customer).
@@ -65,12 +70,47 @@ public class CustomerController {
     }
 
     @GetMapping("/don-dat-phong")
-    public String myBookings(@AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
-        List<Booking> bookings = bookingService.getMyBookings(currentUser.getId());
+    public String myBookings(
+            @RequestParam(value = "dateType", required = false, defaultValue = "CREATED") String dateType,
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @AuthenticationPrincipal CustomUserDetails currentUser, 
+            Model model) {
+        int pageSize = 5;
+        int pageNumber = Math.max(1, page);
+        int pageIndex = pageNumber - 1;
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+
+        Page<Booking> bookingPage = bookingService.getMyBookings(currentUser.getId(), dateType, startDate, endDate, pageable);
+        int totalPages = Math.max(1, bookingPage.getTotalPages());
+
+        if (bookingPage.getTotalPages() > 0 && pageIndex >= bookingPage.getTotalPages()) {
+            pageNumber = totalPages;
+            pageIndex = pageNumber - 1;
+            pageable = PageRequest.of(pageIndex, pageSize);
+            bookingPage = bookingService.getMyBookings(currentUser.getId(), dateType, startDate, endDate, pageable);
+        }
+
+        List<Booking> bookings = bookingPage.getContent();
         List<Long> bookingIds = bookings.stream().map(Booking::getId).toList();
         Map<Long, Review> reviewsMap = reviewService.getReviewsByBookingIds(bookingIds);
 
+        long totalItems = bookingPage.getTotalElements();
+        long startItem = totalItems == 0 ? 0 : (long) (pageNumber - 1) * pageSize + 1;
+        long endItem = Math.min((long) pageNumber * pageSize, totalItems);
+
         model.addAttribute("bookings", bookings);
+        model.addAttribute("bookingPage", bookingPage);
+        model.addAttribute("currentPage", pageNumber);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalItems", totalItems);
+        model.addAttribute("startItem", startItem);
+        model.addAttribute("endItem", endItem);
+        model.addAttribute("dateType", dateType);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
         model.addAttribute("reviewsMap", reviewsMap);
         if (!model.containsAttribute("reviewRequest")) {
             model.addAttribute("reviewRequest", new ReviewRequest());
@@ -97,8 +137,15 @@ public class CustomerController {
     }
 
     @PostMapping("/don-dat-phong/{id}/huy")
-    public String cancel(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails currentUser) {
-        bookingService.cancelBooking(id, currentUser.getId());
+    public String cancel(@PathVariable Long id, 
+                         @AuthenticationPrincipal CustomUserDetails currentUser,
+                         RedirectAttributes redirectAttributes) {
+        try {
+            bookingService.cancelBooking(id, currentUser.getId());
+            redirectAttributes.addFlashAttribute("successMessage", "Yêu cầu hủy đơn đã được ghi nhận thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/khach-hang/don-dat-phong";
     }
 

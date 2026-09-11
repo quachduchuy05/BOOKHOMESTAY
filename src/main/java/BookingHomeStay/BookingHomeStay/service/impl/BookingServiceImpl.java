@@ -31,7 +31,6 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final PaymentRepository paymentRepository;
     private final PromotionService promotionService;
-    private final CollaboratorRepository collaboratorRepository;
     private final EmailService emailService;
     private final BookingHomeStay.BookingHomeStay.service.CollaboratorService collaboratorService;
     private final BookingHomeStay.BookingHomeStay.service.RoomAvailabilityService roomAvailabilityService;
@@ -80,21 +79,9 @@ public class BookingServiceImpl implements BookingService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay tai khoan"));
 
-        // ===== TASK 4: xac dinh nguon goc don (truc tiep / qua CTV) =====
+        // Xác định nguồn gốc đơn
         BookingSource source = BookingSource.DIRECT;
         String matchedReferralCode = null;
-        // Tam thoi bo qua logic lien quan den CTV theo yeu cau
-        /*
-        if (request.getReferralCode() != null && !request.getReferralCode().isBlank()) {
-            var ctv = collaboratorRepository.findByMaGioiThieuAndStatus(
-                    request.getReferralCode().trim(), CollaboratorStatus.APPROVED);
-            if (ctv.isPresent()) {
-                source = BookingSource.COLLABORATOR;
-                matchedReferralCode = ctv.get().getMaGioiThieu();
-            }
-        }
-        */
-
         PaymentPolicy policy;
         try { policy = PaymentPolicy.valueOf(request.getPaymentPolicy()); }
         catch (Exception e) { policy = PaymentPolicy.PAY_AT_PROPERTY; }
@@ -149,22 +136,48 @@ public class BookingServiceImpl implements BookingService {
         // Đánh dấu các ngày đã đặt trong lịch phòng theo ngày
         roomAvailabilityService.recordBookingDays(room.getId(), request.getCheckinDate(), request.getCheckoutDate());
 
-        // Tam thoi bo qua tao hoa hong cho CTV theo yeu cau
-        /*
-        if (matchedReferralCode != null) {
-            collaboratorService.createCommissionForBooking(booking);
+        // Neu don can thanh toan online (DEPOSIT hoac FULL_PREPAYMENT) thi tao ban ghi Payment UNPAID de doi soat
+        if (requiredDeposit.compareTo(BigDecimal.ZERO) > 0) {
+            PaymentMethod method = null;
+            if (request.getPaymentMethod() != null && !request.getPaymentMethod().isBlank()) {
+                try {
+                    method = PaymentMethod.valueOf(request.getPaymentMethod().trim().toUpperCase());
+                } catch (Exception ignored) {}
+            }
+            if (method == null) {
+                method = PaymentMethod.BANK_TRANSFER;
+            }
+
+            PaymentPhase phase = (policy == PaymentPolicy.DEPOSIT) ? PaymentPhase.DEPOSIT : PaymentPhase.FULL_PAYMENT;
+            Payment initialPayment = Payment.builder()
+                    .booking(booking)
+                    .paymentPhase(phase)
+                    .paymentMethod(method)
+                    .amount(requiredDeposit)
+                    .status(PaymentStatus.UNPAID)
+                    .build();
+            paymentRepository.save(initialPayment);
+            booking.getPayments().add(initialPayment);
         }
-        */
-
-        // Khong tao Payment tu dong nua, Payment se tao khi thanh toan VNPAY thanh cong hoac khi thanh toan tai quay
-        // TODO: Goi API VNPAY tao URL thanh toan va tra ve cho Frontend
-
         return booking;
     }
 
     @Override
     public List<Booking> getMyBookings(Long userId) {
         return bookingRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    @Override
+    public org.springframework.data.domain.Page<Booking> getMyBookings(
+            Long userId,
+            String dateType,
+            LocalDate startDate,
+            LocalDate endDate,
+            org.springframework.data.domain.Pageable pageable) {
+        LocalDateTime fromDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime toDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
+        String type = (dateType != null && dateType.equalsIgnoreCase("CHECKIN")) ? "CHECKIN" : "CREATED";
+        return bookingRepository.findByUserIdWithFilter(userId, type, startDate, endDate, fromDateTime, toDateTime, pageable);
     }
 
     @Override
@@ -179,7 +192,53 @@ public class BookingServiceImpl implements BookingService {
                 && booking.getStatus() != BookingStatus.CONFIRMED) {
             throw new IllegalStateException("Khong the huy don o trang thai hien tai");
         }
-        booking.setStatus(BookingStatus.CANCELLED);
+        LocalDate checkinDate = booking.getDetails().stream()
+                .map(BookingDetail::getCheckinDate)
+                .min(LocalDate::compareTo)
+                .orElse(LocalDate.now());
+
+        long daysUntilCheckin = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), checkinDate);
+        boolean eligibleForRefund = daysUntilCheckin >= 2;
+
+        boolean hasAdvancePayment = booking.getPaymentPolicy() != PaymentPolicy.PAY_AT_PROPERTY;
+        boolean hasPaid = booking.getPayments() != null && booking.getPayments().stream()
+                .anyMatch(p -> p.getStatus() == PaymentStatus.PAID);
+
+        boolean shouldRefund = eligibleForRefund && (hasAdvancePayment || hasPaid);
+
+        if (shouldRefund) {
+            booking.setStatus(BookingStatus.PENDING_REFUND);
+            if (booking.getPayments() != null && !booking.getPayments().isEmpty()) {
+                for (Payment p : booking.getPayments()) {
+                    if (p.getStatus() == PaymentStatus.PAID || p.getStatus() == PaymentStatus.UNPAID) {
+                        p.setStatus(PaymentStatus.PENDING_REFUND);
+                        paymentRepository.save(p);
+                    }
+                }
+            } else if (hasAdvancePayment) {
+                BigDecimal refundAmount = booking.getPaymentPolicy() == PaymentPolicy.DEPOSIT 
+                        ? booking.getRequiredDeposit() 
+                        : booking.getFinalAmount();
+                Payment p = Payment.builder()
+                        .booking(booking)
+                        .paymentMethod(PaymentMethod.BANK_TRANSFER)
+                        .amount(refundAmount)
+                        .status(PaymentStatus.PENDING_REFUND)
+                        .paymentPhase(booking.getPaymentPolicy() == PaymentPolicy.DEPOSIT ? PaymentPhase.DEPOSIT : PaymentPhase.FULL_PAYMENT)
+                        .build();
+                paymentRepository.save(p);
+            }
+        } else {
+            booking.setStatus(BookingStatus.CANCELLED);
+            if (booking.getPayments() != null) {
+                for (Payment p : booking.getPayments()) {
+                    if (p.getStatus() == PaymentStatus.UNPAID) {
+                        p.setStatus(PaymentStatus.FAILED);
+                        paymentRepository.save(p);
+                    }
+                }
+            }
+        }
         bookingRepository.save(booking);
     }
 
@@ -242,14 +301,69 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public void markPaymentPaid(Long bookingId, Long hostUserId) {
         Booking booking = getForHostOrThrow(bookingId, hostUserId);
+        processPaymentSuccess(booking, null, null, null, PaymentMethod.DIRECT);
+    }
+
+    @Override
+    @Transactional
+    public void markPaymentPaidBySystem(Long bookingId, String transactionCode, Long sepayTransactionId, String gateway) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn đặt phòng #" + bookingId));
+        processPaymentSuccess(booking, transactionCode, sepayTransactionId, gateway, PaymentMethod.BANK_TRANSFER);
+    }
+
+    private void processPaymentSuccess(Booking booking, String transactionCode, Long sepayTransactionId, String gateway, PaymentMethod method) {
         if (booking.isFullyPaid()) {
-            return; // Da thanh toan du
+            return;
+        }
+
+        if (booking.getStatus() == BookingStatus.PENDING_PAYMENT) {
+            Payment depositPayment = booking.getPayments() != null ? booking.getPayments().stream()
+                    .filter(p -> p.getStatus() == PaymentStatus.UNPAID)
+                    .findFirst()
+                    .orElse(null) : null;
+
+            if (depositPayment != null) {
+                depositPayment.setStatus(PaymentStatus.PAID);
+                depositPayment.setPaymentMethod(method);
+                depositPayment.setTransactionCode(transactionCode);
+                depositPayment.setSepayTransactionId(sepayTransactionId);
+                depositPayment.setGateway(gateway);
+                depositPayment.setPaymentTime(LocalDateTime.now());
+                paymentRepository.save(depositPayment);
+            } else {
+                PaymentPhase phase = (booking.getPaymentPolicy() == PaymentPolicy.DEPOSIT)
+                        ? PaymentPhase.DEPOSIT
+                        : PaymentPhase.FULL_PAYMENT;
+                BigDecimal amount = (booking.getPaymentPolicy() == PaymentPolicy.DEPOSIT)
+                        ? booking.getRequiredDeposit()
+                        : booking.getFinalAmount();
+                depositPayment = Payment.builder()
+                        .booking(booking)
+                        .paymentPhase(phase)
+                        .paymentMethod(method)
+                        .transactionCode(transactionCode)
+                        .sepayTransactionId(sepayTransactionId)
+                        .gateway(gateway)
+                        .amount(amount)
+                        .status(PaymentStatus.PAID)
+                        .paymentTime(LocalDateTime.now())
+                        .build();
+                paymentRepository.save(depositPayment);
+                booking.getPayments().add(depositPayment);
+            }
+            booking.setStatus(BookingStatus.CONFIRMED);
+            bookingRepository.save(booking);
+            return;
         }
 
         Payment remainingPayment = Payment.builder()
                 .booking(booking)
                 .paymentPhase(PaymentPhase.REMAINING)
-                .paymentMethod(PaymentMethod.DIRECT)
+                .paymentMethod(method)
+                .transactionCode(transactionCode)
+                .sepayTransactionId(sepayTransactionId)
+                .gateway(gateway)
                 .amount(booking.getRemainingBalance())
                 .status(PaymentStatus.PAID)
                 .paymentTime(LocalDateTime.now())
@@ -257,7 +371,6 @@ public class BookingServiceImpl implements BookingService {
         paymentRepository.save(remainingPayment);
         booking.getPayments().add(remainingPayment);
 
-        // Neu don da CHECKED_OUT ma gio thanh toan xong thi chuyen sang COMPLETED
         if (booking.getStatus() == BookingStatus.CHECKED_OUT) {
             booking.setStatus(BookingStatus.COMPLETED);
         }
@@ -298,6 +411,25 @@ public class BookingServiceImpl implements BookingService {
         return booking;
     }
 
+    @Override
+    @Transactional
+    public void refundBooking(Long bookingId, Long hostUserId) {
+        Booking booking = getForHostOrThrow(bookingId, hostUserId);
+        if (booking.getStatus() != BookingStatus.PENDING_REFUND) {
+            throw new IllegalStateException("Don nay khong o trang thai cho hoan tien");
+        }
+        booking.setStatus(BookingStatus.CANCELLED);
+        if (booking.getPayments() != null) {
+            for (Payment p : booking.getPayments()) {
+                if (p.getStatus() == PaymentStatus.PENDING_REFUND) {
+                    p.setStatus(PaymentStatus.REFUNDED);
+                    p.setRefundTime(java.time.LocalDateTime.now());
+                    paymentRepository.save(p);
+                }
+            }
+        }
+        bookingRepository.save(booking);
+    }
     private Booking findOrThrow(Long id) {
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay don id=" + id));
