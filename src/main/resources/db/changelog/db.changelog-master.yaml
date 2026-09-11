@@ -7,3 +7,7 @@ databaseChangeLog:
       file: db/changelog/db.changelog-03-remove-cash-payment-method.yaml
   - include:
       file: db/changelog/db.changelog-04-add-pending-payment-status.yaml
+  - include:
+      file: db/changelog/db.changelog-05-add-pending-refund-booking.yaml
+  - include:
+      file: db/changelog/db.changelog-06-add-pending-refund-payment.yaml

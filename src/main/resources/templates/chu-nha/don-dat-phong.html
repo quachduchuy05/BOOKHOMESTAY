@@ -63,10 +63,13 @@
                             <span th:if="${b.status.name() == 'PENDING_PAYMENT'}" class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 mb-1">
                                 <i class="fa-solid fa-clock me-1"></i>Khách chờ thanh toán
                             </span>
-                            <span th:if="${b.paymentPolicy.name() == 'PAY_AT_PROPERTY' or (b.status.name() != 'PENDING_PAYMENT' and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED')}" class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 mb-1">
+                            <span th:if="${(b.paymentPolicy.name() == 'PAY_AT_PROPERTY' or (b.status.name() != 'PENDING_PAYMENT' and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED')) and b.status.name() != 'PENDING_REFUND'}" class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 mb-1">
                                 <i class="fa-solid fa-building-user me-1"></i>Thu tại quầy
                             </span>
-                            <div class="small text-muted mt-1" th:if="${b.remainingBalance > 0}">
+                            <span th:if="${b.status.name() == 'PENDING_REFUND'}" class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 mb-1">
+                                <i class="fa-solid fa-money-bill-transfer me-1"></i>Chờ hoàn tiền
+                            </span>
+                            <div class="small text-muted mt-1" th:if="${b.remainingBalance > 0 and b.status.name() != 'PENDING_REFUND' and b.status.name() != 'CANCELLED'}">
                                 Nợ: <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.remainingBalance,0,'POINT',0,'COMMA')} + 'đ'"></span>
                             </div>
                         </div>
@@ -104,10 +107,13 @@
                         </form>
 
                         <!-- Xác nhận đã thanh toán nếu chưa PAID -->
-                        <form th:if="${!b.isFullyPaid() and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED'}"
+                        <form th:if="${!b.isFullyPaid() and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED' and b.status.name() != 'PENDING_REFUND'}"
                               th:action="@{/chu-nha/don-dat-phong/{id}/thanh-toan(id=${b.id})}" method="post" class="d-inline ms-1">
-                            <button class="btn btn-sm btn-outline-success rounded-pill px-2" title="Xác nhận khách đã thanh toán">
-                                <i class="fa-solid fa-money-bill-wave me-1"></i>Đã thu tiền
+                            <button class="btn btn-sm btn-outline-success rounded-pill px-2" 
+                                    th:title="${b.status.name() == 'PENDING_PAYMENT' ? (b.paymentPolicy.name() == 'DEPOSIT' ? 'Xác nhận đã nhận tiền cọc' : 'Xác nhận đã nhận đủ thanh toán') : 'Xác nhận khách đã thanh toán'}">
+                                <i class="fa-solid fa-money-bill-wave me-1"></i>
+                                <span th:if="${b.status.name() == 'PENDING_PAYMENT' and b.paymentPolicy.name() == 'DEPOSIT'}">Đã nhận cọc</span>
+                                <span th:unless="${b.status.name() == 'PENDING_PAYMENT' and b.paymentPolicy.name() == 'DEPOSIT'}">Đã thu tiền</span>
                             </button>
                         </form>
 
@@ -115,6 +121,13 @@
                         <form th:if="${b.status.name() == 'CHECKED_OUT'}" th:action="@{/chu-nha/don-dat-phong/{id}/hoan-thanh(id=${b.id})}" method="post" class="d-inline ms-1">
                             <button class="btn btn-sm btn-info rounded-pill px-2 text-white" title="Hoàn thành chu trình đơn">
                                 <i class="fa-solid fa-flag-checkered me-1"></i>Hoàn thành
+                            </button>
+                        </form>
+
+                        <!-- Hoàn tiền cho đơn bị hủy PENDING_REFUND -->
+                        <form th:if="${b.status.name() == 'PENDING_REFUND'}" th:action="@{/chu-nha/don-dat-phong/{id}/hoan-tien(id=${b.id})}" method="post" class="d-inline ms-1">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-2" title="Xác nhận đã chuyển khoản trả lại tiền" onclick="return confirm('Bạn xác nhận đã chuyển khoản hoàn lại tiền cho khách?')">
+                                <i class="fa-solid fa-money-bill-transfer me-1"></i>Đã hoàn tiền
                             </button>
                         </form>
 

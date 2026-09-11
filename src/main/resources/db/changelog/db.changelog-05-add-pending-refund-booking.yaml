@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 05-add-pending-refund-booking-status
+      author: antigravity
+      changes:
+        - sql:
+            dbms: mysql
+            sql: ALTER TABLE bookings MODIFY COLUMN status ENUM('PENDING','PENDING_PAYMENT','CONFIRMED','REJECTED','CHECKED_IN','CHECKED_OUT','PENDING_REFUND','CANCELLED','COMPLETED') NOT NULL;

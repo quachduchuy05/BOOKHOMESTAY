@@ -2,6 +2,8 @@ package BookingHomeStay.BookingHomeStay.service.impl;
 
 import BookingHomeStay.BookingHomeStay.entity.Booking;
 import BookingHomeStay.BookingHomeStay.entity.BookingStatus;
+import BookingHomeStay.BookingHomeStay.entity.Payment;
+import BookingHomeStay.BookingHomeStay.entity.PaymentStatus;
 import BookingHomeStay.BookingHomeStay.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +47,13 @@ public class BookingCleanupService {
                 booking.setStatus(BookingStatus.CANCELLED);
                 String oldNote = booking.getNote() != null ? booking.getNote() : "";
                 booking.setNote(oldNote + "\n[SYSTEM] Tự động hủy đơn do quá hạn thanh toán giữ chỗ.");
+                if (booking.getPayments() != null) {
+                    for (Payment p : booking.getPayments()) {
+                        if (p.getStatus() == PaymentStatus.UNPAID) {
+                            p.setStatus(PaymentStatus.FAILED);
+                        }
+                    }
+                }
             }
             bookingRepository.saveAll(expiredBookings);
             log.info("Đã hủy thành công {} đơn đặt phòng quá hạn.", expiredBookings.size());

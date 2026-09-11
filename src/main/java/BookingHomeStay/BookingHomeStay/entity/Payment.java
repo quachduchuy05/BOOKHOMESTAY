@@ -35,4 +35,9 @@ public class Payment {
     private PaymentStatus status = PaymentStatus.UNPAID;
 
     private LocalDateTime paymentTime;
+
+    private LocalDateTime refundTime;
+
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

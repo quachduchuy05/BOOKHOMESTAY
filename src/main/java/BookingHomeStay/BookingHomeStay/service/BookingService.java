@@ -18,4 +18,5 @@ public interface BookingService {
     void completeBooking(Long bookingId, Long hostUserId);
     List<Booking> getAllBookings();
     Booking getBookingForCustomer(Long bookingId, Long customerUserId);
+    void refundBooking(Long bookingId, Long hostUserId);
 }

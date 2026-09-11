@@ -97,8 +97,15 @@ public class CustomerController {
     }
 
     @PostMapping("/don-dat-phong/{id}/huy")
-    public String cancel(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails currentUser) {
-        bookingService.cancelBooking(id, currentUser.getId());
+    public String cancel(@PathVariable Long id, 
+                         @AuthenticationPrincipal CustomUserDetails currentUser,
+                         RedirectAttributes redirectAttributes) {
+        try {
+            bookingService.cancelBooking(id, currentUser.getId());
+            redirectAttributes.addFlashAttribute("successMessage", "Yêu cầu hủy đơn đã được ghi nhận thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/khach-hang/don-dat-phong";
     }
 
