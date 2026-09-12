@@ -202,8 +202,12 @@ public class RoomAvailabilityServiceImpl implements RoomAvailabilityService {
 
     @Override
     public boolean isRoomAvailableForDates(Long roomId, LocalDate checkIn, LocalDate checkOut) {
+        if (checkIn == null || checkOut == null || !checkOut.isAfter(checkIn)) {
+            return false;
+        }
+        LocalDate lastNight = checkOut.minusDays(1);
         List<RoomAvailability> blocked = roomAvailabilityRepository.findByRoomIdAndDateBetweenAndStatusIn(
-                roomId, checkIn, checkOut,
+                roomId, checkIn, lastNight,
                 List.of(RoomAvailabilityStatus.BOOKED, RoomAvailabilityStatus.LOCKED)
         );
         return blocked.isEmpty();
@@ -220,6 +224,23 @@ public class RoomAvailabilityServiceImpl implements RoomAvailabilityService {
                     .orElse(RoomAvailability.builder().room(room).date(curr).build());
             ra.setStatus(RoomAvailabilityStatus.BOOKED);
             roomAvailabilityRepository.save(ra);
+            curr = curr.plusDays(1);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void releaseBookingDays(Long roomId, LocalDate checkIn, LocalDate checkOut) {
+        if (roomId == null || checkIn == null || checkOut == null) return;
+        LocalDate curr = checkIn;
+        while (curr.isBefore(checkOut)) {
+            final LocalDate target = curr;
+            roomAvailabilityRepository.findByRoomIdAndDate(roomId, target).ifPresent(ra -> {
+                if (ra.getStatus() == RoomAvailabilityStatus.BOOKED) {
+                    ra.setStatus(RoomAvailabilityStatus.AVAILABLE);
+                    roomAvailabilityRepository.save(ra);
+                }
+            });
             curr = curr.plusDays(1);
         }
     }

@@ -11,6 +11,7 @@ public interface HomestayService {
         return search(province, district, guests, null, maxPrice);
     }
     List<String> getDistrictsOfProvince(String province);
+    List<String> getActiveProvinces();
     List<Homestay> findNearby(double lat, double lng, double radiusKm);
     Homestay getActiveBySlug(String slug);
     Homestay getByIdForHost(Long id, Long hostUserId);

@@ -65,17 +65,15 @@
                 <li class="nav-item"><a class="nav-link" th:href="@{/cong-tac-vien/hoa-hong}"><i class="fa-solid fa-receipt me-1 text-primary"></i>Chi tiết hoa hồng</a></li>
             </ul>
 
-            <!-- Admin Menu Links -->
-            <ul class="navbar-nav me-auto ps-lg-3 gap-1" sec:authorize="hasRole('ADMIN')">
-                <li class="nav-item"><a class="nav-link" th:href="@{/quan-tri/tong-quan}"><i class="fa-solid fa-chart-pie me-1 text-primary"></i>Tổng quan</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/quan-tri/nguoi-dung}"><i class="fa-solid fa-users me-1 text-info"></i>Người dùng</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/quan-tri/chu-nha}"><i class="fa-solid fa-user-check me-1 text-success"></i>Duyệt Host</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/quan-tri/cong-tac-vien}"><i class="fa-solid fa-handshake me-1 text-warning"></i>Duyệt CTV</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/quan-tri/homestay}"><i class="fa-solid fa-hotel me-1 text-danger"></i>Homestay</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/quan-tri/don-dat-phong}"><i class="fa-solid fa-receipt me-1 text-success"></i>Đơn phòng</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/quan-tri/giao-dich}"><i class="fa-solid fa-money-bill-wave me-1 text-warning"></i>Giao dịch</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/quan-tri/ma-giam-gia}"><i class="fa-solid fa-ticket me-1 text-primary"></i>Mã giảm giá</a></li>
-            </ul>
+            <!-- Admin Brand Center Indicator (Spacious & Clean) -->
+            <div class="d-none d-lg-flex align-items-center gap-3 ms-4 me-auto" sec:authorize="hasRole('ADMIN')">
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1.5 fw-semibold small">
+                    <i class="fa-solid fa-shield-halved me-1"></i> Bảng điều khiển Quản trị viên
+                </span>
+                <a class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 text-dark fw-semibold" th:href="@{/}" target="_blank" title="Mở trang chủ người dùng trong tab mới">
+                    <i class="fa-solid fa-arrow-up-right-from-square me-1 text-primary"></i> Xem website
+                </a>
+            </div>
 
             <ul class="navbar-nav align-items-lg-center gap-2">
                 <!-- Customer specific links -->
@@ -88,8 +86,8 @@
 
                 <!-- Authenticated User Profile Dropdown: works natively via Bootstrap 5 -->
                 <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-light user-profile-toggle" 
-                       href="#" 
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-dark fw-semibold user-profile-toggle" 
+                       href="javascript:void(0);" 
                        id="userProfileDropdown" 
                        role="button" 
                        data-bs-toggle="dropdown" 
@@ -125,17 +123,21 @@
                         <li sec:authorize="hasRole('CUSTOMER') and !hasAnyRole('ADMIN','HOST','COLLABORATOR')">
                             <a class="dropdown-item" th:href="@{/khach-hang/yeu-thich}"><i class="fa-solid fa-heart me-2 text-danger"></i>Homestay yêu thích</a>
                         </li>
-
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form th:action="@{/logout}" method="post" class="m-0 px-2">
-                                <button class="btn btn-sm btn-outline-danger w-100 rounded-pill text-start py-1" type="submit">
-                                    <i class="fa-solid fa-right-from-bracket me-2"></i>Đăng xuất
-                                </button>
-                            </form>
-                        </li>
                     </ul>
                 </li>
+
+                <!-- Direct 1-Click Logout Button on Navbar (Sửa lại như nãy, nằm trực tiếp trên thanh, không lo kẹt trong menu) -->
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a th:href="@{/logout}" 
+                       onclick="window.location.href='/logout'; return true;" 
+                       class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 ms-1 d-inline-flex align-items-center gap-1.5 shadow-sm" 
+                       title="Đăng xuất khỏi hệ thống" 
+                       style="font-size: 13px; font-weight: 600; cursor: pointer;">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Đăng xuất</span>
+                    </a>
+                </li>
+
                 <li class="nav-item" sec:authorize="!isAuthenticated()">
                     <a class="nav-link" th:href="@{/dang-nhap}">Đăng nhập</a>
                 </li>
@@ -151,7 +153,7 @@
 
 <!-- Speed Dial Floating Contact Widget -->
 <div th:fragment="footer">
-    <div class="lien-he-noi" id="lienHeNoi">
+    <div class="lien-he-noi" id="lienHeNoi" sec:authorize="!hasRole('ADMIN')">
         <div class="lien-he-danh-sach" id="lienHeDanhSach">
             <div class="item-lien-he-wrap">
                 <span class="item-lien-he-label">Gọi Hotline</span>
@@ -193,8 +195,15 @@
         </div>
     </div>
 
-    <!-- Modern Luxury Footer -->
-    <footer class="footer-modern">
+    <!-- Clean Compact Admin Footer -->
+    <footer class="py-3 mt-4 text-center small text-muted border-top bg-white" sec:authorize="hasRole('ADMIN')">
+        <div class="container-fluid">
+            &copy; 2026 BookingHomeStay - Bảng Quản Trị Hệ Thống.
+        </div>
+    </footer>
+
+    <!-- Modern Luxury Footer (Customer & Public) -->
+    <footer class="footer-modern" sec:authorize="!hasRole('ADMIN')">
         <div class="container">
             <div class="row g-4 mb-5">
                 <div class="col-lg-4 col-md-6">

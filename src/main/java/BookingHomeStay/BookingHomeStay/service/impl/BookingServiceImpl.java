@@ -34,6 +34,7 @@ public class BookingServiceImpl implements BookingService {
     private final EmailService emailService;
     private final BookingHomeStay.BookingHomeStay.service.CollaboratorService collaboratorService;
     private final BookingHomeStay.BookingHomeStay.service.RoomAvailabilityService roomAvailabilityService;
+    private final CollaboratorRepository collaboratorRepository;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
@@ -82,6 +83,14 @@ public class BookingServiceImpl implements BookingService {
         // Xác định nguồn gốc đơn
         BookingSource source = BookingSource.DIRECT;
         String matchedReferralCode = null;
+        if (request.getReferralCode() != null && !request.getReferralCode().isBlank()) {
+            String ref = request.getReferralCode().trim();
+            if (collaboratorRepository.findByMaGioiThieuAndStatus(ref, CollaboratorStatus.APPROVED).isPresent()) {
+                source = BookingSource.COLLABORATOR;
+                matchedReferralCode = ref;
+            }
+        }
+
         PaymentPolicy policy;
         try { policy = PaymentPolicy.valueOf(request.getPaymentPolicy()); }
         catch (Exception e) { policy = PaymentPolicy.PAY_AT_PROPERTY; }
@@ -135,6 +144,11 @@ public class BookingServiceImpl implements BookingService {
 
         // Đánh dấu các ngày đã đặt trong lịch phòng theo ngày
         roomAvailabilityService.recordBookingDays(room.getId(), request.getCheckinDate(), request.getCheckoutDate());
+
+        // Neu don duoc xac nhan ngay va co ma gioi thieu CTV -> tinh hoa hong
+        if (booking.getStatus() == BookingStatus.CONFIRMED && booking.getCollaboratorCode() != null) {
+            collaboratorService.createCommissionForBooking(booking);
+        }
 
         // Neu don can thanh toan online (DEPOSIT hoac FULL_PREPAYMENT) thi tao ban ghi Payment UNPAID de doi soat
         if (requiredDeposit.compareTo(BigDecimal.ZERO) > 0) {
@@ -240,11 +254,16 @@ public class BookingServiceImpl implements BookingService {
             }
         }
         bookingRepository.save(booking);
+
+        // Giải phóng phòng trong bảng lịch phòng theo ngày
+        for (BookingDetail d : booking.getDetails()) {
+            roomAvailabilityService.releaseBookingDays(d.getRoom().getId(), d.getCheckinDate(), d.getCheckoutDate());
+        }
     }
 
     @Override
     public List<Booking> getBookingsOfHost(Long hostUserId) {
-        return bookingRepository.findByDetails_Room_Homestay_Host_IdOrderByCreatedAtDesc(hostUserId);
+        return bookingRepository.findByDetails_Room_Homestay_Host_User_IdOrderByCreatedAtDesc(hostUserId);
     }
 
     @Override
@@ -261,6 +280,11 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = getForHostOrThrow(bookingId, hostUserId);
         booking.setStatus(BookingStatus.REJECTED);
         bookingRepository.save(booking);
+
+        // Giải phóng phòng trong bảng lịch phòng theo ngày khi chủ nhà từ chối
+        for (BookingDetail d : booking.getDetails()) {
+            roomAvailabilityService.releaseBookingDays(d.getRoom().getId(), d.getCheckinDate(), d.getCheckoutDate());
+        }
     }
 
     @Override
@@ -354,6 +378,9 @@ public class BookingServiceImpl implements BookingService {
             }
             booking.setStatus(BookingStatus.CONFIRMED);
             bookingRepository.save(booking);
+            if (booking.getCollaboratorCode() != null) {
+                collaboratorService.createCommissionForBooking(booking);
+            }
             return;
         }
 
@@ -375,6 +402,9 @@ public class BookingServiceImpl implements BookingService {
             booking.setStatus(BookingStatus.COMPLETED);
         }
         bookingRepository.save(booking);
+        if (booking.getStatus() == BookingStatus.COMPLETED && booking.getCollaboratorCode() != null) {
+            collaboratorService.createCommissionForBooking(booking);
+        }
     }
 
     @Override
@@ -395,6 +425,9 @@ public class BookingServiceImpl implements BookingService {
             booking.getPayments().add(remainingPayment);
         }
         bookingRepository.save(booking);
+        if (booking.getCollaboratorCode() != null) {
+            collaboratorService.createCommissionForBooking(booking);
+        }
     }
 
     @Override
@@ -404,22 +437,32 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> searchBookingsForAdmin(String bookingCode, String customerName) {
+        return searchBookingsForAdmin(null, bookingCode, customerName);
+    }
+
+    @Override
+    public List<Booking> searchBookingsForAdmin(BookingStatus status, String bookingCode, String customerName) {
         String code = (bookingCode != null && !bookingCode.isBlank()) ? bookingCode.trim() : null;
         String name = (customerName != null && !customerName.isBlank()) ? customerName.trim() : null;
-        if (code == null && name == null) {
+        if (status == null && code == null && name == null) {
             return bookingRepository.findAll();
         }
-        return bookingRepository.searchForAdmin(code, name);
+        return bookingRepository.searchForAdmin(status, code, name);
     }
 
     @Override
     public List<Booking> searchBookingsOfHost(Long hostUserId, String bookingCode, String customerName) {
+        return searchBookingsOfHost(hostUserId, null, bookingCode, customerName);
+    }
+
+    @Override
+    public List<Booking> searchBookingsOfHost(Long hostUserId, BookingStatus status, String bookingCode, String customerName) {
         String code = (bookingCode != null && !bookingCode.isBlank()) ? bookingCode.trim() : null;
         String name = (customerName != null && !customerName.isBlank()) ? customerName.trim() : null;
-        if (code == null && name == null) {
+        if (status == null && code == null && name == null) {
             return getBookingsOfHost(hostUserId);
         }
-        return bookingRepository.searchForHost(hostUserId, code, name);
+        return bookingRepository.searchForHost(hostUserId, status, code, name);
     }
 
     @Override
@@ -449,7 +492,13 @@ public class BookingServiceImpl implements BookingService {
             }
         }
         bookingRepository.save(booking);
+
+        // Giải phóng phòng trong bảng lịch phòng theo ngày khi hoàn tiền hủy đơn
+        for (BookingDetail d : booking.getDetails()) {
+            roomAvailabilityService.releaseBookingDays(d.getRoom().getId(), d.getCheckinDate(), d.getCheckoutDate());
+        }
     }
+
     private Booking findOrThrow(Long id) {
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay don id=" + id));

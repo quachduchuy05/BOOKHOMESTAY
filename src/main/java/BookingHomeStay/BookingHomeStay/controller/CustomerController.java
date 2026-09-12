@@ -41,9 +41,14 @@ public class CustomerController {
     private final BookingHomeStay.BookingHomeStay.repository.RoomRepository roomRepository;
 
     @GetMapping("/dat-phong/moi")
-    public String newBookingForm(@RequestParam Long roomId, Model model) {
+    public String newBookingForm(@RequestParam Long roomId,
+                                 @RequestParam(required = false) String ref,
+                                 Model model) {
         BookingRequest form = new BookingRequest();
         form.setRoomId(roomId);
+        if (ref != null && !ref.isBlank()) {
+            form.setReferralCode(ref.trim());
+        }
         form.setPaymentPolicy(BookingHomeStay.BookingHomeStay.entity.PaymentPolicy.PAY_AT_PROPERTY.name());
         form.setPaymentMethod(null);
         model.addAttribute("bookingRequest", form);

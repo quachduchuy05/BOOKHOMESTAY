@@ -23,7 +23,7 @@ import java.util.List;
  * chu - route la duong dan tren trinh duyet, view name la duong dan file .html.
  */
 @Controller
-@RequestMapping("/quan-tri")
+@RequestMapping({"/quan-tri", "/admin"})
 @RequiredArgsConstructor
 public class AdminController {
 
@@ -31,6 +31,13 @@ public class AdminController {
     private final HomestayService homestayService;
     private final BookingService bookingService;
     private final PromotionService promotionService;
+    private final BookingHomeStay.BookingHomeStay.service.CollaboratorService collaboratorService;
+
+    // Dieu huong mac dinh ve trang tong quan khi truy cap /quan-tri hoac /admin
+    @GetMapping({"", "/"})
+    public String index() {
+        return "redirect:/quan-tri/tong-quan";
+    }
 
     // ================= TONG QUAN =================
 
@@ -309,5 +316,53 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/quan-tri/giao-dich";
+    }
+
+    // ================= QUAN LY RUT TIEN CONG TAC VIEN =================
+
+    @GetMapping("/rut-tien")
+    public String withdrawals(Model model) {
+        java.util.List<BookingHomeStay.BookingHomeStay.entity.CollaboratorWithdrawal> list = collaboratorService.getAllWithdrawals();
+        long pendingCount = list.stream()
+                .filter(w -> w.getStatus() == BookingHomeStay.BookingHomeStay.entity.WithdrawalStatus.PENDING)
+                .count();
+        model.addAttribute("withdrawals", list);
+        model.addAttribute("pendingCount", pendingCount);
+        return "quan-tri/rut-tien-cong-tac-vien";
+    }
+
+    @PostMapping("/rut-tien/{id}/duyet")
+    public String approveWithdrawal(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            collaboratorService.approveWithdrawal(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã duyệt yêu cầu rút tiền #" + id + "!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/quan-tri/rut-tien";
+    }
+
+    @PostMapping("/rut-tien/{id}/tu-choi")
+    public String rejectWithdrawal(@PathVariable Long id,
+                                   @RequestParam(required = false, defaultValue = "Không đủ điều kiện hoặc thông tin sai") String note,
+                                   org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            collaboratorService.rejectWithdrawal(id, note);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã từ chối yêu cầu rút tiền #" + id + ".");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/quan-tri/rut-tien";
+    }
+
+    @PostMapping("/rut-tien/{id}/da-chuyen")
+    public String markWithdrawalPaid(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            collaboratorService.markWithdrawalPaid(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận thanh toán thành công cho yêu cầu #" + id + "!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/quan-tri/rut-tien";
     }
 }

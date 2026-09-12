@@ -21,7 +21,13 @@ public class HomeController {
     // Ho tro ca "/" va "/trang-chu" tro ve cung 1 noi dung (yeu cau task 2:
     // nguoi dung muon thay ro URL tieng Viet dang "localhost:8080/trang-chu").
     @GetMapping({"/", "/trang-chu"})
-    public String home(Model model, org.springframework.security.core.Authentication authentication) {
+    public String home(@RequestParam(required = false) String province,
+                       @RequestParam(required = false) String district,
+                       @RequestParam(required = false) Integer guests,
+                       @RequestParam(required = false) BigDecimal minPrice,
+                       @RequestParam(required = false) BigDecimal maxPrice,
+                       Model model,
+                       org.springframework.security.core.Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
             for (org.springframework.security.core.GrantedAuthority authority : authentication.getAuthorities()) {
                 String role = authority.getAuthority();
@@ -30,8 +36,19 @@ public class HomeController {
                 if ("ROLE_HOST".equals(role)) return "redirect:/chu-nha/tong-quan";
             }
         }
-        List<Homestay> featuredHomestays = homestayService.search(null, null, null, null);
+        List<Homestay> featuredHomestays = homestayService.search(province, district, guests, minPrice, maxPrice);
         model.addAttribute("featuredHomestays", featuredHomestays);
+        model.addAttribute("activeProvinces", homestayService.getActiveProvinces());
+        model.addAttribute("allProvinces", BookingHomeStay.BookingHomeStay.dto.VietnamProvinces.getAll());
+        model.addAttribute("featuredProvinces", BookingHomeStay.BookingHomeStay.dto.VietnamProvinces.getFeatured());
+        model.addAttribute("province", province);
+        model.addAttribute("district", district);
+        model.addAttribute("guests", guests);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
+        if (province != null && !province.isBlank()) {
+            model.addAttribute("districtsOfProvince", homestayService.getDistrictsOfProvince(province));
+        }
         return "trang-chu";
     }
 
@@ -53,6 +70,9 @@ public class HomeController {
         }
         List<Homestay> results = homestayService.search(province, district, guests, minPrice, maxPrice);
         model.addAttribute("results", results);
+        model.addAttribute("activeProvinces", homestayService.getActiveProvinces());
+        model.addAttribute("allProvinces", BookingHomeStay.BookingHomeStay.dto.VietnamProvinces.getAll());
+        model.addAttribute("featuredProvinces", BookingHomeStay.BookingHomeStay.dto.VietnamProvinces.getFeatured());
         model.addAttribute("province", province);
         model.addAttribute("district", district);
         model.addAttribute("guests", guests);
@@ -67,8 +87,8 @@ public class HomeController {
         return "tim-kiem";
     }
 
-    // AJAX: tra ve danh sach quan/huyen theo tinh da chon (dung o trang tim-kiem)
-    @GetMapping("/tim-kiem/api/quan-huyen")
+    // AJAX: tra ve danh sach quan/huyen theo tinh da chon (dung o ca trang chu va trang tim-kiem)
+    @GetMapping({"/tim-kiem/api/quan-huyen", "/trang-chu/api/quan-huyen", "/api/quan-huyen"})
     @ResponseBody
     public List<String> quanHuyenTheoTinh(@RequestParam String province) {
         return homestayService.getDistrictsOfProvince(province);

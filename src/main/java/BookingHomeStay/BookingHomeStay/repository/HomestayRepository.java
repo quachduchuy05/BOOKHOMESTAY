@@ -46,6 +46,14 @@ public interface HomestayRepository extends JpaRepository<Homestay, Long> {
         """)
     List<String> findDistinctDistrictsByProvince(@Param("province") String province);
 
+    @Query("""
+        SELECT DISTINCT h.province FROM Homestay h
+        WHERE h.status = BookingHomeStay.BookingHomeStay.entity.HomestayStatus.ACTIVE
+          AND h.province IS NOT NULL AND TRIM(h.province) <> ''
+        ORDER BY h.province
+        """)
+    List<String> findDistinctActiveProvinces();
+
     /** Cong thuc Haversine - tim homestay ACTIVE trong ban kinh radiusKm quanh toa do khach */
     @Query(value = """
         SELECT h.*,

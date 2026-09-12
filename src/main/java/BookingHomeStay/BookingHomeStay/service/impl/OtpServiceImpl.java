@@ -91,10 +91,12 @@ public class OtpServiceImpl implements OtpService {
         otpStore.put(destination, new OtpEntry(code, Instant.now().plus(TTL)));
 
         try {
-            switch (channel) {
-                case EMAIL -> sendViaEmail(destination, code);
-                case SMS -> sendViaSms(destination, code);
-                case ZALO -> sendViaZalo(destination, code);
+            if (channel == OtpChannel.EMAIL) {
+                sendViaEmail(destination, code);
+            } else if (channel == OtpChannel.SMS) {
+                sendViaSms(destination, code);
+            } else if (channel == OtpChannel.ZALO) {
+                sendViaZalo(destination, code);
             }
         } catch (Exception e) {
             otpStore.remove(destination);

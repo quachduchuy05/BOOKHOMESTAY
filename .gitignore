@@ -39,3 +39,4 @@ build/
 *.xlsx
 *service-account*.json
 firebase-service-account.json
+uploads/

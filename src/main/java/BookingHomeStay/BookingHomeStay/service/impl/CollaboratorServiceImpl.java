@@ -164,6 +164,11 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     }
 
     @Override
+    public List<CollaboratorWithdrawal> getAllWithdrawals() {
+        return withdrawalRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    @Override
     @Transactional
     public void approveWithdrawal(Long withdrawalId) {
         CollaboratorWithdrawal w = withdrawalRepository.findById(withdrawalId)

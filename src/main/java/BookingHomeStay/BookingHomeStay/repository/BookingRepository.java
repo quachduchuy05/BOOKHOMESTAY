@@ -3,12 +3,17 @@ package BookingHomeStay.BookingHomeStay.repository;
 import BookingHomeStay.BookingHomeStay.entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import java.util.List;
 
+@Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByUserIdOrderByCreatedAtDesc(Long userId);
     java.util.Optional<Booking> findByBookingCode(String bookingCode);
     List<Booking> findByDetails_Room_Homestay_Host_IdOrderByCreatedAtDesc(Long hostId);
+
+    @Query("SELECT DISTINCT b FROM Booking b JOIN b.details bd JOIN bd.room r JOIN r.homestay h JOIN h.host host WHERE host.user.id = :hostUserId ORDER BY b.createdAt DESC")
+    List<Booking> findByDetails_Room_Homestay_Host_User_IdOrderByCreatedAtDesc(@org.springframework.data.repository.query.Param("hostUserId") Long hostUserId);
     long countByStatus(BookingHomeStay.BookingHomeStay.entity.BookingStatus status);
     boolean existsByPromotionId(Long promotionId);
     long countBySource(BookingHomeStay.BookingHomeStay.entity.BookingSource source);
@@ -18,21 +23,25 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("""
         SELECT DISTINCT b FROM Booking b
-        WHERE (:bookingCode IS NULL OR LOWER(b.bookingCode) LIKE LOWER(CONCAT('%', :bookingCode, '%')))
+        WHERE (:status IS NULL OR b.status = :status)
+          AND (:bookingCode IS NULL OR LOWER(b.bookingCode) LIKE LOWER(CONCAT('%', :bookingCode, '%')))
           AND (:customerName IS NULL OR LOWER(b.customerName) LIKE LOWER(CONCAT('%', :customerName, '%')))
         ORDER BY b.createdAt DESC
         """)
-    List<Booking> searchForAdmin(@org.springframework.data.repository.query.Param("bookingCode") String bookingCode,
+    List<Booking> searchForAdmin(@org.springframework.data.repository.query.Param("status") BookingHomeStay.BookingHomeStay.entity.BookingStatus status,
+                                @org.springframework.data.repository.query.Param("bookingCode") String bookingCode,
                                 @org.springframework.data.repository.query.Param("customerName") String customerName);
 
     @Query("""
         SELECT DISTINCT b FROM Booking b JOIN b.details bd JOIN bd.room r JOIN r.homestay h JOIN h.host host
-        WHERE (host.id = :hostUserId OR host.user.id = :hostUserId)
+        WHERE (host.user.id = :hostUserId OR host.id = :hostUserId)
+          AND (:status IS NULL OR b.status = :status)
           AND (:bookingCode IS NULL OR LOWER(b.bookingCode) LIKE LOWER(CONCAT('%', :bookingCode, '%')))
           AND (:customerName IS NULL OR LOWER(b.customerName) LIKE LOWER(CONCAT('%', :customerName, '%')))
         ORDER BY b.createdAt DESC
         """)
     List<Booking> searchForHost(@org.springframework.data.repository.query.Param("hostUserId") Long hostUserId,
+                               @org.springframework.data.repository.query.Param("status") BookingHomeStay.BookingHomeStay.entity.BookingStatus status,
                                @org.springframework.data.repository.query.Param("bookingCode") String bookingCode,
                                @org.springframework.data.repository.query.Param("customerName") String customerName);
 

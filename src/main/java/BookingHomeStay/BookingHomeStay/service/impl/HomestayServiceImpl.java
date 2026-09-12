@@ -32,6 +32,11 @@ public class HomestayServiceImpl implements HomestayService {
     }
 
     @Override
+    public List<String> getActiveProvinces() {
+        return homestayRepository.findDistinctActiveProvinces();
+    }
+
+    @Override
     public List<Homestay> findNearby(double lat, double lng, double radiusKm) {
         return homestayRepository.findNearby(lat, lng, radiusKm > 0 ? radiusKm : 15.0);
     }

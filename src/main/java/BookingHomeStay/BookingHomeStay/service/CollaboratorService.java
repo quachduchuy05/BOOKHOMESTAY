@@ -24,6 +24,8 @@ public interface CollaboratorService {
 
     List<CollaboratorWithdrawal> getPendingWithdrawals();
 
+    List<CollaboratorWithdrawal> getAllWithdrawals();
+
     void approveWithdrawal(Long withdrawalId);
 
     void rejectWithdrawal(Long withdrawalId, String note);

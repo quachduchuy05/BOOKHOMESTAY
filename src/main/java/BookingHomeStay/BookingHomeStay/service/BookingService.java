@@ -25,7 +25,9 @@ public interface BookingService {
     void completeBooking(Long bookingId, Long hostUserId);
     List<Booking> getAllBookings();
     List<Booking> searchBookingsForAdmin(String bookingCode, String customerName);
+    List<Booking> searchBookingsForAdmin(BookingHomeStay.BookingHomeStay.entity.BookingStatus status, String bookingCode, String customerName);
     List<Booking> searchBookingsOfHost(Long hostUserId, String bookingCode, String customerName);
+    List<Booking> searchBookingsOfHost(Long hostUserId, BookingHomeStay.BookingHomeStay.entity.BookingStatus status, String bookingCode, String customerName);
     Booking getBookingForCustomer(Long bookingId, Long customerUserId);
     void refundBooking(Long bookingId, Long hostUserId);
 }

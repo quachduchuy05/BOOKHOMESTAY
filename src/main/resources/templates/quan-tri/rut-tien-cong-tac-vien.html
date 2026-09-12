@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('Quản lý rút tiền cộng tác viên')}"></head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Mobile Sidebar Trigger -->
+    <div th:replace="~{dung-chung/admin-sidebar :: toggle}"></div>
+
+    <div class="row g-4">
+        <!-- Admin Sidebar -->
+        <div th:replace="~{dung-chung/admin-sidebar :: sidebar('rut-tien')}"></div>
+        <div th:replace="~{dung-chung/admin-sidebar :: offcanvas('rut-tien')}"></div>
+
+        <!-- Main Content Column -->
+        <div class="col-lg-9 col-xl-10">
+            <!-- Flash Messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+                <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Header -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-1 small">
+                            <li class="breadcrumb-item"><a th:href="@{/quan-tri/tong-quan}" class="text-decoration-none text-muted">Bảng điều khiển</a></li>
+                            <li class="breadcrumb-item active text-danger" aria-current="page">Rút tiền CTV</li>
+                        </ol>
+                    </nav>
+                    <h3 class="fw-bold m-0"><i class="fa-solid fa-wallet text-info me-2"></i>Yêu Cầu Rút Hoa Hồng CTV</h3>
+                    <p class="text-muted small m-0">Duyệt và xử lý chi trả hoa hồng cho cộng tác viên tiếp thị</p>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4 col-sm-6">
+                    <div class="card border-0 rounded-4 shadow-sm p-3 bg-white">
+                        <span class="text-muted small fw-semibold">Tổng số yêu cầu</span>
+                        <h3 class="fw-bold text-dark mt-1 mb-0" th:text="${withdrawals.size()}">0</h3>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card border-0 rounded-4 shadow-sm p-3 bg-white">
+                        <span class="text-muted small fw-semibold">Đang chờ duyệt</span>
+                        <h3 class="fw-bold text-warning mt-1 mb-0" th:text="${pendingCount}">0</h3>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card border-0 rounded-4 shadow-sm p-3 bg-white">
+                        <span class="text-muted small fw-semibold">Trạng thái xử lý</span>
+                        <h3 class="fw-bold text-success mt-1 mb-0" th:text="${withdrawals.size() - pendingCount} + ' đã xong'">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Card -->
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr class="small text-muted text-uppercase">
+                                <th class="ps-4">Mã YC</th>
+                                <th>Cộng tác viên</th>
+                                <th>Số tiền rút</th>
+                                <th>Ngân hàng nhận</th>
+                                <th>Thời gian tạo</th>
+                                <th>Trạng thái</th>
+                                <th>Ghi chú</th>
+                                <th class="text-end pe-4">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${withdrawals.isEmpty()}">
+                                <td colspan="8" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-inbox fa-3x mb-3 text-secondary opacity-50 d-block"></i>
+                                    Chưa có yêu cầu rút tiền nào được gửi lên
+                                </td>
+                            </tr>
+                            <tr th:each="w : ${withdrawals}">
+                                <td class="ps-4 fw-bold text-dark" th:text="'#' + ${w.id}">#1</td>
+                                <td>
+                                    <div class="fw-bold text-dark" th:text="${w.collaborator.user.fullName}">Nguyễn Văn A</div>
+                                    <small class="text-muted d-block" th:text="${w.collaborator.user.email}">c@email.com</small>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle" th:text="'Mã: ' + ${w.collaborator.maGioiThieu}">CTV123</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-danger fs-6" th:text="${#numbers.formatDecimal(w.amount, 0, 'POINT', 0, 'COMMA')} + ' đ'">100,000 đ</span>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark" th:text="${w.bankName}">MB Bank</div>
+                                    <code class="text-primary small" th:text="${w.bankAccountNumber}">123456789</code>
+                                </td>
+                                <td>
+                                    <span class="small text-muted" th:text="${#temporals.format(w.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</span>
+                                </td>
+                                <td>
+                                    <span th:if="${w.status.name() == 'PENDING'}" class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                        <i class="fa-solid fa-clock me-1"></i> Chờ duyệt
+                                    </span>
+                                    <span th:if="${w.status.name() == 'APPROVED'}" class="badge bg-info-subtle text-info border border-info-subtle">
+                                        <i class="fa-solid fa-check me-1"></i> Đã duyệt (Chờ CK)
+                                    </span>
+                                    <span th:if="${w.status.name() == 'PAID'}" class="badge bg-success-subtle text-success border border-success-subtle">
+                                        <i class="fa-solid fa-circle-check me-1"></i> Đã chuyển tiền
+                                    </span>
+                                    <span th:if="${w.status.name() == 'REJECTED'}" class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                        <i class="fa-solid fa-ban me-1"></i> Đã từ chối
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="small text-muted" th:text="${w.note != null ? w.note : '-'}">-</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div th:if="${w.status.name() == 'PENDING'}" class="d-inline-flex gap-1">
+                                        <form th:action="@{/quan-tri/rut-tien/{id}/duyet(id=${w.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-3" onclick="return confirm('Duyệt yêu cầu rút tiền này?')">
+                                                <i class="fa-solid fa-check me-1"></i> Duyệt
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" data-bs-toggle="modal" th:data-bs-target="'#rejectModal' + ${w.id}">
+                                            <i class="fa-solid fa-xmark me-1"></i> Từ chối
+                                        </button>
+                                    </div>
+
+                                    <div th:if="${w.status.name() == 'APPROVED'}" class="d-inline-flex">
+                                        <form th:action="@{/quan-tri/rut-tien/{id}/da-chuyen(id=${w.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3" onclick="return confirm('Xác nhận bạn đã chuyển khoản số tiền này cho CTV?')">
+                                                <i class="fa-solid fa-money-bill-transfer me-1"></i> Đã chuyển tiền
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <div th:if="${w.status.name() == 'PAID' || w.status.name() == 'REJECTED'}">
+                                        <span class="text-muted small"><i class="fa-solid fa-lock me-1"></i>Đã đóng</span>
+                                    </div>
+
+                                    <!-- Modal Từ Chối -->
+                                    <div class="modal fade text-start" th:id="'rejectModal' + ${w.id}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content rounded-4 border-0 shadow">
+                                                <div class="modal-header border-0 pb-0">
+                                                    <h5 class="modal-title fw-bold text-danger">
+                                                        <i class="fa-solid fa-circle-exclamation me-2"></i>Từ chối yêu cầu rút tiền #<span th:text="${w.id}"></span>
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form th:action="@{/quan-tri/rut-tien/{id}/tu-choi(id=${w.id})}" method="post">
+                                                    <div class="modal-body">
+                                                        <p class="text-muted small">Cộng tác viên: <strong th:text="${w.collaborator.user.fullName}"></strong> - Số tiền: <strong class="text-danger" th:text="${#numbers.formatDecimal(w.amount, 0, 'POINT', 0, 'COMMA')} + ' đ'"></strong></p>
+                                                        <label class="form-label fw-semibold small">Lý do từ chối:</label>
+                                                        <textarea class="form-control rounded-3" name="note" rows="3" required placeholder="Nhập lý do từ chối để CTV biết (vd: Thông tin tài khoản ngân hàng không chính xác...)"></textarea>
+                                                    </div>
+                                                    <div class="modal-footer border-0 pt-0">
+                                                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                                                        <button type="submit" class="btn btn-danger rounded-pill px-4">Xác nhận từ chối</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{dung-chung/layout :: footer}"></footer>
+</body>
+</html>

@@ -15,6 +15,7 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, Lo
         SELECT bd FROM BookingDetail bd
         WHERE bd.room.id = :roomId
           AND bd.booking.status IN (BookingHomeStay.BookingHomeStay.entity.BookingStatus.PENDING,
+                                     BookingHomeStay.BookingHomeStay.entity.BookingStatus.PENDING_PAYMENT,
                                      BookingHomeStay.BookingHomeStay.entity.BookingStatus.CONFIRMED,
                                      BookingHomeStay.BookingHomeStay.entity.BookingStatus.CHECKED_IN)
           AND bd.checkinDate < :checkOut

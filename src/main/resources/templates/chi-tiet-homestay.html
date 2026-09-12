@@ -178,7 +178,7 @@
                                 <span class="card-price-unit fw-bold">VNĐ/đêm</span>
                             </div>
                             <a th:if="${room.status.name() == 'ACTIVE'}" 
-                               th:href="@{/khach-hang/dat-phong/moi(roomId=${room.id})}" 
+                               th:href="@{/khach-hang/dat-phong/moi(roomId=${room.id}, ref=${param.ref})}" 
                                class="btn btn-primary btn-pill btn-sm px-4">
                                 <i class="fa-solid fa-check me-1"></i> Đặt phòng ngay
                             </a>

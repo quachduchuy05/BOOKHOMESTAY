@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+@lombok.extern.slf4j.Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -135,15 +136,16 @@ public class UserServiceImpl implements UserService {
                         ? originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
                 String filename = "avatar_" + userId + "_" + System.currentTimeMillis() + ext;
 
-                java.nio.file.Path uploadDir = java.nio.file.Paths.get("uploads/avatars");
+                java.nio.file.Path uploadDir = java.nio.file.Paths.get("uploads", "avatars").toAbsolutePath();
                 if (!java.nio.file.Files.exists(uploadDir)) {
                     java.nio.file.Files.createDirectories(uploadDir);
                 }
                 java.nio.file.Path filePath = uploadDir.resolve(filename);
-                form.getAvatarFile().transferTo(filePath.toFile());
+                java.nio.file.Files.copy(form.getAvatarFile().getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
                 user.setAvatar("/uploads/avatars/" + filename);
             } catch (Exception e) {
+                log.error("Lỗi khi tải lên file avatar: {}", e.getMessage(), e);
                 // Neu upload file that bai, fallback sang avatar link neu co
                 if (form.getAvatar() != null && !form.getAvatar().isBlank()) {
                     user.setAvatar(form.getAvatar().trim());

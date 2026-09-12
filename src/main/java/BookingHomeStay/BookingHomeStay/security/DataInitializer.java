@@ -43,7 +43,12 @@ public class DataInitializer implements CommandLineRunner {
                     });
         }
 
-        if (!userRepository.existsByEmail("admin@bookinghomestay.local")) {
+        userRepository.findByEmail("admin@bookinghomestay.local").ifPresentOrElse(existingAdmin -> {
+            if (existingAdmin.getPhone() == null || existingAdmin.getPhone().isBlank()) {
+                existingAdmin.setPhone("0901234567");
+                userRepository.save(existingAdmin);
+            }
+        }, () -> {
             Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseThrow();
             Set<Role> roles = new HashSet<>();
             roles.add(adminRole);
@@ -51,12 +56,13 @@ public class DataInitializer implements CommandLineRunner {
             User admin = User.builder()
                     .fullName("System Admin")
                     .email("admin@bookinghomestay.local")
+                    .phone("0901234567")
                     .password(passwordEncoder.encode("Admin@123"))
                     .roles(roles)
                     .build();
             userRepository.save(admin);
             log.info(">>> Đã khởi tạo Admin mặc định: admin@bookinghomestay.local / Admin@123");
-        }
+        });
     }
 
     private Host initDefaultHost() {

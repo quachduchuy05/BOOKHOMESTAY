@@ -122,7 +122,9 @@
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
                                 <div class="card-price-block">
-                                    <span class="card-price-amount">Chi tiết</span>
+                                    <span class="card-price-amount" th:if="${h.minPrice != null}" th:text="${#numbers.formatDecimal(h.minPrice, 0, 'POINT', 0, 'COMMA')} + ' đ'">450.000 đ</span>
+                                    <span class="card-price-amount" th:unless="${h.minPrice != null}">Chi tiết</span>
+                                    <span class="card-price-unit" th:if="${h.minPrice != null}">/ đêm</span>
                                 </div>
                                 <a th:href="@{/homestay/{slug}(slug=${h.slug})}" class="btn btn-outline-custom btn-sm btn-pill px-3">
                                     Xem phòng <i class="fa-solid fa-angle-right ms-1"></i>

@@ -15,4 +15,5 @@ public interface RoomAvailabilityService {
     void unlockRange(Long roomId, LocalDate start, LocalDate end, Long hostUserId);
     boolean isRoomAvailableForDates(Long roomId, LocalDate checkIn, LocalDate checkOut);
     void recordBookingDays(Long roomId, LocalDate checkIn, LocalDate checkOut);
+    void releaseBookingDays(Long roomId, LocalDate checkIn, LocalDate checkOut);
 }

@@ -57,7 +57,7 @@
                     <!-- Alerts -->
                     <div class="alert alert-danger py-2 small d-flex align-items-center gap-2" th:if="${param.error}">
                         <i class="fa-solid fa-circle-exclamation"></i>
-                        <span>Email hoặc mật khẩu không chính xác.</span>
+                        <span>Email, Số điện thoại hoặc mật khẩu không chính xác.</span>
                     </div>
                     <div class="alert alert-success py-2 small d-flex align-items-center gap-2" th:if="${param.logout}">
                         <i class="fa-solid fa-circle-check"></i>
@@ -74,10 +74,10 @@
 
                     <form th:action="@{/dang-nhap}" method="post">
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-muted">Địa chỉ Email</label>
+                            <label class="form-label small fw-bold text-muted">Email hoặc Số điện thoại</label>
                             <div class="input-icon-group">
-                                <i class="fa-regular fa-envelope input-icon"></i>
-                                <input type="email" name="username" class="form-control" placeholder="name@example.com" required autocomplete="email">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" name="username" class="form-control" placeholder="Nhập email hoặc số điện thoại (vd: 0987654321)" required autocomplete="username">
                             </div>
                         </div>
                         <div class="mb-4">
