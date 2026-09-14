@@ -88,6 +88,12 @@ public class Booking {
         return paidAmount.compareTo(finalAmount) >= 0;
     }
 
+    public boolean hasPaid() {
+        if (payments == null || payments.isEmpty()) return false;
+        return payments.stream()
+                .anyMatch(p -> p.getStatus() == BookingHomeStay.BookingHomeStay.entity.PaymentStatus.PAID);
+    }
+
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
