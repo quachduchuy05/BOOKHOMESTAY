@@ -428,4 +428,21 @@ public class BookingServiceImpl implements BookingService {
         }
         return booking;
     }
+
+    @Override
+    public List<LocalDate> getBookedDates(Long roomId) {
+        List<BookingDetail> futureBookings = bookingDetailRepository.findFutureBookingsByRoomId(roomId);
+        java.util.Set<LocalDate> bookedDates = new java.util.HashSet<>();
+        
+        for (BookingDetail detail : futureBookings) {
+            LocalDate current = detail.getCheckinDate();
+            LocalDate end = detail.getCheckoutDate();
+            while (current.isBefore(end)) {
+                bookedDates.add(current);
+                current = current.plusDays(1);
+            }
+        }
+        
+        return bookedDates.stream().sorted().toList();
+    }
 }

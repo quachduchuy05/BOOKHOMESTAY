@@ -34,15 +34,11 @@
                     </h6>
 
                     <!-- Dates & Quantity -->
-                    <div class="row g-2 mb-2">
-                        <div class="col-6">
-                            <label class="form-label small fw-bold text-muted mb-1">Nhận phòng</label>
-                            <input type="date" class="form-control form-control-sm" th:field="*{checkinDate}" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-bold text-muted mb-1">Trả phòng</label>
-                            <input type="date" class="form-control form-control-sm" th:field="*{checkoutDate}" required>
-                        </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-muted mb-1">Thời gian lưu trú (Nhận - Trả phòng)</label>
+                        <input type="text" id="dateRangeInput" class="form-control form-control-sm bg-white" placeholder="Chọn ngày nhận và trả phòng" required readonly style="cursor: pointer;">
+                        <input type="hidden" th:field="*{checkinDate}" id="checkinHidden">
+                        <input type="hidden" th:field="*{checkoutDate}" id="checkoutHidden">
                     </div>
 
                     <div class="mb-2">
@@ -228,11 +224,107 @@
     </form>
 </div>
 
-<script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script th:inline="javascript">
 document.addEventListener('DOMContentLoaded', function () {
-    const checkinInput = document.querySelector('input[name="checkinDate"]');
-    const checkoutInput = document.querySelector('input[name="checkoutDate"]');
+    const dateRangeInput = document.getElementById('dateRangeInput');
+    const checkinHidden = document.getElementById('checkinHidden');
+    const checkoutHidden = document.getElementById('checkoutHidden');
     const quantityInput = document.querySelector('input[name="quantity"]');
+    
+    /* Lấy danh sách các ngày đã được đặt từ model */
+    const bookedDates = /*[[${bookedDatesJson} != null ? ${bookedDatesJson} : '[]']]*/ '[]';
+    let parsedBookedDates = [];
+    try {
+        parsedBookedDates = JSON.parse(bookedDates);
+    } catch(e) {}
+
+    function formatDateLocal(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    let defaultDates = [];
+    if (checkinHidden.value && checkoutHidden.value) {
+        defaultDates = [checkinHidden.value, checkoutHidden.value];
+    }
+
+    let fpInstance;
+    fpInstance = flatpickr(dateRangeInput, {
+        mode: "range",
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        showMonths: window.innerWidth > 768 ? 2 : 1,
+        defaultDate: defaultDates,
+        disable: [
+            function(date) {
+                const dateStr = formatDateLocal(date);
+                
+                if (!fpInstance) return parsedBookedDates.includes(dateStr);
+                
+                if (fpInstance.selectedDates.length === 1) {
+                    const ciDate = fpInstance.selectedDates[0];
+                    date.setHours(0,0,0,0);
+                    ciDate.setHours(0,0,0,0);
+                    
+                    if (date < ciDate) return true;
+                    
+                    let nextBooked = null;
+                    const sortedBooked = parsedBookedDates.map(x => {
+                        const d = new Date(x);
+                        d.setHours(0,0,0,0);
+                        return d;
+                    }).sort((a,b) => a-b);
+                    
+                    for (let i=0; i<sortedBooked.length; i++) {
+                        if (sortedBooked[i] > ciDate) {
+                            nextBooked = sortedBooked[i];
+                            break;
+                        }
+                    }
+                    if (nextBooked) {
+                        if (date > nextBooked) return true;
+                    }
+                    return false;
+                }
+                
+                if (fpInstance.selectedDates.length === 2) {
+                    const coDate = fpInstance.selectedDates[1];
+                    date.setHours(0,0,0,0);
+                    coDate.setHours(0,0,0,0);
+                    if (date.getTime() === coDate.getTime()) return false;
+                }
+                
+                return parsedBookedDates.includes(dateStr);
+            }
+        ],
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length === 2) {
+                if (selectedDates[0].getTime() === selectedDates[1].getTime()) {
+                    instance.clear();
+                    alert("Ngày trả phòng phải sau ngày nhận ít nhất 1 ngày!");
+                    return;
+                }
+                checkinHidden.value = formatDateLocal(selectedDates[0]);
+                checkoutHidden.value = formatDateLocal(selectedDates[1]);
+                instance.redraw();
+            } else if (selectedDates.length === 1) {
+                checkinHidden.value = formatDateLocal(selectedDates[0]);
+                checkoutHidden.value = "";
+                instance.redraw();
+            } else {
+                checkinHidden.value = "";
+                checkoutHidden.value = "";
+                instance.redraw();
+            }
+            calculate();
+        }
+    });
+
     const policyRadios = document.querySelectorAll('input[name="paymentPolicy"]');
     const priceDisplay = document.getElementById('pricePerNightDisplay');
 
@@ -250,9 +342,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function calculate() {
         let nights = 1;
-        if (checkinInput && checkoutInput && checkinInput.value && checkoutInput.value) {
-            const d1 = new Date(checkinInput.value);
-            const d2 = new Date(checkoutInput.value);
+        if (checkinHidden && checkoutHidden && checkinHidden.value && checkoutHidden.value) {
+            const d1 = new Date(checkinHidden.value);
+            const d2 = new Date(checkoutHidden.value);
             const diffTime = d2 - d1;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             if (diffDays > 0) nights = diffDays;
@@ -287,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (summaryPayNow) summaryPayNow.textContent = formatCurrency(payNow);
         if (summaryPayLater) summaryPayLater.textContent = formatCurrency(payLater);
 
-        // Toggle payment method card: An khi PAY_AT_PROPERTY, hien khi DEPOSIT / FULL_PREPAYMENT
+        // Toggle payment method card
         const paymentMethodCard = document.getElementById('paymentMethodCard');
         const paymentMethodSelect = document.getElementById('paymentMethodSelect');
         if (selectedPolicy === 'PAY_AT_PROPERTY') {
@@ -304,8 +396,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    if (checkinInput) checkinInput.addEventListener('change', calculate);
-    if (checkoutInput) checkoutInput.addEventListener('change', calculate);
     if (quantityInput) quantityInput.addEventListener('input', calculate);
     policyRadios.forEach(r => r.addEventListener('change', calculate));
 

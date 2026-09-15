@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('AI Booking Assistant - Homestay')}">
+</head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<style>
+    :root {
+        --primary-bg: #f8f9fa;
+        --chat-bg: #ffffff;
+        --user-bubble: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --ai-bubble: #f1f3f5;
+        --accent: #764ba2;
+    }
+    .chat-wrapper {
+        padding: 30px 0;
+        background-color: var(--primary-bg);
+    }
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        max-width: 900px;
+        margin: 0 auto;
+        width: 100%;
+        background: var(--chat-bg);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border-radius: 15px;
+        height: 75vh;
+        min-height: 600px;
+        overflow: hidden;
+    }
+    .chat-header {
+        padding: 20px;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        z-index: 10;
+    }
+    .chat-header .title {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #333;
+        margin: 0;
+        background: var(--user-bubble);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .chat-box {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+    }
+    .message-row {
+        display: flex;
+        margin-bottom: 20px;
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    .message-row.user {
+        justify-content: flex-end;
+    }
+    .bubble {
+        max-width: 75%;
+        padding: 12px 18px;
+        border-radius: 20px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        position: relative;
+    }
+    .user .bubble {
+        background: var(--user-bubble);
+        color: white;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 4px 15px rgba(118, 75, 162, 0.2);
+    }
+    .ai .bubble {
+        background: var(--ai-bubble);
+        color: #333;
+        border-bottom-left-radius: 4px;
+    }
+    .chat-input-area {
+        padding: 20px;
+        background: #fff;
+        border-top: 1px solid #eee;
+    }
+    .input-group-custom {
+        display: flex;
+        background: #f8f9fa;
+        border-radius: 30px;
+        padding: 5px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    .input-group-custom:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+    }
+    .input-group-custom input {
+        border: none;
+        background: transparent;
+        padding: 10px 20px;
+        flex: 1;
+        outline: none;
+    }
+    .btn-send {
+        background: var(--user-bubble);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .btn-send:hover {
+        transform: scale(1.05);
+    }
+    .btn-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    /* Room Card styling */
+    .room-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        margin-top: 10px;
+        overflow: hidden;
+        transition: transform 0.2s;
+    }
+    .room-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .room-card-header {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-bottom: 1px solid #eee;
+        font-weight: 600;
+    }
+    .room-card-body {
+        padding: 15px;
+    }
+    .price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #d9534f;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 15px 18px;
+    }
+    .dot {
+        width: 8px;
+        height: 8px;
+        background: #aaa;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out both;
+    }
+    .dot:nth-child(1) { animation-delay: -0.32s; }
+    .dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+    }
+</style>
+
+<div class="chat-wrapper">
+    <div class="container-fluid px-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">AI Booking Assistant</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="chat-container">
+            <div class="chat-header">
+                <h1 class="title"><i class="fa-solid fa-robot me-2"></i>AI Booking Assistant</h1>
+                <div></div>
+            </div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="message-row ai">
+            <div class="bubble">
+                Chào bạn! 👋 Mình là trợ lý AI. Mình có thể giúp bạn tìm phòng homestay một cách nhanh chóng. 
+                Bạn muốn đi đâu, vào thời gian nào, đi bao nhiêu người và có yêu cầu gì đặc biệt không? (VD: Mình muốn đi Đà Lạt 2 người, tuần sau, có hồ bơi)
+            </div>
+        </div>
+    </div>
+
+            <div class="chat-input-area">
+                <form id="chatForm" onsubmit="sendMessage(event)">
+                    <div class="input-group-custom">
+                        <input type="text" id="userInput" placeholder="Nhập yêu cầu của bạn..." autocomplete="off" required>
+                        <button type="submit" class="btn-send" id="sendBtn">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+                </div>
+            </div>
+            
+            <!-- Manual Filter Panel -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm border-0" style="border-radius: 15px; height: 100%;">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                        <h5 class="fw-bold"><i class="fa-solid fa-sliders text-primary me-2"></i>Bộ lọc hiện tại</h5>
+                        <p class="text-muted small mb-0">Các tiêu chí AI đã hiểu. Bạn có thể tự điều chỉnh.</p>
+                    </div>
+                    <div class="card-body overflow-auto">
+                        <form id="manualFilterForm">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-secondary">Tỉnh/Thành phố</label>
+                                <input type="text" id="filterProvinces" class="form-control form-control-sm" placeholder="Vd: Đà Lạt, Hà Nội">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-secondary">Quận/Huyện</label>
+                                <input type="text" id="filterDistricts" class="form-control form-control-sm" placeholder="Vd: Hoàn Kiếm">
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Check-in</label>
+                                    <input type="date" id="filterCheckIn" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Check-out</label>
+                                    <input type="date" id="filterCheckOut" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Số người</label>
+                                    <input type="number" id="filterGuest" class="form-control form-control-sm" min="1">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Số phòng</label>
+                                    <input type="number" id="filterRoom" class="form-control form-control-sm" min="1">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Giá Min (VNĐ)</label>
+                                    <input type="number" id="filterPriceMin" class="form-control form-control-sm" step="100000">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary">Giá Max (VNĐ)</label>
+                                    <input type="number" id="filterPriceMax" class="form-control form-control-sm" step="100000">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-secondary">Tiện ích (Mỗi dòng 1 nhóm đồng nghĩa)</label>
+                                <textarea id="filterAmenities" class="form-control form-control-sm" rows="3" placeholder="Vd: bể bơi, hồ bơi&#10;BBQ, nướng"></textarea>
+                            </div>
+                            <button type="button" onclick="submitManualFilter()" class="btn btn-primary w-100" style="border-radius: 20px;">
+                                Áp dụng & Tìm kiếm lại
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{dung-chung/layout :: footer}"></footer>
+
+<script>
+    // Generate a simple session ID
+    let sessionId = sessionStorage.getItem('aiSessionId');
+    if (!sessionId) {
+        sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
+        sessionStorage.setItem('aiSessionId', sessionId);
+    }
+
+    const chatBox = document.getElementById('chatBox');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    let isWaiting = false;
+
+    function appendUserMessage(text) {
+        const div = document.createElement('div');
+        div.className = 'message-row user';
+        div.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+        chatBox.appendChild(div);
+        scrollToBottom();
+    }
+
+    function appendAiMessage(htmlContent) {
+        const div = document.createElement('div');
+        div.className = 'message-row ai';
+        div.innerHTML = `<div class="bubble">${htmlContent}</div>`;
+        chatBox.appendChild(div);
+        scrollToBottom();
+    }
+
+    function showTyping() {
+        const div = document.createElement('div');
+        div.className = 'message-row ai';
+        div.id = 'typingIndicator';
+        div.innerHTML = `
+            <div class="bubble typing-indicator">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>`;
+        chatBox.appendChild(div);
+        scrollToBottom();
+    }
+
+    function removeTyping() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) indicator.remove();
+    }
+
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function escapeHtml(unsafe) {
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    }
+
+    async function checkAndBook(roomId, checkIn, checkOut, roomCount) {
+        try {
+            let url = `/api/ai-booking/check-availability/${roomId}`;
+            const params = new URLSearchParams();
+            if (checkIn) params.append('checkIn', checkIn);
+            if (checkOut) params.append('checkOut', checkOut);
+            
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.available) {
+                // Redirect to checkout
+                let redirectUrl = `/khach-hang/dat-phong/moi?roomId=${roomId}`;
+                if (checkIn) redirectUrl += `&checkinDate=${checkIn}`;
+                if (checkOut) redirectUrl += `&checkoutDate=${checkOut}`;
+                if (roomCount) redirectUrl += `&roomCount=${roomCount}`;
+                window.location.href = redirectUrl;
+            } else {
+                alert("Rất tiếc! Phòng này vừa được đặt hoặc không còn trống trong khoảng thời gian bạn chọn. Vui lòng chọn phòng khác.");
+            }
+        } catch (error) {
+            alert("Có lỗi xảy ra khi kiểm tra phòng. Vui lòng thử lại!");
+        }
+    }
+
+    async function sendMessage(e) {
+        e.preventDefault();
+        if (isWaiting) return;
+
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        appendUserMessage(text);
+        userInput.value = '';
+        isWaiting = true;
+        sendBtn.disabled = true;
+        showTyping();
+
+        try {
+            const response = await fetch('/api/ai-booking/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, message: text })
+            });
+
+            if (!response.ok) throw new Error('API Error');
+
+            const data = await response.json();
+            
+            // Update filter UI
+            if (data.currentFilters) {
+                updateFilterUI(data.currentFilters);
+            }
+            
+            removeTyping();
+
+            renderSuggestions(data);
+
+        } catch (error) {
+            removeTyping();
+            appendAiMessage("Xin lỗi, hệ thống AI đang gặp chút sự cố. Bạn vui lòng thử lại sau nhé.");
+        } finally {
+            isWaiting = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -26,4 +26,5 @@ public interface BookingService {
     List<Booking> getAllBookings();
     Booking getBookingForCustomer(Long bookingId, Long customerUserId);
     void refundBooking(Long bookingId, Long hostUserId);
+    List<java.time.LocalDate> getBookedDates(Long roomId);
 }

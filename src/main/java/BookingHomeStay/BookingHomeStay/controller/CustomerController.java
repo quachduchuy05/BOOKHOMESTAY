@@ -41,12 +41,40 @@ public class CustomerController {
     private final BookingHomeStay.BookingHomeStay.repository.RoomRepository roomRepository;
 
     @GetMapping("/dat-phong/moi")
-    public String newBookingForm(@RequestParam Long roomId, Model model) {
+    public String newBookingForm(@RequestParam Long roomId, 
+                                 @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate checkinDate,
+                                 @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate checkoutDate,
+                                 @RequestParam(required = false) Integer roomCount,
+                                 @AuthenticationPrincipal CustomUserDetails currentUser,
+                                 Model model) {
         BookingRequest form = new BookingRequest();
         form.setRoomId(roomId);
+        form.setCheckinDate(checkinDate);
+        form.setCheckoutDate(checkoutDate);
+        if (roomCount != null && roomCount > 0) {
+            form.setQuantity(roomCount);
+        }
         form.setPaymentPolicy(BookingHomeStay.BookingHomeStay.entity.PaymentPolicy.PAY_AT_PROPERTY.name());
         form.setPaymentMethod(null);
+        
+        if (currentUser != null && currentUser.getUser() != null) {
+            form.setCustomerName(currentUser.getUser().getFullName());
+            form.setCustomerPhone(currentUser.getUser().getPhone());
+            form.setCustomerEmail(currentUser.getUser().getEmail());
+        }
+        
         model.addAttribute("bookingRequest", form);
+        
+        List<String> bookedDates = bookingService.getBookedDates(roomId).stream()
+                .map(java.time.LocalDate::toString)
+                .toList();
+        
+        try {
+            model.addAttribute("bookedDatesJson", new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(bookedDates));
+        } catch (Exception e) {
+            model.addAttribute("bookedDatesJson", "[]");
+        }
+        
         roomRepository.findById(roomId).ifPresent(r -> model.addAttribute("room", r));
         return "khach-hang/dat-phong-form";
     }
