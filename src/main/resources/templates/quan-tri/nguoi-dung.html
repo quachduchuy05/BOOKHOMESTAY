@@ -20,7 +20,7 @@
                     <h3 class="fw-bold m-0 text-dark"><i class="fa-solid fa-users-gear text-danger me-2"></i>Quản Lý Người Dùng Theo Vai Trò</h3>
                     <p class="text-muted small m-0 mt-1">4 nhóm tài khoản độc lập có tìm kiếm theo tên và phân trang riêng biệt.</p>
                 </div>
-                <span class="badge bg-danger-subtle text-danger px-3 py-2 fw-semibold rounded-pill">
+                <span class="badge bg-danger-subtle text-danger px-3 py-2 fw-semibold ">
                     <i class="fa-solid fa-shield-halved me-1"></i>Hệ Thống Quản Trị
                 </span>
             </div>
@@ -30,15 +30,15 @@
 
                 <!-- Loop through the 4 grouped roles -->
                 <div th:each="entry, iter : ${nguoiDungTheoVaiTro}" 
-                     class="admin-role-card shadow-sm"
-                     th:id="'roleSection' + ${iter.index}">
+ class="admin-role-card shadow-sm"
+ th:id="'roleSection' + ${iter.index}">
 
                     <!-- Header with Title, Count, and Real-time Search by Name -->
                     <div class="admin-role-card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
                         <div class="d-flex align-items-center gap-2">
-                            <span class="p-2 rounded-3 text-white d-inline-flex align-items-center justify-content-center"
-                                  style="width: 38px; height: 38px;"
-                                  th:styleappend="${iter.index == 0 ? 'background: #e11d48;' : (iter.index == 1 ? 'background: #10b981;' : (iter.index == 2 ? 'background: #f59e0b;' : 'background: #0284c7;'))}">
+                            <span class="p-2 text-white d-inline-flex align-items-center justify-content-center"
+ style="width: 38px; height: 38px;"
+ th:styleappend="${iter.index == 0 ? 'background: #e11d48;' : (iter.index == 1 ? 'background: #10b981;' : (iter.index == 2 ? 'background: #f59e0b;' : 'background: #0284c7;'))}">
                                 <i th:class="${iter.index == 0 ? 'fa-solid fa-shield-halved' : (iter.index == 1 ? 'fa-solid fa-house-chimney-user' : (iter.index == 2 ? 'fa-solid fa-handshake' : 'fa-solid fa-user-group'))}"></i>
                             </span>
                             <div>
@@ -51,8 +51,8 @@
                         <div class="role-search-box">
                             <i class="fa-solid fa-magnifying-glass search-icon"></i>
                             <input type="text" class="form-control form-control-sm role-search-input" 
-                                   placeholder="Tìm theo tên trong nhóm này..."
-                                   th:data-target="'tableRole' + ${iter.index}">
+ placeholder="Tìm theo tên trong nhóm này..."
+ th:data-target="'tableRole' + ${iter.index}">
                         </div>
                     </div>
 
@@ -74,11 +74,11 @@
                                     <td class="text-muted small fw-semibold" th:text="${i.count}">1</td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
-                                            <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center overflow-hidden" 
-                                                 style="width: 32px; height: 32px; flex-shrink: 0;">
+                                            <div class=" bg-light border d-flex align-items-center justify-content-center overflow-hidden" 
+ style="width: 32px; height: 32px; flex-shrink: 0;">
                                                 <img th:if="${u.avatar != null && !u.avatar.isEmpty()}" th:src="${u.avatar}" 
-                                                     alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;"
-                                                     onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
+ alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;"
+ onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
                                                 <i class="fa-solid fa-user text-muted small" th:style="${u.avatar != null && !u.avatar.isEmpty()} ? 'display: none;' : ''"></i>
                                             </div>
                                             <span class="fw-semibold text-dark user-fullname" th:text="${u.fullName}">Nguyễn Văn A</span>
@@ -87,15 +87,15 @@
                                     <td class="small text-muted" th:text="${u.email}">user@example.com</td>
                                     <td class="small text-muted" th:text="${u.phone != null ? u.phone : 'Chưa cập nhật'}">0901234567</td>
                                     <td>
-                                        <span class="badge rounded-pill px-3 py-1 fw-semibold" 
-                                              th:classappend="${u.status.name() == 'BLOCKED'} ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'" 
-                                              th:text="${u.status.name() == 'BLOCKED' ? 'Đã khóa' : 'Hoạt động'}">Hoạt động</span>
+                                        <span class="badge px-3 py-1 fw-semibold" 
+ th:classappend="${u.status.name() == 'BLOCKED'} ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'" 
+ th:text="${u.status.name() == 'BLOCKED' ? 'Đã khóa' : 'Hoạt động'}">Hoạt động</span>
                                     </td>
                                     <td class="text-end">
                                         <form th:action="@{/quan-tri/nguoi-dung/{id}/khoa-mo(id=${u.id})}" method="post"
-                                              th:onsubmit="return confirm('Xác nhận thay đổi trạng thái tài khoản này?')">
-                                            <button class="btn btn-sm rounded-pill px-3 fw-semibold" 
-                                                    th:classappend="${u.status.name() == 'BLOCKED'} ? 'btn-outline-success' : 'btn-outline-danger'">
+ th:onsubmit="return confirm('Xác nhận thay đổi trạng thái tài khoản này?')">
+                                            <button class="btn btn-sm px-3 fw-semibold" 
+ th:classappend="${u.status.name() == 'BLOCKED'} ? 'btn-outline-success' : 'btn-outline-danger'">
                                                 <i class="fa-solid me-1" th:classappend="${u.status.name() == 'BLOCKED'} ? 'fa-unlock' : 'fa-lock'"></i>
                                                 <span th:text="${u.status.name() == 'BLOCKED'} ? 'Mở khóa' : 'Khóa'"></span>
                                             </button>
@@ -120,12 +120,12 @@
                     <div class="card-footer bg-white border-top p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <span class="small text-muted pagination-info">Đang hiển thị...</span>
                         <div class="d-flex gap-1 pagination-controls">
-                            <button type="button" class="btn btn-outline-secondary btn-sm btn-prev px-3 rounded-pill" disabled>
+                            <button type="button" class="btn btn-outline-secondary btn-sm btn-prev px-3 " disabled>
                                 <i class="fa-solid fa-chevron-left me-1"></i> Trước
                             </button>
-                            <span class="btn btn-light btn-sm rounded-pill fw-bold page-indicator" style="pointer-events: none;">1 / 1</span>
-                            <button type="button" class="btn btn-outline-secondary btn-sm btn-next px-3 rounded-pill" disabled>
-                                Sau <i class="fa-solid fa-chevron-right ms-1"></i>
+                            <span class="btn btn-light btn-sm fw-bold page-indicator" style="pointer-events: none;">1 / 1</span>
+                            <button type="button" class="btn btn-outline-secondary btn-sm btn-next px-3 " disabled>
+ Sau <i class="fa-solid fa-chevron-right ms-1"></i>
                             </button>
                         </div>
                     </div>
@@ -140,98 +140,98 @@
 
 <!-- Multi-Role Pagination & Real-time Search Script -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const pageSize = 5; // 5 users per page per role card
+ document.addEventListener('DOMContentLoaded', function () {
+ const pageSize = 5; // 5 users per page per role card
 
-        function initRoleTable(card) {
-            const table = card.querySelector('table');
-            const searchInput = card.querySelector('.role-search-input');
-            const prevBtn = card.querySelector('.btn-prev');
-            const nextBtn = card.querySelector('.btn-next');
-            const pageIndicator = card.querySelector('.page-indicator');
-            const paginationInfo = card.querySelector('.pagination-info');
-            const noMatchRow = card.querySelector('.no-search-match-row');
-            const allRows = Array.from(table.querySelectorAll('tbody tr.user-row'));
+ function initRoleTable(card) {
+ const table = card.querySelector('table');
+ const searchInput = card.querySelector('.role-search-input');
+ const prevBtn = card.querySelector('.btn-prev');
+ const nextBtn = card.querySelector('.btn-next');
+ const pageIndicator = card.querySelector('.page-indicator');
+ const paginationInfo = card.querySelector('.pagination-info');
+ const noMatchRow = card.querySelector('.no-search-match-row');
+ const allRows = Array.from(table.querySelectorAll('tbody tr.user-row'));
 
-            let filteredRows = [...allRows];
-            let currentPage = 1;
+ let filteredRows = [...allRows];
+ let currentPage = 1;
 
-            function renderPage() {
-                const totalItems = filteredRows.length;
-                const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+ function renderPage() {
+ const totalItems = filteredRows.length;
+ const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
-                if (currentPage > totalPages) currentPage = totalPages;
-                if (currentPage < 1) currentPage = 1;
+ if (currentPage > totalPages) currentPage = totalPages;
+ if (currentPage < 1) currentPage = 1;
 
-                allRows.forEach(row => row.style.display = 'none');
+ allRows.forEach(row => row.style.display = 'none');
 
-                if (totalItems === 0) {
-                    if (noMatchRow) noMatchRow.classList.remove('d-none');
-                    if (paginationInfo) paginationInfo.textContent = 'Không có kết quả';
-                    if (pageIndicator) pageIndicator.textContent = '0 / 0';
-                    if (prevBtn) prevBtn.disabled = true;
-                    if (nextBtn) nextBtn.disabled = true;
-                    return;
+ if (totalItems === 0) {
+ if (noMatchRow) noMatchRow.classList.remove('d-none');
+ if (paginationInfo) paginationInfo.textContent = 'Không có kết quả';
+ if (pageIndicator) pageIndicator.textContent = '0 / 0';
+ if (prevBtn) prevBtn.disabled = true;
+ if (nextBtn) nextBtn.disabled = true;
+ return;
                 }
 
-                if (noMatchRow) noMatchRow.classList.add('d-none');
+ if (noMatchRow) noMatchRow.classList.add('d-none');
 
-                const startIdx = (currentPage - 1) * pageSize;
-                const endIdx = Math.min(startIdx + pageSize, totalItems);
+ const startIdx = (currentPage - 1) * pageSize;
+ const endIdx = Math.min(startIdx + pageSize, totalItems);
 
-                for (let i = startIdx; i < endIdx; i++) {
-                    filteredRows[i].style.display = '';
+ for (let i = startIdx; i < endIdx; i++) {
+ filteredRows[i].style.display = '';
                 }
 
-                if (paginationInfo) {
-                    paginationInfo.textContent = 'Hiển thị ' + (startIdx + 1) + ' - ' + endIdx + ' trên ' + totalItems + ' tài khoản';
+ if (paginationInfo) {
+ paginationInfo.textContent = 'Hiển thị ' + (startIdx + 1) + ' - ' + endIdx + ' trên ' + totalItems + ' tài khoản';
                 }
-                if (pageIndicator) {
-                    pageIndicator.textContent = currentPage + ' / ' + totalPages;
+ if (pageIndicator) {
+ pageIndicator.textContent = currentPage + ' / ' + totalPages;
                 }
-                if (prevBtn) prevBtn.disabled = (currentPage <= 1);
-                if (nextBtn) nextBtn.disabled = (currentPage >= totalPages);
+ if (prevBtn) prevBtn.disabled = (currentPage <= 1);
+ if (nextBtn) nextBtn.disabled = (currentPage >= totalPages);
             }
 
-            if (searchInput) {
-                searchInput.addEventListener('input', function () {
-                    const q = this.value.trim().toLowerCase();
-                    if (!q) {
-                        filteredRows = [...allRows];
+ if (searchInput) {
+ searchInput.addEventListener('input', function () {
+ const q = this.value.trim().toLowerCase();
+ if (!q) {
+ filteredRows = [...allRows];
                     } else {
-                        filteredRows = allRows.filter(row => {
-                            const name = (row.getAttribute('data-name') || '').toLowerCase();
-                            return name.includes(q);
+ filteredRows = allRows.filter(row => {
+ const name = (row.getAttribute('data-name') || '').toLowerCase();
+ return name.includes(q);
                         });
                     }
-                    currentPage = 1;
-                    renderPage();
+ currentPage = 1;
+ renderPage();
                 });
             }
 
-            if (prevBtn) {
-                prevBtn.addEventListener('click', function () {
-                    if (currentPage > 1) {
-                        currentPage--;
-                        renderPage();
+ if (prevBtn) {
+ prevBtn.addEventListener('click', function () {
+ if (currentPage > 1) {
+ currentPage--;
+ renderPage();
                     }
                 });
             }
 
-            if (nextBtn) {
-                nextBtn.addEventListener('click', function () {
-                    const totalPages = Math.ceil(filteredRows.length / pageSize);
-                    if (currentPage < totalPages) {
-                        currentPage++;
-                        renderPage();
+ if (nextBtn) {
+ nextBtn.addEventListener('click', function () {
+ const totalPages = Math.ceil(filteredRows.length / pageSize);
+ if (currentPage < totalPages) {
+ currentPage++;
+ renderPage();
                     }
                 });
             }
 
-            renderPage();
+ renderPage();
         }
 
-        document.querySelectorAll('.admin-role-card').forEach(initRoleTable);
+ document.querySelectorAll('.admin-role-card').forEach(initRoleTable);
     });
 </script>
 </body>

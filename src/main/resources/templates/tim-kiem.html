@@ -17,7 +17,7 @@
     <div class="row g-4">
         <!-- Sidebar: Bộ lọc tìm kiếm (Filter Card) -->
         <div class="col-lg-3 col-md-4">
-            <div class="card p-4 border-0 shadow-sm rounded-4 sticky-top" style="top: 85px;">
+            <div class="card p-4 border-0 shadow-sm sticky-top" style="top: 85px;">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-bold m-0"><i class="fa-solid fa-sliders text-danger me-2"></i>Bộ lọc</h5>
                     <a th:href="@{/tim-kiem}" class="text-danger small fw-semibold text-decoration-none">Đặt lại</a>
@@ -27,7 +27,7 @@
                     <!-- Tỉnh / Thành phố đang xem -->
                     <div th:if="${province != null and !province.isEmpty()}" class="mb-3">
                         <label class="form-label small fw-bold text-muted">Khu vực đã chọn</label>
-                        <div class="d-flex justify-content-between align-items-center p-2 px-3 rounded-3 bg-light border">
+                        <div class="d-flex justify-content-between align-items-center p-2 px-3 bg-light border">
                             <span class="fw-bold text-dark" th:text="${province}">Đà Lạt</span>
                             <a th:href="@{/tim-kiem}" class="text-danger small" title="Chọn tỉnh khác"><i class="fa-solid fa-xmark"></i></a>
                         </div>
@@ -48,7 +48,7 @@
                         <select class="form-select" name="district">
                             <option value="">-- Tất cả quận/huyện --</option>
                             <option th:each="q : ${districtsOfProvince}" th:value="${q}" th:text="${q}"
-                                    th:selected="${q == district}"></option>
+ th:selected="${q == district}"></option>
                         </select>
                     </div>
 
@@ -81,7 +81,7 @@
                         </div>
                     </div>
 
-                    <button class="btn btn-primary w-100 btn-pill py-2 shadow-sm" type="submit">
+                    <button class="btn btn-primary w-100 py-2 shadow-sm" type="submit">
                         <i class="fa-solid fa-filter me-1"></i> Áp dụng bộ lọc
                     </button>
                 </form>
@@ -126,8 +126,8 @@
                                     <span class="card-price-amount" th:unless="${h.minPrice != null}">Chi tiết</span>
                                     <span class="card-price-unit" th:if="${h.minPrice != null}">/ đêm</span>
                                 </div>
-                                <a th:href="@{/homestay/{slug}(slug=${h.slug})}" class="btn btn-outline-custom btn-sm btn-pill px-3">
-                                    Xem phòng <i class="fa-solid fa-angle-right ms-1"></i>
+                                <a th:href="@{/homestay/{slug}(slug=${h.slug})}" class="btn btn-outline-custom btn-sm px-3">
+ Xem phòng <i class="fa-solid fa-angle-right ms-1"></i>
                                 </a>
                             </div>
                         </div>
@@ -136,13 +136,13 @@
             </div>
 
             <!-- Empty State if no homestay found -->
-            <div th:if="${results.isEmpty()}" class="p-5 text-center bg-white rounded-4 border">
+            <div th:if="${results.isEmpty()}" class="p-5 text-center bg-white border">
                 <div class="mb-3 text-muted display-4">
                     <i class="fa-solid fa-magnifying-glass-location"></i>
                 </div>
                 <h5 class="fw-bold">Không tìm thấy homestay phù hợp với bộ lọc</h5>
                 <p class="text-muted small mb-4">Hãy thử điều chỉnh lại mức giá, số khách hoặc chọn một khu vực khác gần đó.</p>
-                <a th:href="@{/tim-kiem}" class="btn btn-primary btn-pill px-4">
+                <a th:href="@{/tim-kiem}" class="btn btn-primary px-4">
                     <i class="fa-solid fa-rotate-left me-1"></i> Xóa tất cả bộ lọc
                 </a>
             </div>
@@ -152,10 +152,10 @@
 
 <div th:replace="~{dung-chung/layout :: footer}"></div>
 <script>
-    function setPriceRange(min, max) {
-        document.getElementById('ipMinPrice').value = min !== null ? min : '';
-        document.getElementById('ipMaxPrice').value = max !== null ? max : '';
-        document.getElementById('formLocBoLoc').submit();
+ function setPriceRange(min, max) {
+ document.getElementById('ipMinPrice').value = min !== null ? min : '';
+ document.getElementById('ipMaxPrice').value = max !== null ? max : '';
+ document.getElementById('formLocBoLoc').submit();
     }
 </script>
 </body>

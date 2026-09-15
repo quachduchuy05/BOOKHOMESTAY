@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <!--
-    Task 11: Danh sach ĐẦY ĐỦ 63 tỉnh/thành Việt Nam (theo địa giới TRƯỚC thời điểm
-    sáp nhập tỉnh thành, đúng như người dùng yêu cầu - KHÔNG dùng danh sách 34 tỉnh/thành
-    sau sáp nhập). Dùng th:replace="~{dung-chung/danh-sach-tinh :: options(selected=${province})}"
+ Task 11: Danh sach ĐẦY ĐỦ 63 tỉnh/thành Việt Nam (theo địa giới TRƯỚC thời điểm
+ sáp nhập tỉnh thành, đúng như người dùng yêu cầu - KHÔNG dùng danh sách 34 tỉnh/thành
+ sau sáp nhập). Dùng th:replace="~{dung-chung/danh-sach-tinh :: options(selected=${province})}"
     để nhúng vào bất kỳ thẻ <select> nào cần chọn tỉnh/thành.
 -->
 <th:block th:fragment="options(selected)">
@@ -20,7 +20,7 @@
         'Quảng Trị','Sóc Trăng','Sơn La','Tây Ninh','Thái Bình','Thái Nguyên','Thanh Hóa',
         'Thừa Thiên Huế','Tiền Giang','Trà Vinh','Tuyên Quang','Vĩnh Long','Vĩnh Phúc','Yên Bái'
         )}"
-        th:value="${tinh}" th:text="${tinh}" th:selected="${tinh == selected}">Tỉnh</option>
+ th:value="${tinh}" th:text="${tinh}" th:selected="${tinh == selected}">Tỉnh</option>
 </th:block>
 </body>
 </html>

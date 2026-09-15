@@ -14,9 +14,9 @@
                     <h3 class="fw-bold text-white mb-2">Chào mừng bạn trở lại!</h3>
                     <p class="small text-white-50">Đăng nhập để khám phá hàng ngàn homestay độc đáo và nhận các ưu đãi độc quyền từ BookingHomeStay.</p>
                 </div>
-                <div class="d-flex flex-column gap-3 p-3 rounded-4" style="background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px);">
+                <div class="d-flex flex-column gap-3 p-3 " style="background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px);">
                     <div class="d-flex align-items-center gap-3 text-white small">
-                        <div class="rounded-circle p-2 bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                        <div class=" p-2 bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                             <i class="fa-solid fa-shield-halved text-warning"></i>
                         </div>
                         <div>
@@ -25,7 +25,7 @@
                         </div>
                     </div>
                     <div class="d-flex align-items-center gap-3 text-white small">
-                        <div class="rounded-circle p-2 bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                        <div class=" p-2 bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                             <i class="fa-solid fa-headset text-info"></i>
                         </div>
                         <div>
@@ -40,11 +40,11 @@
             <div class="col-lg-7">
                 <div class="auth-form-wrap">
                     <!-- Nav Tabs: Dang Nhap / Dang Ky -->
-                    <div class="d-flex bg-light p-1 rounded-pill mb-4 border">
-                        <a th:href="@{/dang-nhap}" class="btn btn-primary btn-pill flex-fill py-2 fw-bold shadow-sm">
+                    <div class="d-flex bg-light p-1 mb-4 border">
+                        <a th:href="@{/dang-nhap}" class="btn btn-primary flex-fill py-2 fw-bold shadow-sm">
                             <i class="fa-solid fa-right-to-bracket me-1"></i> Đăng nhập
                         </a>
-                        <a th:href="@{/dang-ky}" class="btn btn-light btn-pill flex-fill py-2 fw-semibold text-muted">
+                        <a th:href="@{/dang-ky}" class="btn btn-light flex-fill py-2 fw-semibold text-muted">
                             <i class="fa-solid fa-user-plus me-1"></i> Đăng ký
                         </a>
                     </div>
@@ -94,14 +94,14 @@
                             </div>
                         </div>
 
-                        <button class="btn btn-primary btn-pill w-100 py-2 fw-bold mb-3 shadow-sm" type="submit">
+                        <button class="btn btn-primary w-100 py-2 fw-bold mb-3 shadow-sm" type="submit">
                             <i class="fa-solid fa-right-to-bracket me-1"></i> Đăng nhập ngay
                         </button>
                     </form>
 
                     <div class="text-center pt-3 border-top">
                         <span class="small text-muted d-block mb-2">Bạn chưa có tài khoản BookingHomeStay?</span>
-                        <a th:href="@{/dang-ky}" class="btn btn-outline-custom btn-pill w-100 py-2 fw-bold">
+                        <a th:href="@{/dang-ky}" class="btn btn-outline-custom w-100 py-2 fw-bold">
                             <i class="fa-solid fa-user-plus me-1"></i> Đăng ký thành viên mới ngay
                         </a>
                     </div>
@@ -113,17 +113,17 @@
 
 <div th:replace="~{dung-chung/layout :: footer}"></div>
 <script>
-    function togglePass(inputId, btn) {
-        const input = document.getElementById(inputId);
-        const icon = btn.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
+ function togglePass(inputId, btn) {
+ const input = document.getElementById(inputId);
+ const icon = btn.querySelector('i');
+ if (input.type === 'password') {
+ input.type = 'text';
+ icon.classList.remove('fa-eye');
+ icon.classList.add('fa-eye-slash');
         } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
+ input.type = 'password';
+ icon.classList.remove('fa-eye-slash');
+ icon.classList.add('fa-eye');
         }
     }
 </script>

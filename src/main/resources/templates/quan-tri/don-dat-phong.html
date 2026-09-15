@@ -20,33 +20,33 @@
                     <h3 class="fw-bold m-0 text-dark"><i class="fa-solid fa-receipt text-success me-2"></i>Quản Lý Toàn Bộ Đơn Đặt Phòng</h3>
                     <p class="text-muted small m-0 mt-1">Tra cứu, theo dõi trạng thái thanh toán và thông tin đặt phòng toàn hệ thống.</p>
                 </div>
-                <span class="badge bg-success-subtle text-success px-3 py-2 fw-semibold rounded-pill">
+                <span class="badge bg-success-subtle text-success px-3 py-2 fw-semibold ">
                     <i class="fa-solid fa-database me-1"></i>Hệ Thống Booking
                 </span>
             </div>
 
             <!-- Search Card by Booking Code and Customer Name (Task 10) -->
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background: #ffffff;">
+            <div class="card border-0 shadow-sm p-4 mb-4" style="background: #ffffff;">
                 <form method="get" th:action="@{/quan-tri/don-dat-phong}" class="row g-3 align-items-end">
                     <div class="col-md-5 col-12">
                         <label class="form-label small fw-bold text-muted">
                             <i class="fa-solid fa-barcode text-primary me-1"></i>Mã đơn đặt phòng
                         </label>
-                        <input type="text" class="form-control rounded-3" name="bookingCode" 
-                               placeholder="VD: BK..." th:value="${bookingCode}">
+                        <input type="text" class="form-control " name="bookingCode" 
+ placeholder="VD: BK..." th:value="${bookingCode}">
                     </div>
                     <div class="col-md-5 col-12">
                         <label class="form-label small fw-bold text-muted">
                             <i class="fa-solid fa-user text-primary me-1"></i>Tên khách hàng
                         </label>
-                        <input type="text" class="form-control rounded-3" name="customerName" 
-                               placeholder="VD: Nguyễn Văn A..." th:value="${customerName}">
+                        <input type="text" class="form-control " name="customerName" 
+ placeholder="VD: Nguyễn Văn A..." th:value="${customerName}">
                     </div>
                     <div class="col-md-2 col-12 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary rounded-3 w-100 fw-semibold">
+                        <button type="submit" class="btn btn-primary w-100 fw-semibold">
                             <i class="fa-solid fa-magnifying-glass me-1"></i> Tìm
                         </button>
-                        <a th:href="@{/quan-tri/don-dat-phong}" class="btn btn-outline-secondary rounded-3" title="Đặt lại bộ lọc">
+                        <a th:href="@{/quan-tri/don-dat-phong}" class="btn btn-outline-secondary " title="Đặt lại bộ lọc">
                             <i class="fa-solid fa-rotate-left"></i>
                         </a>
                     </div>
@@ -54,14 +54,14 @@
             </div>
 
             <!-- Booking List Card -->
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card border-0 shadow-sm overflow-hidden">
                 <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
                     <span class="fw-bold text-dark small">
                         <i class="fa-solid fa-list-check text-primary me-1"></i> Danh sách đơn: 
                         <strong class="text-danger" th:text="${bookings.size()}">0</strong> đơn tìm thấy
                     </span>
                     <span th:if="${(bookingCode != null and !bookingCode.isEmpty()) or (customerName != null and !customerName.isEmpty())}" 
-                          class="badge bg-warning-subtle text-warning border border-warning-subtle">
+ class="badge bg-warning-subtle text-warning border border-warning-subtle">
                         Đang lọc kết quả
                     </span>
                 </div>
@@ -96,17 +96,17 @@
                                     <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.finalAmount,0,'POINT',0,'COMMA')} + ' đ'">1,200,000 đ</span>
                                 </td>
                                 <td>
-                                    <span th:if="${b.isFullyPaid()}" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">
+                                    <span th:if="${b.isFullyPaid()}" class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">
                                         <i class="fa-solid fa-circle-check me-1"></i>Đủ
                                     </span>
-                                    <span th:unless="${b.isFullyPaid()}" class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1">
+                                    <span th:unless="${b.isFullyPaid()}" class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1">
                                         <i class="fa-solid fa-clock me-1"></i>Chưa đủ
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge rounded-pill px-3 py-1 fw-semibold"
-                                          th:classappend="${b.status.name() == 'COMPLETED'} ? 'bg-success text-white' : (${b.status.name() == 'CONFIRMED'} ? 'bg-primary text-white' : (${b.status.name() == 'CANCELLED' || b.status.name() == 'REJECTED'} ? 'bg-danger text-white' : 'bg-warning text-dark'))"
-                                          th:text="${b.status}">PENDING</span>
+                                    <span class="badge px-3 py-1 fw-semibold"
+ th:classappend="${b.status.name() == 'COMPLETED'} ? 'bg-success text-white' : (${b.status.name() == 'CONFIRMED'} ? 'bg-primary text-white' : (${b.status.name() == 'CANCELLED' || b.status.name() == 'REJECTED'} ? 'bg-danger text-white' : 'bg-warning text-dark'))"
+ th:text="${b.status}">PENDING</span>
                                 </td>
                                 <td class="small text-muted" th:text="${#temporals.format(b.createdAt, 'dd/MM/yyyy HH:mm')}">12/09/2026 14:00</td>
                             </tr>
@@ -115,7 +115,7 @@
                                 <td colspan="7" class="text-center py-5 text-muted">
                                     <i class="fa-regular fa-folder-open display-6 mb-2 d-block text-secondary"></i>
                                     <p class="mb-2">Không tìm thấy đơn đặt phòng nào phù hợp với điều kiện tìm kiếm.</p>
-                                    <a th:href="@{/quan-tri/don-dat-phong}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <a th:href="@{/quan-tri/don-dat-phong}" class="btn btn-sm btn-outline-primary px-3">
                                         <i class="fa-solid fa-rotate-left me-1"></i> Xem toàn bộ đơn
                                     </a>
                                 </td>

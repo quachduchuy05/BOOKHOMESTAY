@@ -37,8 +37,8 @@ public class AiBookingServiceImpl implements AiBookingService {
         // 1. Get current session
         BookingFilterExtracted currentFilters = sessionStore.getSession(request.getSessionId());
 
-        // 2. Extract new filters from message
-        BookingFilterExtracted newFilters = geminiBookingClient.extractFilters(request.getMessage());
+        // 2. Extract new filters from message (pass currentFilters as context)
+        BookingFilterExtracted newFilters = geminiBookingClient.extractFilters(request.getMessage(), currentFilters);
         log.info("Gemini Extracted Filters: provinces={}, districts={}, guests={}, rooms={}, checkIn={}, checkOut={}, amenities={}", 
                  newFilters.getProvinces(), newFilters.getDistricts(), newFilters.getGuestCount(), newFilters.getRoomCount(),
                  newFilters.getCheckInDate(), newFilters.getCheckOutDate(), newFilters.getAmenityGroups());

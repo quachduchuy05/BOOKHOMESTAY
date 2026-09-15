@@ -12,23 +12,23 @@
             <p class="text-muted small m-0">Gửi yêu cầu chuyển khoản hoa hồng về tài khoản ngân hàng của bạn</p>
         </div>
         <div class="d-flex gap-2 mt-3 mt-md-0">
-            <a th:href="@{/cong-tac-vien/tong-quan}" class="btn btn-outline-secondary btn-pill btn-sm px-3">
+            <a th:href="@{/cong-tac-vien/tong-quan}" class="btn btn-outline-secondary btn-sm px-3">
                 <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Tổng quan
             </a>
-            <a th:href="@{/cong-tac-vien/lich-su-rut-tien}" class="btn btn-outline-primary btn-pill btn-sm px-3">
+            <a th:href="@{/cong-tac-vien/lich-su-rut-tien}" class="btn btn-outline-primary btn-sm px-3">
                 <i class="fa-solid fa-clock-rotate-left me-1"></i> Lịch sử rút tiền
             </a>
         </div>
     </div>
 
     <!-- Thông báo kết quả cập nhật ngân hàng -->
-    <div th:if="${bankSuccessMessage}" class="alert alert-success border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+    <div th:if="${bankSuccessMessage}" class="alert alert-success border-0 shadow-sm mb-4 d-flex align-items-center gap-3">
         <i class="fa-solid fa-circle-check fs-2 text-success"></i>
         <div>
             <strong class="d-block" th:text="${bankSuccessMessage}">Cập nhật thành công!</strong>
         </div>
     </div>
-    <div th:if="${bankErrorMessage}" class="alert alert-danger border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+    <div th:if="${bankErrorMessage}" class="alert alert-danger border-0 shadow-sm mb-4 d-flex align-items-center gap-3">
         <i class="fa-solid fa-triangle-exclamation fs-2 text-danger"></i>
         <div>
             <strong class="d-block" th:text="${bankErrorMessage}">Lỗi cập nhật</strong>
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Thông báo kết quả rút tiền -->
-    <div th:if="${param.success}" class="alert alert-success border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+    <div th:if="${param.success}" class="alert alert-success border-0 shadow-sm mb-4 d-flex align-items-center gap-3">
         <i class="fa-solid fa-circle-check fs-2 text-success"></i>
         <div>
             <strong class="d-block">Gửi yêu cầu rút tiền thành công!</strong>
@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+    <div th:if="${errorMessage}" class="alert alert-danger border-0 shadow-sm mb-4 d-flex align-items-center gap-3">
         <i class="fa-solid fa-triangle-exclamation fs-2 text-danger"></i>
         <div>
             <strong class="d-block">Không thể gửi yêu cầu!</strong>
@@ -55,19 +55,19 @@
     <div class="row g-4 justify-content-center">
         <!-- Cột form rút tiền -->
         <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4 p-4">
+            <div class="card border-0 shadow-sm p-4">
                 <h5 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-wallet text-success me-2"></i>Tạo lệnh rút tiền mới</h5>
 
                 <form method="post" th:action="@{/cong-tac-vien/rut-tien}">
                     <!-- Số dư khả dụng hiện tại -->
-                    <div class="p-3 bg-light rounded-4 mb-4 border d-flex justify-content-between align-items-center">
+                    <div class="p-3 bg-light mb-4 border d-flex justify-content-between align-items-center">
                         <div>
                             <span class="small text-muted d-block">Số dư khả dụng hiện tại</span>
                             <span class="fs-4 fw-bold text-success" th:text="${#numbers.formatDecimal(availableBalance, 0, 'POINT', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3"
-                                th:onclick="'fillMaxAmount(' + ${availableBalance} + ')'">
-                            Rút toàn bộ
+                        <button type="button" class="btn btn-sm btn-outline-success px-3"
+ th:onclick="'fillMaxAmount(' + ${availableBalance} + ')'">
+ Rút toàn bộ
                         </button>
                     </div>
 
@@ -77,8 +77,8 @@
                         <div class="input-group input-group-lg">
                             <span class="input-group-text bg-white"><i class="fa-solid fa-money-bill-wave text-success"></i></span>
                             <input type="number" id="amountInput" name="amount" min="10000" step="1000"
-                                   th:max="${availableBalance}"
-                                   class="form-control fw-bold text-dark" placeholder="Ví dụ: 100000" required>
+ th:max="${availableBalance}"
+ class="form-control fw-bold text-dark" placeholder="Ví dụ: 100000" required>
                             <span class="input-group-text bg-light fw-bold">VNĐ</span>
                         </div>
                         <div class="form-text text-muted">Số tiền rút tối thiểu: 10.000 VNĐ.</div>
@@ -86,19 +86,19 @@
 
                     <!-- Cảnh báo nếu chưa có tài khoản ngân hàng -->
                     <div th:if="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}"
-                         class="alert alert-warning py-2 px-3 small rounded-3 mb-3 d-flex align-items-center justify-content-between">
+ class="alert alert-warning py-2 px-3 small mb-3 d-flex align-items-center justify-content-between">
                         <div>
                             <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
-                            Bạn cần cập nhật số tài khoản ngân hàng trước khi gửi yêu cầu rút tiền.
+ Bạn cần cập nhật số tài khoản ngân hàng trước khi gửi yêu cầu rút tiền.
                         </div>
-                        <button type="button" class="btn btn-sm btn-warning rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
-                            Thêm ngay
+                        <button type="button" class="btn btn-sm btn-warning fw-bold" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
+ Thêm ngay
                         </button>
                     </div>
 
                     <!-- Nút submit -->
-                    <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill shadow-sm fw-bold"
-                            th:disabled="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}">
+                    <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm fw-bold"
+ th:disabled="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}">
                         <i class="fa-solid fa-paper-plane me-2"></i>Gửi Yêu Cầu Rút Tiền
                     </button>
                 </form>
@@ -107,27 +107,27 @@
 
         <!-- Cột thông tin tài khoản nhận tiền -->
         <div class="col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
+            <div class="card border-0 shadow-sm p-4 bg-light">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-building-columns text-primary me-2"></i>Tài khoản thụ hưởng</h6>
-                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
+                    <button type="button" class="btn btn-sm btn-outline-primary px-3 py-1" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
                         <i class="fa-solid fa-pen-to-square me-1"></i>
                         <span th:text="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()} ? 'Thêm mới' : 'Thay đổi'">Thay đổi</span>
                     </button>
                 </div>
 
                 <div th:if="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}"
-                     class="p-4 bg-white rounded-3 shadow-sm mb-3 text-center border border-warning">
+ class="p-4 bg-white shadow-sm mb-3 text-center border border-warning">
                     <i class="fa-solid fa-building-columns text-warning fs-1 mb-2"></i>
                     <p class="text-danger fw-bold small mb-1">Chưa liên kết tài khoản ngân hàng</p>
                     <p class="text-muted small mb-3">Vui lòng thêm thông tin ngân hàng để nhận tiền hoa hồng.</p>
-                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
+                    <button type="button" class="btn btn-primary btn-sm px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
                         <i class="fa-solid fa-plus me-1"></i> Thêm tài khoản ngân hàng
                     </button>
                 </div>
 
                 <div th:unless="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}"
-                     class="p-3 bg-white rounded-3 shadow-sm mb-3">
+ class="p-3 bg-white shadow-sm mb-3">
                     <div class="mb-2">
                         <small class="text-muted d-block">Ngân hàng:</small>
                         <strong class="text-dark fs-6" th:text="${collaborator.tenNganHang}">-</strong>
@@ -144,7 +144,7 @@
 
                 <div class="small text-muted">
                     <i class="fa-solid fa-circle-info text-info me-1"></i>
-                    Tiền sẽ được chuyển chính xác vào số tài khoản trên sau khi Quản trị viên duyệt. Bạn có thể thay đổi số tài khoản nhận tiền bất cứ lúc nào.
+ Tiền sẽ được chuyển chính xác vào số tài khoản trên sau khi Quản trị viên duyệt. Bạn có thể thay đổi số tài khoản nhận tiền bất cứ lúc nào.
                 </div>
             </div>
         </div>
@@ -154,7 +154,7 @@
 <!-- Modal Cập nhật thông tin ngân hàng -->
 <div class="modal fade" id="modalBankInfo" tabindex="-1" aria-labelledby="modalBankInfoLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-content border-0 shadow-lg overflow-hidden">
             <div class="modal-header bg-primary text-white border-0 py-3">
                 <h5 class="modal-title fw-bold" id="modalBankInfoLabel">
                     <i class="fa-solid fa-building-columns me-2"></i>Tài khoản ngân hàng nhận hoa hồng
@@ -165,7 +165,7 @@
                 <input type="hidden" name="redirectPage" value="rut-tien">
                 <div class="modal-body p-4">
                     <p class="small text-muted mb-3">
-                        Vui lòng nhập chính xác thông tin tài khoản ngân hàng chính chủ của bạn để nhận tiền hoa hồng khi rút tiền.
+ Vui lòng nhập chính xác thông tin tài khoản ngân hàng chính chủ của bạn để nhận tiền hoa hồng khi rút tiền.
                     </p>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-secondary">Ngân hàng thụ hưởng <span class="text-danger">*</span></label>
@@ -200,14 +200,14 @@
                         <label class="form-label small fw-bold text-secondary">Số tài khoản ngân hàng <span class="text-danger">*</span></label>
                         <input type="text" name="soTaiKhoanNhanHoaHong" class="form-control font-monospace fw-bold" th:value="${collaborator.soTaiKhoanNhanHoaHong}" placeholder="VD: 0123456789" required>
                     </div>
-                    <div class="p-3 bg-light rounded-3 border">
+                    <div class="p-3 bg-light border">
                         <small class="text-muted d-block">Tên chủ tài khoản thụ hưởng (theo họ tên tài khoản):</small>
                         <strong class="text-dark" th:text="${collaborator.user.fullName}">-</strong>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
                         <i class="fa-solid fa-floppy-disk me-1"></i> Lưu thông tin
                     </button>
                 </div>
@@ -220,8 +220,8 @@
 
 <script>
 function fillMaxAmount(balance) {
-    if (balance && balance > 0) {
-        document.getElementById("amountInput").value = Math.floor(balance);
+ if (balance && balance > 0) {
+ document.getElementById("amountInput").value = Math.floor(balance);
     }
 }
 </script>

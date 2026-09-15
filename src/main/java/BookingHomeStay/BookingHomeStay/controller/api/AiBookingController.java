@@ -17,6 +17,7 @@ import java.util.Map;
 public class AiBookingController {
 
     private final AiBookingService aiBookingService;
+    private final BookingHomeStay.BookingHomeStay.repository.HomestayRepository homestayRepository;
 
     @PostMapping("/chat")
     public ResponseEntity<BookingSuggestionResponse> chat(@RequestBody BookingChatRequest request) {
@@ -40,5 +41,21 @@ public class AiBookingController {
         
         boolean isAvailable = aiBookingService.checkRoomAvailability(roomId, checkIn, checkOut);
         return ResponseEntity.ok(Map.of("available", isAvailable));
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @GetMapping("/homestay/{id}")
+    public ResponseEntity<Map<String, Object>> getHomestayDetails(@PathVariable Long id) {
+        java.util.Optional<BookingHomeStay.BookingHomeStay.entity.Homestay> opt = homestayRepository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        BookingHomeStay.BookingHomeStay.entity.Homestay h = opt.get();
+        return ResponseEntity.ok(Map.of(
+                "name", h.getName(),
+                "intro", h.getDescription() != null ? h.getDescription() : "",
+                "slug", h.getSlug() != null ? h.getSlug() : "",
+                "thumbnail", h.getImages() != null && !h.getImages().isEmpty() ? h.getImages().get(0).getImageUrl() : "",
+                "address", h.getAddress() != null ? h.getAddress() : "",
+                "amenities", h.getAmenities().stream().map(a -> a.getName()).toList()
+        ));
     }
 }

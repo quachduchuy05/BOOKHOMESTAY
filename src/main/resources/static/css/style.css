@@ -159,7 +159,7 @@ a:hover {
 .navbar-custom .brand-icon {
     width: 38px;
     height: 38px;
-    border-radius: 0 !important;
+    border-radius: 0;
     background: var(--bhs-primary-gradient);
     display: flex;
     align-items: center;
@@ -179,7 +179,7 @@ a:hover {
     font-weight: 600;
     font-size: 0.92rem;
     padding: 8px 14px !important;
-    border-radius: 0 !important;
+    border-radius: 0;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
@@ -194,7 +194,7 @@ a:hover {
 
 .navbar-custom .nav-item-user {
     background: #f8fafc;
-    border-radius: 0 !important;
+    border-radius: 0;
     padding: 3px 12px 3px 6px;
     border: 1px solid var(--bhs-line);
 }
@@ -202,7 +202,7 @@ a:hover {
 .navbar-custom .user-avatar {
     width: 30px;
     height: 30px;
-    border-radius: 0 !important;
+    border-radius: 0;
     background: var(--bhs-primary-gradient);
     color: white;
     display: inline-flex;
@@ -215,7 +215,7 @@ a:hover {
 
 .dropdown-menu {
     border: 1px solid var(--bhs-line);
-    border-radius: var(--radius-md);
+    border-radius: 0;
     box-shadow: var(--bhs-shadow-lg);
     padding: 8px;
     z-index: 1060;
@@ -247,7 +247,7 @@ a:hover {
 }
 
 .dropdown-item {
-    border-radius: var(--radius-sm);
+    border-radius: 0;
     font-weight: 500;
     font-size: 0.9rem;
     padding: 8px 14px;
@@ -269,7 +269,7 @@ a:hover {
     font-weight: 600;
     font-size: 0.92rem;
     padding: 8px 18px;
-    border-radius: var(--radius-md);
+    border-radius: 0;
     border: 1.5px solid transparent;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-flex;
@@ -554,7 +554,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
 }
 
 .btn-pill {
-    border-radius: var(--radius-pill) !important;
+    border-radius: 0;
 }
 
 /* ==========================================================================
@@ -590,7 +590,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
     border: 1px solid rgba(255, 255, 255, 0.35);
     color: #ffffff;
     padding: 6px 16px;
-    border-radius: 0 !important;
+    border-radius: 0;
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 20px;
@@ -626,7 +626,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
 /* Floating Search Capsule */
 .search-capsule-card {
     background: #ffffff;
-    border-radius: 0 !important;
+    border-radius: 0;
     padding: 10px 14px;
     box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
     border: 1px solid var(--bhs-line);
@@ -639,7 +639,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
 
 .search-field-box {
     padding: 8px 16px;
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     transition: background-color 0.2s ease;
     border: 1px solid transparent;
 }
@@ -684,7 +684,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
     color: var(--bhs-primary) !important;
     height: 54px;
     width: 100%;
-    border-radius: 0 !important;
+    border-radius: 0;
     font-weight: 700;
     font-size: 1rem;
     display: flex;
@@ -723,7 +723,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
     font-size: 0.82rem;
     font-weight: 600;
     padding: 5px 14px;
-    border-radius: var(--radius-pill);
+    border-radius: 0;
     transition: all 0.2s ease;
     text-decoration: none;
 }
@@ -799,7 +799,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
 .card {
     background-color: var(--bhs-surface);
     border: 1px solid var(--bhs-line);
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     box-shadow: var(--bhs-shadow-sm);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
@@ -817,7 +817,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
 /* Homestay Luxury Card */
 .card-homestay-modern {
     border: none;
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     background: #ffffff;
     box-shadow: var(--bhs-shadow-sm);
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -865,7 +865,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
     font-size: 0.78rem;
     font-weight: 700;
     padding: 4px 10px;
-    border-radius: 0 !important;
+    border-radius: 0;
     border: 1px solid rgba(226, 232, 240, 0.8);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     z-index: 2;
@@ -878,7 +878,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
     right: 14px;
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: 0;
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(8px);
     border: none;
@@ -962,7 +962,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
 /* Destination Category Card */
 .destination-card-modern {
     position: relative;
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     overflow: hidden;
     height: 220px;
     display: block;
@@ -1022,7 +1022,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
     grid-template-columns: 2fr 1fr 1fr;
     grid-template-rows: 190px 190px;
     gap: 10px;
-    border-radius: var(--radius-xl);
+    border-radius: 0;
     overflow: hidden;
     margin-bottom: 30px;
     position: relative;
@@ -1067,7 +1067,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
 .sticky-booking-widget {
     background: #ffffff;
     border: 1px solid var(--bhs-line);
-    border-radius: var(--radius-xl);
+    border-radius: 0;
     padding: 26px;
     box-shadow: var(--bhs-shadow-lg);
     position: sticky;
@@ -1079,7 +1079,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
 .room-card-box {
     background: #ffffff;
     border: 1.5px solid var(--bhs-line);
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     padding: 20px;
     transition: all 0.25s ease;
     display: flex;
@@ -1259,7 +1259,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
     font-size: 0.8rem;
     font-weight: 600;
     padding: 4px 10px;
-    border-radius: 0 !important;
+    border-radius: 20px;
     border: 1px solid var(--bhs-line);
     box-shadow: var(--bhs-shadow-md);
     white-space: nowrap;
@@ -1334,7 +1334,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
 
 .auth-card-modern {
     background: #ffffff;
-    border-radius: var(--radius-xl);
+    border-radius: 0;
     border: 1px solid var(--bhs-line);
     box-shadow: var(--bhs-shadow-xl);
     overflow: hidden;
@@ -1363,7 +1363,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
 .form-select {
     background-color: #ffffff;
     border: 1.5px solid var(--bhs-line);
-    border-radius: var(--radius-md);
+    border-radius: 0;
     color: var(--bhs-ink);
     font-size: 0.95rem;
     font-weight: 500;
@@ -1414,7 +1414,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
    ========================================================================== */
 .table-container-modern {
     background: #ffffff;
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     border: 1px solid var(--bhs-line);
     box-shadow: var(--bhs-shadow-sm);
     overflow: hidden;
@@ -1448,7 +1448,7 @@ table.table {
 }
 
 .badge {
-    border-radius: var(--radius-pill);
+    border-radius: 0;
     font-weight: 700;
     font-size: 0.78rem;
     padding: 6px 12px;
@@ -1538,7 +1538,7 @@ table.table {
     height: 16px;
     background-color: #cbd5e1;
     margin: 0 10px;
-    border-radius: 0 !important;
+    border-radius: 0;
     vertical-align: middle;
 }
 
@@ -1593,7 +1593,7 @@ table.table {
 .social-pill-btn {
     width: 38px;
     height: 38px;
-    border-radius: 0 !important;
+    border-radius: 0;
     background: #f8fafc;
     border: 1.5px solid var(--bhs-line);
     display: inline-flex;
@@ -1659,7 +1659,7 @@ table.table {
 .feature-card-modern {
     background: #ffffff;
     border: 1px solid var(--bhs-line);
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     padding: 30px 24px;
     text-align: center;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1675,7 +1675,7 @@ table.table {
 .feature-icon-box {
     width: 68px;
     height: 68px;
-    border-radius: var(--radius-md);
+    border-radius: 0;
     background: #fff5f6;
     color: var(--bhs-primary);
     font-size: 1.75rem;
@@ -1696,7 +1696,7 @@ table.table {
 /* Responsive Tweaks */
 @media (max-width: 991px) {
     .search-capsule-card {
-        border-radius: var(--radius-lg);
+        border-radius: 0;
         padding: 16px;
     }
 
@@ -1724,7 +1724,7 @@ table.table {
 
 .admin-sidebar-card::-webkit-scrollbar-thumb {
     background: #cbd5e1;
-    border-radius: 4px;
+    border-radius: 0;
 }
 
 .admin-nav-link {
@@ -1732,7 +1732,7 @@ table.table {
     font-size: 0.85rem;
     font-weight: 500;
     padding: 7px 12px;
-    border-radius: 10px;
+    border-radius: 0;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     align-items: center;
@@ -1762,7 +1762,7 @@ table.table {
 .admin-role-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 18px;
+    border-radius: 0;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
     transition: all 0.3s ease;
     overflow: hidden;
@@ -1786,7 +1786,7 @@ table.table {
 
 .role-search-box input {
     padding-left: 32px;
-    border-radius: 20px;
+    border-radius: 0;
     font-size: 0.82rem;
     border: 1px solid #cbd5e1;
 }
@@ -1844,7 +1844,7 @@ table.table {
     font-weight: 700;
     width: 20px;
     height: 20px;
-    border-radius: 50%;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1854,7 +1854,7 @@ table.table {
 /* 2. Live Instant Filter Section (Thanh bộ lọc trực tiếp ngoài trang chủ) */
 .live-filter-section {
     background: #ffffff;
-    border-radius: 20px;
+    border-radius: 0;
     padding: 24px;
     border: 1px solid var(--bhs-line);
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
@@ -1904,7 +1904,7 @@ table.table {
 
 .destination-tabs-scroll::-webkit-scrollbar-thumb {
     background: var(--bhs-line);
-    border-radius: 4px;
+    border-radius: 0;
 }
 
 .tab-dest-btn {
@@ -1913,7 +1913,7 @@ table.table {
     background: var(--bhs-bg);
     color: var(--bhs-ink);
     padding: 7px 18px;
-    border-radius: 30px;
+    border-radius: 0;
     font-size: 0.88rem;
     font-weight: 600;
     cursor: pointer;
@@ -1967,7 +1967,7 @@ table.table {
 .filter-control-search input {
     width: 100%;
     padding: 10px 14px 10px 38px;
-    border-radius: 12px;
+    border-radius: 0;
     border: 1.5px solid var(--bhs-line);
     font-size: 0.9rem;
     color: var(--bhs-ink);
@@ -2000,7 +2000,7 @@ table.table {
 .filter-control-select {
     width: 100%;
     padding: 10px 14px;
-    border-radius: 12px;
+    border-radius: 0;
     border: 1.5px solid var(--bhs-line);
     font-size: 0.88rem;
     font-weight: 500;
@@ -2019,7 +2019,7 @@ table.table {
 
 .btn-filter-more {
     padding: 10px 16px;
-    border-radius: 12px;
+    border-radius: 0;
     border: 1.5px solid var(--bhs-line);
     background: #ffffff;
     color: var(--bhs-dark);
@@ -2039,7 +2039,7 @@ table.table {
 
 .btn-filter-reset {
     padding: 10px 14px;
-    border-radius: 12px;
+    border-radius: 0;
     border: 1.5px solid #fee2e2;
     background: #fef2f2;
     color: var(--bhs-danger);
@@ -2087,7 +2087,7 @@ table.table {
     font-weight: 600;
     font-size: 0.78rem;
     padding: 3px 10px;
-    border-radius: 16px;
+    border-radius: 0;
     border: 1px solid rgba(255, 56, 92, 0.2);
 }
 
@@ -2119,7 +2119,7 @@ table.table {
     padding: 48px 24px;
     text-align: center;
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 0;
     border: 1px dashed var(--bhs-line);
     margin: 20px 0;
 }
@@ -2136,7 +2136,7 @@ table.table {
 }
 
 .filter-modal-content {
-    border-radius: 24px;
+    border-radius: 0;
     border: none;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
     overflow: hidden;
@@ -2180,7 +2180,7 @@ table.table {
     background: #ffffff;
     color: var(--bhs-ink);
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
@@ -2207,7 +2207,7 @@ table.table {
     gap: 10px;
     padding: 10px 14px;
     border: 1px solid var(--bhs-line);
-    border-radius: 12px;
+    border-radius: 0;
     cursor: pointer;
     font-size: 0.88rem;
     font-weight: 500;
@@ -2251,7 +2251,7 @@ table.table {
 
 .provinces-63-wrapper {
     background: #ffffff;
-    border-radius: 24px;
+    border-radius: 0;
     padding: 30px;
     border: 1px solid var(--bhs-line);
     box-shadow: 0 12px 36px rgba(15, 23, 42, 0.05);
@@ -2281,7 +2281,7 @@ table.table {
     background: var(--bhs-bg);
     color: var(--bhs-ink);
     padding: 8px 18px;
-    border-radius: 25px;
+    border-radius: 0;
     font-size: 0.88rem;
     font-weight: 600;
     cursor: pointer;
@@ -2314,7 +2314,7 @@ table.table {
 .province-search-box input {
     width: 100%;
     padding: 8px 16px 8px 36px;
-    border-radius: 20px;
+    border-radius: 0;
     border: 1.5px solid var(--bhs-line);
     font-size: 0.88rem;
     background: var(--bhs-bg);
@@ -2350,7 +2350,7 @@ table.table {
 .province-card-item {
     background: #ffffff;
     border: 1px solid var(--bhs-line);
-    border-radius: 16px;
+    border-radius: 0;
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -2396,7 +2396,7 @@ table.table {
     font-size: 0.72rem;
     font-weight: 700;
     padding: 2px 8px;
-    border-radius: 12px;
+    border-radius: 0;
     background: var(--bhs-bg);
     color: var(--bhs-muted);
     white-space: nowrap;
@@ -2450,7 +2450,7 @@ table.table {
     align-items: center;
     gap: 8px;
     padding: 10px 24px;
-    border-radius: 30px;
+    border-radius: 0;
     border: 1.5px solid var(--bhs-primary);
     background: #ffffff;
     color: var(--bhs-primary);
@@ -2503,4 +2503,4 @@ table.table {
 .ai-booking-btn-pulse {
     animation: pulse-ai 2s infinite;
 }
-
+

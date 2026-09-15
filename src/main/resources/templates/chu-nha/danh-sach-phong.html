@@ -17,18 +17,18 @@
             <td th:text="${r.maxGuests}">2</td>
             <td>
                 <span class="badge" th:classappend="${r.status.name() == 'ACTIVE'} ? 'bg-success' : 'bg-secondary'"
-                      th:text="${r.status.name() == 'ACTIVE'} ? 'Còn phòng' : 'Hết phòng'"></span>
+ th:text="${r.status.name() == 'ACTIVE'} ? 'Còn phòng' : 'Hết phòng'"></span>
             </td>
             <td class="d-flex gap-1">
                 <a th:href="@{/chu-nha/homestay/{hid}/phong/{rid}/lich(hid=${homestay.id},rid=${r.id})}"
-                   class="btn btn-sm btn-outline-info">
+ class="btn btn-sm btn-outline-info">
                    <i class="fa-regular fa-calendar-days me-1"></i>Lịch phòng
                 </a>
                 <a th:href="@{/chu-nha/homestay/{hid}/phong/{rid}/sua(hid=${homestay.id},rid=${r.id})}"
-                   class="btn btn-sm btn-outline-primary">Sửa</a>
+ class="btn btn-sm btn-outline-primary">Sửa</a>
                 <form th:action="@{/chu-nha/homestay/{hid}/phong/{rid}/doi-trang-thai(hid=${homestay.id},rid=${r.id})}" method="post">
                     <button class="btn btn-sm btn-outline-secondary"
-                            th:text="${r.status.name() == 'ACTIVE'} ? 'Báo hết phòng' : 'Báo còn phòng'"></button>
+ th:text="${r.status.name() == 'ACTIVE'} ? 'Báo hết phòng' : 'Báo còn phòng'"></button>
                 </form>
             </td>
         </tr>

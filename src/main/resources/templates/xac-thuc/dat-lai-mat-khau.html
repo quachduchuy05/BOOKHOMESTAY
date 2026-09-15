@@ -14,7 +14,7 @@
                     <h3 class="fw-bold text-white mb-2">Tạo mật khẩu mới</h3>
                     <p class="small text-white-50">Nhập mã OTP 6 số đã được gửi tới email và thiết lập mật khẩu mới an toàn cho tài khoản của bạn.</p>
                 </div>
-                <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px);">
+                <div class="p-3 " style="background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px);">
                     <small class="d-block text-white mb-1"><i class="fa-solid fa-circle-info me-1"></i>Yêu cầu mật khẩu:</small>
                     <small class="d-block text-white-50">• Tối thiểu 6 ký tự</small>
                     <small class="d-block text-white-50">• Nên kết hợp chữ, số và ký tự đặc biệt</small>
@@ -82,7 +82,7 @@
                             <div class="text-danger small mt-1" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
                         </div>
 
-                        <button class="btn btn-primary btn-pill w-100 py-2 fw-bold mb-3" type="submit">
+                        <button class="btn btn-primary w-100 py-2 fw-bold mb-3" type="submit">
                             <i class="fa-solid fa-check-circle me-1"></i> Xác nhận đổi mật khẩu
                         </button>
                     </form>
@@ -99,17 +99,17 @@
 
 <div th:replace="~{dung-chung/layout :: footer}"></div>
 <script>
-    function togglePass(inputId, btn) {
-        const input = document.getElementById(inputId);
-        const icon = btn.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
+ function togglePass(inputId, btn) {
+ const input = document.getElementById(inputId);
+ const icon = btn.querySelector('i');
+ if (input.type === 'password') {
+ input.type = 'text';
+ icon.classList.remove('fa-eye');
+ icon.classList.add('fa-eye-slash');
         } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
+ input.type = 'password';
+ icon.classList.remove('fa-eye-slash');
+ icon.classList.add('fa-eye');
         }
     }
 </script>

@@ -4,16 +4,16 @@
 
 <!-- Mobile Trigger Button -->
 <div th:fragment="toggle" class="d-lg-none mb-3">
-    <button class="btn btn-dark btn-sm rounded-pill px-3 shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas">
+    <button class="btn btn-dark btn-sm px-3 shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas">
         <i class="fa-solid fa-bars me-1"></i> Bảng điều khiển Quản trị
     </button>
 </div>
 
 <!-- Desktop Sticky Sidebar -->
 <div th:fragment="sidebar(activePage)" class="col-lg-3 col-xl-2 d-none d-lg-block">
-    <div class="admin-sidebar-card card border-0 rounded-4 p-3 sticky-top shadow-sm" style="top: 85px; max-height: calc(100vh - 100px); overflow-y: auto;">
+    <div class="admin-sidebar-card card border-0 p-3 sticky-top shadow-sm" style="top: 85px; max-height: calc(100vh - 100px); overflow-y: auto;">
         <div class="d-flex align-items-center gap-2 pb-2 mb-2 border-bottom">
-            <div class="rounded-3 bg-danger-subtle text-danger p-2 d-flex align-items-center justify-content-center" style="width:34px; height:34px;">
+            <div class=" bg-danger-subtle text-danger p-2 d-flex align-items-center justify-content-center" style="width:34px; height:34px;">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
             <div>
@@ -63,8 +63,8 @@
             </a>
             <a th:href="@{/logout}" 
                onclick="window.location.href='/logout'; return true;" 
-               class="admin-nav-link text-danger fw-semibold bg-danger-subtle mt-1 rounded-3" 
-               style="cursor: pointer;">
+ class="admin-nav-link text-danger fw-semibold bg-danger-subtle mt-1 " 
+ style="cursor: pointer;">
                 <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i> Đăng xuất
             </a>
         </nav>
@@ -119,8 +119,8 @@
             </a>
             <a th:href="@{/logout}" 
                onclick="window.location.href='/logout'; return true;" 
-               class="admin-nav-link text-danger fw-semibold bg-danger-subtle mt-1 rounded-3" 
-               style="cursor: pointer;">
+ class="admin-nav-link text-danger fw-semibold bg-danger-subtle mt-1 " 
+ style="cursor: pointer;">
                 <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i> Đăng xuất
             </a>
         </nav>

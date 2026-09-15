@@ -6,11 +6,11 @@
 
 <div class="container py-4">
     <!-- Flash Messages -->
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show shadow-sm mb-4" role="alert">
         <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
         <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -29,26 +29,26 @@
             <p class="text-muted small m-0">Click vào ô ngày để chủ động Khóa hoặc Mở phòng, tránh tình trạng trùng lịch</p>
         </div>
         <div>
-            <a th:href="@{/chu-nha/homestay/{id}/phong(id=${homestayId})}" class="btn btn-outline-secondary btn-pill btn-sm px-3">
+            <a th:href="@{/chu-nha/homestay/{id}/phong(id=${homestayId})}" class="btn btn-outline-secondary btn-sm px-3">
                 <i class="fa-solid fa-arrow-left me-1"></i> Quay lại danh sách phòng
             </a>
         </div>
     </div>
 
     <!-- Calendar Card -->
-    <div class="card border-0 rounded-4 shadow-sm p-4 mb-4">
+    <div class="card border-0 shadow-sm p-4 mb-4">
         <!-- Month Selector & Legend -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div class="d-flex align-items-center gap-2">
                 <a th:href="@{/chu-nha/homestay/{hid}/phong/{rid}/lich(hid=${homestayId},rid=${roomId},year=${currentMonth == 1 ? currentYear - 1 : currentYear},month=${currentMonth == 1 ? 12 : currentMonth - 1})}"
-                   class="btn btn-light rounded-circle shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+ class="btn btn-light shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
                     <i class="fa-solid fa-chevron-left"></i>
                 </a>
                 <h4 class="fw-bold m-0 px-3 text-dark">
                     <span th:text="'Tháng ' + ${currentMonth} + ' / ' + ${currentYear}">Tháng 09 / 2026</span>
                 </h4>
                 <a th:href="@{/chu-nha/homestay/{hid}/phong/{rid}/lich(hid=${homestayId},rid=${roomId},year=${currentMonth == 12 ? currentYear + 1 : currentYear},month=${currentMonth == 12 ? 1 : currentMonth + 1})}"
-                   class="btn btn-light rounded-circle shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+ class="btn btn-light shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
                     <i class="fa-solid fa-chevron-right"></i>
                 </a>
             </div>
@@ -56,15 +56,15 @@
             <!-- Status Legend -->
             <div class="d-flex flex-wrap align-items-center gap-3 small">
                 <div class="d-flex align-items-center gap-1">
-                    <span class="d-inline-block rounded-2 bg-success" style="width: 16px; height: 16px;"></span>
+                    <span class="d-inline-block bg-success" style="width: 16px; height: 16px;"></span>
                     <span class="text-muted">Còn trống (Click để Khóa)</span>
                 </div>
                 <div class="d-flex align-items-center gap-1">
-                    <span class="d-inline-block rounded-2 bg-warning" style="width: 16px; height: 16px;"></span>
+                    <span class="d-inline-block bg-warning" style="width: 16px; height: 16px;"></span>
                     <span class="text-muted">Đang khóa (Click để Mở)</span>
                 </div>
                 <div class="d-flex align-items-center gap-1">
-                    <span class="d-inline-block rounded-2 bg-danger" style="width: 16px; height: 16px;"></span>
+                    <span class="d-inline-block bg-danger" style="width: 16px; height: 16px;"></span>
                     <span class="text-muted">Đã có khách đặt</span>
                 </div>
             </div>
@@ -86,18 +86,18 @@
             <!-- Calendar Cells -->
             <div class="row g-2 text-center">
                 <div th:each="day : ${calendarDays}" class="col" style="flex: 0 0 14.2857%; max-width: 14.2857%;">
-                    <div class="calendar-day-cell rounded-3 p-2 position-relative d-flex flex-column justify-content-between"
-                         th:classappend="${!day.currentMonth ? 'text-black-50 bg-light opacity-50' : (day.status.name() == 'AVAILABLE' ? 'cell-available' : (day.status.name() == 'LOCKED' ? 'cell-locked' : 'cell-booked'))}"
-                         th:data-date="${day.date}"
-                         th:data-status="${day.status.name()}"
-                         th:data-current="${day.currentMonth}"
-                         style="min-height: 90px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;"
-                         onclick="onDayClick(this)">
+                    <div class="calendar-day-cell p-2 position-relative d-flex flex-column justify-content-between"
+ th:classappend="${!day.currentMonth ? 'text-black-50 bg-light opacity-50' : (day.status.name() == 'AVAILABLE' ? 'cell-available' : (day.status.name() == 'LOCKED' ? 'cell-locked' : 'cell-booked'))}"
+ th:data-date="${day.date}"
+ th:data-status="${day.status.name()}"
+ th:data-current="${day.currentMonth}"
+ style="min-height: 90px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;"
+ onclick="onDayClick(this)">
                         
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold" 
-                                  th:classappend="${day.today ? 'badge bg-danger text-white rounded-pill px-2' : ''}" 
-                                  th:text="${day.dayOfMonth}">1</span>
+ th:classappend="${day.today ? 'badge bg-danger text-white px-2' : ''}" 
+ th:text="${day.dayOfMonth}">1</span>
                             <span th:if="${day.status.name() == 'LOCKED' && day.currentMonth}" class="badge bg-warning text-dark small"><i class="fa-solid fa-lock"></i></span>
                             <span th:if="${day.status.name() == 'BOOKED' && day.currentMonth}" class="badge bg-danger text-white small"><i class="fa-solid fa-user-check"></i></span>
                             <span th:if="${day.status.name() == 'AVAILABLE' && day.currentMonth}" class="badge bg-success-subtle text-success small"><i class="fa-solid fa-check"></i></span>
@@ -115,32 +115,32 @@
     </div>
 
     <!-- Quick Lock/Unlock Range Box -->
-    <div class="card border-0 rounded-4 shadow-sm p-4">
+    <div class="card border-0 shadow-sm p-4">
         <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-sliders text-danger me-2"></i>Thao Tác Nhanh Theo Khoảng Thời Gian</h5>
         <div class="row g-3">
             <div class="col-md-6">
-                <div class="p-3 bg-light rounded-3">
+                <div class="p-3 bg-light ">
                     <h6 class="fw-bold text-danger mb-2"><i class="fa-solid fa-lock me-1"></i>Khóa ngày nhanh</h6>
                     <form th:action="@{/chu-nha/homestay/{hid}/phong/{rid}/lich/khoa(hid=${homestayId},rid=${roomId})}" method="post" class="d-flex gap-2 align-items-end">
                         <div class="flex-grow-1">
                             <label class="form-label small text-muted m-0">Chọn ngày khóa</label>
-                            <input type="date" name="date" class="form-control form-control-sm rounded-3" required>
+                            <input type="date" name="date" class="form-control form-control-sm " required>
                         </div>
-                        <button type="submit" class="btn btn-warning btn-sm btn-pill px-3 fw-semibold">
+                        <button type="submit" class="btn btn-warning btn-sm px-3 fw-semibold">
                             <i class="fa-solid fa-lock me-1"></i> Khóa ngày
                         </button>
                     </form>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="p-3 bg-light rounded-3">
+                <div class="p-3 bg-light ">
                     <h6 class="fw-bold text-success mb-2"><i class="fa-solid fa-lock-open me-1"></i>Mở ngày nhanh</h6>
                     <form th:action="@{/chu-nha/homestay/{hid}/phong/{rid}/lich/mo(hid=${homestayId},rid=${roomId})}" method="post" class="d-flex gap-2 align-items-end">
                         <div class="flex-grow-1">
                             <label class="form-label small text-muted m-0">Chọn ngày mở lại</label>
-                            <input type="date" name="date" class="form-control form-control-sm rounded-3" required>
+                            <input type="date" name="date" class="form-control form-control-sm " required>
                         </div>
-                        <button type="submit" class="btn btn-success btn-sm btn-pill px-3 fw-semibold">
+                        <button type="submit" class="btn btn-success btn-sm px-3 fw-semibold">
                             <i class="fa-solid fa-lock-open me-1"></i> Mở ngày
                         </button>
                     </form>
@@ -154,86 +154,86 @@
 
 <style>
     .cell-available {
-        background-color: #f0fdf4;
-        border-color: #bbf7d0 !important;
+ background-color: #f0fdf4;
+ border-color: #bbf7d0 !important;
     }
     .cell-available:hover {
-        background-color: #dcfce7;
-        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+ background-color: #dcfce7;
+ box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
     }
     .cell-locked {
-        background-color: #fffbeb;
-        border-color: #fde68a !important;
+ background-color: #fffbeb;
+ border-color: #fde68a !important;
     }
     .cell-locked:hover {
-        background-color: #fef3c7;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+ background-color: #fef3c7;
+ box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
     }
     .cell-booked {
-        background-color: #fef2f2;
-        border-color: #fecaca !important;
-        cursor: not-allowed !important;
+ background-color: #fef2f2;
+ border-color: #fecaca !important;
+ cursor: not-allowed !important;
     }
 </style>
 
 <script>
-    const homestayId = [[${homestayId}]];
-    const roomId = [[${roomId}]];
+ const homestayId = [[${homestayId}]];
+ const roomId = [[${roomId}]];
 
-    function onDayClick(cell) {
-        const isCurrent = cell.getAttribute('data-current') === 'true';
-        const status = cell.getAttribute('data-status');
-        const date = cell.getAttribute('data-date');
+ function onDayClick(cell) {
+ const isCurrent = cell.getAttribute('data-current') === 'true';
+ const status = cell.getAttribute('data-status');
+ const date = cell.getAttribute('data-date');
 
-        if (!isCurrent) return;
-        if (status === 'BOOKED') {
-            alert('Ngày ' + date + ' đã có khách đặt chỗ, bạn không thể khóa/mở ngày này!');
-            return;
+ if (!isCurrent) return;
+ if (status === 'BOOKED') {
+ alert('Ngày ' + date + ' đã có khách đặt chỗ, bạn không thể khóa/mở ngày này!');
+ return;
         }
 
         // Lấy CSRF token từ meta tags nếu có
-        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
-        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+ const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+ const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
 
-        const headers = {
+ const headers = {
             'Content-Type': 'application/x-www-form-urlencoded'
         };
-        if (csrfToken && csrfHeader) {
-            headers[csrfHeader] = csrfToken;
+ if (csrfToken && csrfHeader) {
+ headers[csrfHeader] = csrfToken;
         }
 
-        fetch(`/chu-nha/homestay/${homestayId}/phong/${roomId}/lich/toggle`, {
-            method: 'POST',
-            headers: headers,
-            body: `date=${date}`
+ fetch(`/chu-nha/homestay/${homestayId}/phong/${roomId}/lich/toggle`, {
+ method: 'POST',
+ headers: headers,
+ body: `date=${date}`
         })
         .then(res => res.json())
         .then(data => {
-            if (data.success) {
+ if (data.success) {
                 // Đổi trạng thái UI lập tức
-                const newStatus = data.status;
-                cell.setAttribute('data-status', newStatus);
-                cell.classList.remove('cell-available', 'cell-locked');
+ const newStatus = data.status;
+ cell.setAttribute('data-status', newStatus);
+ cell.classList.remove('cell-available', 'cell-locked');
 
-                const statusText = cell.querySelector('.day-status-text');
-                const badge = cell.querySelector('.d-flex > .badge');
+ const statusText = cell.querySelector('.day-status-text');
+ const badge = cell.querySelector('.d-flex > .badge');
 
-                if (newStatus === 'LOCKED') {
-                    cell.classList.add('cell-locked');
-                    if (statusText) statusText.innerHTML = '<span class="text-warning-emphasis">Đã khóa</span>';
-                    if (badge) badge.outerHTML = '<span class="badge bg-warning text-dark small"><i class="fa-solid fa-lock"></i></span>';
+ if (newStatus === 'LOCKED') {
+ cell.classList.add('cell-locked');
+ if (statusText) statusText.innerHTML = '<span class="text-warning-emphasis">Đã khóa</span>';
+ if (badge) badge.outerHTML = '<span class="badge bg-warning text-dark small"><i class="fa-solid fa-lock"></i></span>';
                 } else {
-                    cell.classList.add('cell-available');
-                    if (statusText) statusText.innerHTML = '<span class="text-success">Mở đón khách</span>';
-                    if (badge) badge.outerHTML = '<span class="badge bg-success-subtle text-success small"><i class="fa-solid fa-check"></i></span>';
+ cell.classList.add('cell-available');
+ if (statusText) statusText.innerHTML = '<span class="text-success">Mở đón khách</span>';
+ if (badge) badge.outerHTML = '<span class="badge bg-success-subtle text-success small"><i class="fa-solid fa-check"></i></span>';
                 }
             } else {
-                alert(data.message || 'Có lỗi xảy ra khi đổi trạng thái ngày.');
+ alert(data.message || 'Có lỗi xảy ra khi đổi trạng thái ngày.');
             }
         })
         .catch(err => {
-            console.error('Lỗi toggle:', err);
-            alert('Lỗi kết nối tới máy chủ.');
+ console.error('Lỗi toggle:', err);
+ alert('Lỗi kết nối tới máy chủ.');
         });
     }
 </script>

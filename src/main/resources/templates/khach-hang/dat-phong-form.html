@@ -170,8 +170,8 @@
                                     </div>
                                 </div>
                                 <span class="fw-bold text-danger small" id="pricePerNightDisplay" 
-                                      th:data-price="${room.pricePerNight}"
-                                      th:text="${#numbers.formatDecimal(room.pricePerNight,0,'POINT',0,'COMMA')} + 'đ / đêm'">--</span>
+ th:data-price="${room.pricePerNight}"
+ th:text="${#numbers.formatDecimal(room.pricePerNight,0,'POINT',0,'COMMA')} + 'đ / đêm'">--</span>
                             </div>
                         </div>
 
@@ -229,177 +229,177 @@
 
 <script th:inline="javascript">
 document.addEventListener('DOMContentLoaded', function () {
-    const dateRangeInput = document.getElementById('dateRangeInput');
-    const checkinHidden = document.getElementById('checkinHidden');
-    const checkoutHidden = document.getElementById('checkoutHidden');
-    const quantityInput = document.querySelector('input[name="quantity"]');
+ const dateRangeInput = document.getElementById('dateRangeInput');
+ const checkinHidden = document.getElementById('checkinHidden');
+ const checkoutHidden = document.getElementById('checkoutHidden');
+ const quantityInput = document.querySelector('input[name="quantity"]');
     
     /* Lấy danh sách các ngày đã được đặt từ model */
-    const bookedDates = /*[[${bookedDatesJson} != null ? ${bookedDatesJson} : '[]']]*/ '[]';
-    let parsedBookedDates = [];
-    try {
-        parsedBookedDates = JSON.parse(bookedDates);
+ const bookedDates = /*[[${bookedDatesJson} != null ? ${bookedDatesJson} : '[]']]*/ '[]';
+ let parsedBookedDates = [];
+ try {
+ parsedBookedDates = JSON.parse(bookedDates);
     } catch(e) {}
 
-    function formatDateLocal(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+ function formatDateLocal(date) {
+ const year = date.getFullYear();
+ const month = String(date.getMonth() + 1).padStart(2, '0');
+ const day = String(date.getDate()).padStart(2, '0');
+ return `${year}-${month}-${day}`;
     }
 
-    let defaultDates = [];
-    if (checkinHidden.value && checkoutHidden.value) {
-        defaultDates = [checkinHidden.value, checkoutHidden.value];
+ let defaultDates = [];
+ if (checkinHidden.value && checkoutHidden.value) {
+ defaultDates = [checkinHidden.value, checkoutHidden.value];
     }
 
-    let fpInstance;
-    fpInstance = flatpickr(dateRangeInput, {
-        mode: "range",
-        minDate: "today",
-        dateFormat: "Y-m-d",
-        showMonths: window.innerWidth > 768 ? 2 : 1,
-        defaultDate: defaultDates,
-        disable: [
-            function(date) {
-                const dateStr = formatDateLocal(date);
+ let fpInstance;
+ fpInstance = flatpickr(dateRangeInput, {
+ mode: "range",
+ minDate: "today",
+ dateFormat: "Y-m-d",
+ showMonths: window.innerWidth > 768 ? 2 : 1,
+ defaultDate: defaultDates,
+ disable: [
+ function(date) {
+ const dateStr = formatDateLocal(date);
                 
-                if (!fpInstance) return parsedBookedDates.includes(dateStr);
+ if (!fpInstance) return parsedBookedDates.includes(dateStr);
                 
-                if (fpInstance.selectedDates.length === 1) {
-                    const ciDate = fpInstance.selectedDates[0];
-                    date.setHours(0,0,0,0);
-                    ciDate.setHours(0,0,0,0);
+ if (fpInstance.selectedDates.length === 1) {
+ const ciDate = fpInstance.selectedDates[0];
+ date.setHours(0,0,0,0);
+ ciDate.setHours(0,0,0,0);
                     
-                    if (date < ciDate) return true;
+ if (date < ciDate) return true;
                     
-                    let nextBooked = null;
-                    const sortedBooked = parsedBookedDates.map(x => {
-                        const d = new Date(x);
-                        d.setHours(0,0,0,0);
-                        return d;
+ let nextBooked = null;
+ const sortedBooked = parsedBookedDates.map(x => {
+ const d = new Date(x);
+ d.setHours(0,0,0,0);
+ return d;
                     }).sort((a,b) => a-b);
                     
-                    for (let i=0; i<sortedBooked.length; i++) {
-                        if (sortedBooked[i] > ciDate) {
-                            nextBooked = sortedBooked[i];
-                            break;
+ for (let i=0; i<sortedBooked.length; i++) {
+ if (sortedBooked[i] > ciDate) {
+ nextBooked = sortedBooked[i];
+ break;
                         }
                     }
-                    if (nextBooked) {
-                        if (date > nextBooked) return true;
+ if (nextBooked) {
+ if (date > nextBooked) return true;
                     }
-                    return false;
+ return false;
                 }
                 
-                if (fpInstance.selectedDates.length === 2) {
-                    const coDate = fpInstance.selectedDates[1];
-                    date.setHours(0,0,0,0);
-                    coDate.setHours(0,0,0,0);
-                    if (date.getTime() === coDate.getTime()) return false;
+ if (fpInstance.selectedDates.length === 2) {
+ const coDate = fpInstance.selectedDates[1];
+ date.setHours(0,0,0,0);
+ coDate.setHours(0,0,0,0);
+ if (date.getTime() === coDate.getTime()) return false;
                 }
                 
-                return parsedBookedDates.includes(dateStr);
+ return parsedBookedDates.includes(dateStr);
             }
         ],
-        onChange: function(selectedDates, dateStr, instance) {
-            if (selectedDates.length === 2) {
-                if (selectedDates[0].getTime() === selectedDates[1].getTime()) {
-                    instance.clear();
-                    alert("Ngày trả phòng phải sau ngày nhận ít nhất 1 ngày!");
-                    return;
+ onChange: function(selectedDates, dateStr, instance) {
+ if (selectedDates.length === 2) {
+ if (selectedDates[0].getTime() === selectedDates[1].getTime()) {
+ instance.clear();
+ alert("Ngày trả phòng phải sau ngày nhận ít nhất 1 ngày!");
+ return;
                 }
-                checkinHidden.value = formatDateLocal(selectedDates[0]);
-                checkoutHidden.value = formatDateLocal(selectedDates[1]);
-                instance.redraw();
+ checkinHidden.value = formatDateLocal(selectedDates[0]);
+ checkoutHidden.value = formatDateLocal(selectedDates[1]);
+ instance.redraw();
             } else if (selectedDates.length === 1) {
-                checkinHidden.value = formatDateLocal(selectedDates[0]);
-                checkoutHidden.value = "";
-                instance.redraw();
+ checkinHidden.value = formatDateLocal(selectedDates[0]);
+ checkoutHidden.value = "";
+ instance.redraw();
             } else {
-                checkinHidden.value = "";
-                checkoutHidden.value = "";
-                instance.redraw();
+ checkinHidden.value = "";
+ checkoutHidden.value = "";
+ instance.redraw();
             }
-            calculate();
+ calculate();
         }
     });
 
-    const policyRadios = document.querySelectorAll('input[name="paymentPolicy"]');
-    const priceDisplay = document.getElementById('pricePerNightDisplay');
+ const policyRadios = document.querySelectorAll('input[name="paymentPolicy"]');
+ const priceDisplay = document.getElementById('pricePerNightDisplay');
 
-    const summaryNights = document.getElementById('summaryNights');
-    const summaryRooms = document.getElementById('summaryRooms');
-    const summaryTotalAmount = document.getElementById('summaryTotalAmount');
-    const summaryPayNow = document.getElementById('summaryPayNow');
-    const summaryPayLater = document.getElementById('summaryPayLater');
+ const summaryNights = document.getElementById('summaryNights');
+ const summaryRooms = document.getElementById('summaryRooms');
+ const summaryTotalAmount = document.getElementById('summaryTotalAmount');
+ const summaryPayNow = document.getElementById('summaryPayNow');
+ const summaryPayLater = document.getElementById('summaryPayLater');
 
-    const unitPrice = priceDisplay ? parseFloat(priceDisplay.getAttribute('data-price')) || 0 : 0;
+ const unitPrice = priceDisplay ? parseFloat(priceDisplay.getAttribute('data-price')) || 0 : 0;
 
-    function formatCurrency(val) {
-        return Math.round(val).toLocaleString('vi-VN') + ' VNĐ';
+ function formatCurrency(val) {
+ return Math.round(val).toLocaleString('vi-VN') + ' VNĐ';
     }
 
-    function calculate() {
-        let nights = 1;
-        if (checkinHidden && checkoutHidden && checkinHidden.value && checkoutHidden.value) {
-            const d1 = new Date(checkinHidden.value);
-            const d2 = new Date(checkoutHidden.value);
-            const diffTime = d2 - d1;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if (diffDays > 0) nights = diffDays;
+ function calculate() {
+ let nights = 1;
+ if (checkinHidden && checkoutHidden && checkinHidden.value && checkoutHidden.value) {
+ const d1 = new Date(checkinHidden.value);
+ const d2 = new Date(checkoutHidden.value);
+ const diffTime = d2 - d1;
+ const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+ if (diffDays > 0) nights = diffDays;
         }
 
-        let qty = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
-        if (qty < 1) qty = 1;
+ let qty = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+ if (qty < 1) qty = 1;
 
-        if (summaryNights) summaryNights.textContent = nights + ' đêm';
-        if (summaryRooms) summaryRooms.textContent = qty + ' phòng';
+ if (summaryNights) summaryNights.textContent = nights + ' đêm';
+ if (summaryRooms) summaryRooms.textContent = qty + ' phòng';
 
-        const total = unitPrice * nights * qty;
-        if (summaryTotalAmount) summaryTotalAmount.textContent = formatCurrency(total);
+ const total = unitPrice * nights * qty;
+ if (summaryTotalAmount) summaryTotalAmount.textContent = formatCurrency(total);
 
         // Check selected policy
-        let selectedPolicy = 'PAY_AT_PROPERTY';
-        policyRadios.forEach(r => {
-            if (r.checked) selectedPolicy = r.value;
+ let selectedPolicy = 'PAY_AT_PROPERTY';
+ policyRadios.forEach(r => {
+ if (r.checked) selectedPolicy = r.value;
         });
 
-        let payNow = 0;
-        let payLater = total;
+ let payNow = 0;
+ let payLater = total;
 
-        if (selectedPolicy === 'FULL_PREPAYMENT') {
-            payNow = total;
-            payLater = 0;
+ if (selectedPolicy === 'FULL_PREPAYMENT') {
+ payNow = total;
+ payLater = 0;
         } else if (selectedPolicy === 'DEPOSIT') {
-            payNow = total * 0.3;
-            payLater = total - payNow;
+ payNow = total * 0.3;
+ payLater = total - payNow;
         }
 
-        if (summaryPayNow) summaryPayNow.textContent = formatCurrency(payNow);
-        if (summaryPayLater) summaryPayLater.textContent = formatCurrency(payLater);
+ if (summaryPayNow) summaryPayNow.textContent = formatCurrency(payNow);
+ if (summaryPayLater) summaryPayLater.textContent = formatCurrency(payLater);
 
         // Toggle payment method card
-        const paymentMethodCard = document.getElementById('paymentMethodCard');
-        const paymentMethodSelect = document.getElementById('paymentMethodSelect');
-        if (selectedPolicy === 'PAY_AT_PROPERTY') {
-            if (paymentMethodCard) paymentMethodCard.style.display = 'none';
-            if (paymentMethodSelect) paymentMethodSelect.disabled = true;
+ const paymentMethodCard = document.getElementById('paymentMethodCard');
+ const paymentMethodSelect = document.getElementById('paymentMethodSelect');
+ if (selectedPolicy === 'PAY_AT_PROPERTY') {
+ if (paymentMethodCard) paymentMethodCard.style.display = 'none';
+ if (paymentMethodSelect) paymentMethodSelect.disabled = true;
         } else {
-            if (paymentMethodCard) paymentMethodCard.style.display = 'block';
-            if (paymentMethodSelect) {
-                paymentMethodSelect.disabled = false;
-                if (!paymentMethodSelect.value) {
-                    paymentMethodSelect.value = 'BANK_TRANSFER';
+ if (paymentMethodCard) paymentMethodCard.style.display = 'block';
+ if (paymentMethodSelect) {
+ paymentMethodSelect.disabled = false;
+ if (!paymentMethodSelect.value) {
+ paymentMethodSelect.value = 'BANK_TRANSFER';
                 }
             }
         }
     }
 
-    if (quantityInput) quantityInput.addEventListener('input', calculate);
-    policyRadios.forEach(r => r.addEventListener('change', calculate));
+ if (quantityInput) quantityInput.addEventListener('input', calculate);
+ policyRadios.forEach(r => r.addEventListener('change', calculate));
 
-    calculate();
+ calculate();
 });
 </script>
 

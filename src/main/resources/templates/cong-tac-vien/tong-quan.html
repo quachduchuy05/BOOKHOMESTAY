@@ -12,30 +12,30 @@
             <p class="text-muted small m-0">Theo dõi doanh thu hoa hồng, lượt truy cập và quản lý rút tiền thưởng</p>
         </div>
         <div class="d-flex gap-2 mt-3 mt-md-0">
-            <a th:href="@{/cong-tac-vien/rut-tien}" class="btn btn-success btn-pill btn-sm px-3 shadow-sm">
+            <a th:href="@{/cong-tac-vien/rut-tien}" class="btn btn-success btn-sm px-3 shadow-sm">
                 <i class="fa-solid fa-money-bill-transfer me-1"></i> Rút hoa hồng
             </a>
-            <a th:href="@{/cong-tac-vien/hoa-hong}" class="btn btn-outline-primary btn-pill btn-sm px-3">
+            <a th:href="@{/cong-tac-vien/hoa-hong}" class="btn btn-outline-primary btn-sm px-3">
                 <i class="fa-solid fa-receipt me-1"></i> Chi tiết hoa hồng
             </a>
         </div>
     </div>
 
     <!-- Thông báo kết quả cập nhật ngân hàng -->
-    <div th:if="${bankSuccessMessage}" class="alert alert-success border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+    <div th:if="${bankSuccessMessage}" class="alert alert-success border-0 shadow-sm mb-4 d-flex align-items-center gap-3">
         <i class="fa-solid fa-circle-check fs-3 text-success"></i>
         <div th:text="${bankSuccessMessage}">Cập nhật thành công!</div>
     </div>
-    <div th:if="${bankErrorMessage}" class="alert alert-danger border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+    <div th:if="${bankErrorMessage}" class="alert alert-danger border-0 shadow-sm mb-4 d-flex align-items-center gap-3">
         <i class="fa-solid fa-triangle-exclamation fs-3 text-danger"></i>
         <div th:text="${bankErrorMessage}">Có lỗi xảy ra!</div>
     </div>
 
     <!-- Alert nhắc nhở cập nhật ngân hàng nếu chưa có -->
     <div th:if="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}" 
-         class="alert alert-warning border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+ class="alert alert-warning border-0 shadow-sm mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div class="d-flex align-items-center gap-3">
-            <div class="p-3 bg-white rounded-circle shadow-sm text-warning fs-3">
+            <div class="p-3 bg-white shadow-sm text-warning fs-3">
                 <i class="fa-solid fa-building-columns"></i>
             </div>
             <div>
@@ -43,13 +43,13 @@
                 <span class="small text-muted">Vui lòng cập nhật ngân hàng và số tài khoản để sẵn sàng nhận thanh toán hoa hồng khi rút tiền.</span>
             </div>
         </div>
-        <button type="button" class="btn btn-warning btn-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
+        <button type="button" class="btn btn-warning px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
             <i class="fa-solid fa-pen-to-square me-1"></i> Cập nhật ngân hàng ngay
         </button>
     </div>
 
     <!-- Alert trạng thái CTV -->
-    <div th:if="${collaborator.status.name() == 'PENDING'}" class="alert alert-warning border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+    <div th:if="${collaborator.status.name() == 'PENDING'}" class="alert alert-warning border-0 shadow-sm mb-4 d-flex align-items-center gap-3">
         <i class="fa-solid fa-clock-rotate-left fs-3 text-warning"></i>
         <div>
             <strong class="d-block">Tài khoản Cộng tác viên đang chờ duyệt!</strong>
@@ -61,7 +61,7 @@
     <div class="row g-4 mb-4">
         <!-- Số dư khả dụng -->
         <div class="col-lg-3 col-md-6">
-            <div class="card p-4 border-0 shadow-sm rounded-4 hover-lift h-100" style="background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%); border-left: 4px solid #10b981 !important;">
+            <div class="card p-4 border-0 shadow-sm hover-lift h-100" style="background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%); border-left: 4px solid #10b981 !important;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <span class="text-uppercase small fw-bold text-muted">Số dư khả dụng</span>
@@ -70,7 +70,7 @@
                             <i class="fa-solid fa-arrow-right me-1"></i>Yêu cầu rút tiền
                         </a>
                     </div>
-                    <div class="p-3 bg-white rounded-circle shadow-sm text-success fs-3">
+                    <div class="p-3 bg-white shadow-sm text-success fs-3">
                         <i class="fa-solid fa-wallet"></i>
                     </div>
                 </div>
@@ -79,14 +79,14 @@
 
         <!-- Tổng hoa hồng tích luỹ -->
         <div class="col-lg-3 col-md-6">
-            <div class="card p-4 border-0 shadow-sm rounded-4 hover-lift h-100" style="background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); border-left: 4px solid #3b82f6 !important;">
+            <div class="card p-4 border-0 shadow-sm hover-lift h-100" style="background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); border-left: 4px solid #3b82f6 !important;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <span class="text-uppercase small fw-bold text-muted">Tổng hoa hồng</span>
                         <h3 class="fw-bold text-primary my-2" th:text="${#numbers.formatDecimal(totalCommission, 0, 'POINT', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h3>
                         <span class="small text-muted fw-medium"><i class="fa-solid fa-chart-line me-1"></i>Tất cả đơn thành công</span>
                     </div>
-                    <div class="p-3 bg-white rounded-circle shadow-sm text-primary fs-3">
+                    <div class="p-3 bg-white shadow-sm text-primary fs-3">
                         <i class="fa-solid fa-coins"></i>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
 
         <!-- Đơn hàng đã giới thiệu -->
         <div class="col-lg-3 col-md-6">
-            <div class="card p-4 border-0 shadow-sm rounded-4 hover-lift h-100" style="background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%); border-left: 4px solid #f59e0b !important;">
+            <div class="card p-4 border-0 shadow-sm hover-lift h-100" style="background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%); border-left: 4px solid #f59e0b !important;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <span class="text-uppercase small fw-bold text-muted">Đơn phòng thành công</span>
@@ -104,7 +104,7 @@
                             <i class="fa-solid fa-eye me-1"></i>Xem danh sách đơn
                         </a>
                     </div>
-                    <div class="p-3 bg-white rounded-circle shadow-sm text-warning fs-3">
+                    <div class="p-3 bg-white shadow-sm text-warning fs-3">
                         <i class="fa-solid fa-cart-shopping"></i>
                     </div>
                 </div>
@@ -113,14 +113,14 @@
 
         <!-- Lượt click link tiếp thị -->
         <div class="col-lg-3 col-md-6">
-            <div class="card p-4 border-0 shadow-sm rounded-4 hover-lift h-100" style="background: linear-gradient(135deg, #ffffff 0%, #fdf4ff 100%); border-left: 4px solid #c084fc !important;">
+            <div class="card p-4 border-0 shadow-sm hover-lift h-100" style="background: linear-gradient(135deg, #ffffff 0%, #fdf4ff 100%); border-left: 4px solid #c084fc !important;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <span class="text-uppercase small fw-bold text-muted">Lượt click link</span>
                         <h3 class="fw-bold text-purple my-2" th:text="${clickCount}">0</h3>
                         <span class="small text-muted fw-medium"><i class="fa-solid fa-computer-mouse me-1"></i>Lượt khách ghé thăm</span>
                     </div>
-                    <div class="p-3 bg-white rounded-circle shadow-sm text-purple fs-3" style="color: #a855f7;">
+                    <div class="p-3 bg-white shadow-sm text-purple fs-3" style="color: #a855f7;">
                         <i class="fa-solid fa-arrow-pointer"></i>
                     </div>
                 </div>
@@ -152,28 +152,28 @@
                     <div class="d-flex align-items-center gap-3">
                         <span class="fw-semibold text-secondary">Mã CTV của bạn:</span>
                         <span class="badge bg-primary fs-6 px-3 py-2 font-monospace" th:text="${collaborator.maGioiThieu}">CTV-123456</span>
-                        <button class="btn btn-sm btn-outline-secondary rounded-pill" type="button" th:onclick="'copyCode(\'' + ${collaborator.maGioiThieu} + '\')'">
+                        <button class="btn btn-sm btn-outline-secondary " type="button" th:onclick="'copyCode(\'' + ${collaborator.maGioiThieu} + '\')'">
                             <i class="fa-regular fa-copy me-1"></i>Sao chép mã
                         </button>
                     </div>
                 </div>
 
                 <div class="col-lg-5">
-                    <div class="p-3 bg-light rounded-4 border">
+                    <div class="p-3 bg-light border">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-building-columns text-primary me-2"></i>Tài khoản nhận hoa hồng:</h6>
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
+                            <button class="btn btn-sm btn-outline-primary px-3 py-1" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
                                 <i class="fa-solid fa-pen-to-square me-1"></i> <span th:text="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()} ? 'Thiết lập' : 'Thay đổi'">Thay đổi</span>
                             </button>
                         </div>
                         <div class="small text-secondary mb-1">
-                            Ngân hàng: <strong class="text-dark" th:text="${collaborator.tenNganHang ?: 'Chưa cập nhật'}">-</strong>
+ Ngân hàng: <strong class="text-dark" th:text="${collaborator.tenNganHang ?: 'Chưa cập nhật'}">-</strong>
                         </div>
                         <div class="small text-secondary mb-1">
-                            Số tài khoản: <strong class="text-dark font-monospace" th:text="${collaborator.soTaiKhoanNhanHoaHong ?: 'Chưa cập nhật'}">-</strong>
+ Số tài khoản: <strong class="text-dark font-monospace" th:text="${collaborator.soTaiKhoanNhanHoaHong ?: 'Chưa cập nhật'}">-</strong>
                         </div>
                         <div class="small text-secondary">
-                            Chủ tài khoản: <strong class="text-dark" th:text="${collaborator.user.fullName}">-</strong>
+ Chủ tài khoản: <strong class="text-dark" th:text="${collaborator.user.fullName}">-</strong>
                         </div>
                     </div>
                 </div>
@@ -184,8 +184,8 @@
     <!-- Quick Navigation -->
     <div class="row g-3">
         <div class="col-md-4">
-            <a th:href="@{/cong-tac-vien/hoa-hong}" class="card p-3 border-0 shadow-sm rounded-4 text-decoration-none text-dark hover-lift d-flex flex-row align-items-center gap-3">
-                <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 fs-4">
+            <a th:href="@{/cong-tac-vien/hoa-hong}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-lift d-flex flex-row align-items-center gap-3">
+                <div class="p-3 bg-primary bg-opacity-10 text-primary fs-4">
                     <i class="fa-solid fa-list-check"></i>
                 </div>
                 <div>
@@ -195,8 +195,8 @@
             </a>
         </div>
         <div class="col-md-4">
-            <a th:href="@{/cong-tac-vien/rut-tien}" class="card p-3 border-0 shadow-sm rounded-4 text-decoration-none text-dark hover-lift d-flex flex-row align-items-center gap-3">
-                <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 fs-4">
+            <a th:href="@{/cong-tac-vien/rut-tien}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-lift d-flex flex-row align-items-center gap-3">
+                <div class="p-3 bg-success bg-opacity-10 text-success fs-4">
                     <i class="fa-solid fa-money-check-dollar"></i>
                 </div>
                 <div>
@@ -206,8 +206,8 @@
             </a>
         </div>
         <div class="col-md-4">
-            <a th:href="@{/cong-tac-vien/lich-su-rut-tien}" class="card p-3 border-0 shadow-sm rounded-4 text-decoration-none text-dark hover-lift d-flex flex-row align-items-center gap-3">
-                <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-3 fs-4">
+            <a th:href="@{/cong-tac-vien/lich-su-rut-tien}" class="card p-3 border-0 shadow-sm text-decoration-none text-dark hover-lift d-flex flex-row align-items-center gap-3">
+                <div class="p-3 bg-warning bg-opacity-10 text-warning fs-4">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
                 <div>
@@ -222,7 +222,7 @@
 <!-- Modal Cập nhật thông tin ngân hàng -->
 <div class="modal fade" id="modalBankInfo" tabindex="-1" aria-labelledby="modalBankInfoLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-content border-0 shadow-lg overflow-hidden">
             <div class="modal-header bg-primary text-white border-0 py-3">
                 <h5 class="modal-title fw-bold" id="modalBankInfoLabel">
                     <i class="fa-solid fa-building-columns me-2"></i>Tài khoản ngân hàng nhận hoa hồng
@@ -233,7 +233,7 @@
                 <input type="hidden" name="redirectPage" value="tong-quan">
                 <div class="modal-body p-4">
                     <p class="small text-muted mb-3">
-                        Vui lòng nhập chính xác thông tin tài khoản ngân hàng chính chủ của bạn để nhận tiền hoa hồng khi rút tiền.
+ Vui lòng nhập chính xác thông tin tài khoản ngân hàng chính chủ của bạn để nhận tiền hoa hồng khi rút tiền.
                     </p>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-secondary">Ngân hàng thụ hưởng <span class="text-danger">*</span></label>
@@ -268,14 +268,14 @@
                         <label class="form-label small fw-bold text-secondary">Số tài khoản ngân hàng <span class="text-danger">*</span></label>
                         <input type="text" name="soTaiKhoanNhanHoaHong" class="form-control font-monospace fw-bold" th:value="${collaborator.soTaiKhoanNhanHoaHong}" placeholder="VD: 0123456789" required>
                     </div>
-                    <div class="p-3 bg-light rounded-3 border">
+                    <div class="p-3 bg-light border">
                         <small class="text-muted d-block">Tên chủ tài khoản thụ hưởng (theo họ tên tài khoản):</small>
                         <strong class="text-dark" th:text="${collaborator.user.fullName}">-</strong>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
                         <i class="fa-solid fa-floppy-disk me-1"></i> Lưu thông tin
                     </button>
                 </div>
@@ -288,18 +288,18 @@
 
 <script>
 function copyLink() {
-    var copyText = document.getElementById("refLinkInput");
-    copyText.select();
-    copyText.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(copyText.value).then(function() {
-        var btnText = document.getElementById("copyBtnText");
-        btnText.innerText = "Đã sao chép!";
-        setTimeout(function() { btnText.innerText = "Sao chép link"; }, 2500);
+ var copyText = document.getElementById("refLinkInput");
+ copyText.select();
+ copyText.setSelectionRange(0, 99999);
+ navigator.clipboard.writeText(copyText.value).then(function() {
+ var btnText = document.getElementById("copyBtnText");
+ btnText.innerText = "Đã sao chép!";
+ setTimeout(function() { btnText.innerText = "Sao chép link"; }, 2500);
     });
 }
 function copyCode(code) {
-    navigator.clipboard.writeText(code).then(function() {
-        alert("Đã sao chép mã CTV: " + code);
+ navigator.clipboard.writeText(code).then(function() {
+ alert("Đã sao chép mã CTV: " + code);
     });
 }
 </script>

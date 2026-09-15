@@ -10,7 +10,7 @@
             <h3 class="fw-bold m-0"><i class="fa-solid fa-heart text-danger me-2"></i>Homestay Yêu Thích</h3>
             <p class="text-muted small m-0">Bộ sưu tập các chỗ nghỉ bạn đã đánh dấu để lên kế hoạch cho chuyến đi tiếp theo</p>
         </div>
-        <a th:href="@{/tim-kiem}" class="btn btn-primary btn-pill btn-sm px-3">
+        <a th:href="@{/tim-kiem}" class="btn btn-primary btn-sm px-3">
             <i class="fa-solid fa-magnifying-glass me-1"></i> Khám phá thêm
         </a>
     </div>
@@ -18,13 +18,13 @@
     <!-- Favorite Homestays Grid -->
     <div class="row g-4" th:if="${!favorites.isEmpty()}">
         <div class="col-lg-4 col-md-6 col-12" th:each="h : ${favorites}" th:id="'fav-card-' + ${h.id}">
-            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden card-homestay-modern hover-lift position-relative">
+            <div class="card h-100 border-0 shadow-sm overflow-hidden card-homestay-modern hover-lift position-relative">
                 <!-- Heart button to remove favorite -->
-                <button type="button" class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3 d-flex align-items-center justify-content-center"
-                        style="width: 38px; height: 38px; z-index: 5;"
-                        th:data-homestay-id="${h.id}"
-                        onclick="removeFavorite(this)"
-                        title="Bỏ lưu homestay này">
+                <button type="button" class="btn btn-sm btn-light shadow-sm position-absolute top-0 end-0 m-3 d-flex align-items-center justify-content-center"
+ style="width: 38px; height: 38px; z-index: 5;"
+ th:data-homestay-id="${h.id}"
+ onclick="removeFavorite(this)"
+ title="Bỏ lưu homestay này">
                     <i class="fa-solid fa-heart text-danger fs-6"></i>
                 </button>
 
@@ -32,9 +32,9 @@
                 <a th:href="@{/homestay/{slug}(slug=${h.slug})}" class="text-decoration-none">
                     <div style="height: 220px; overflow: hidden; background-color: #f1f5f9;">
                         <img th:if="${!h.images.isEmpty()}" th:src="${h.images[0].imageUrl}" th:alt="${h.name}" 
-                             class="w-100 h-100 object-fit-cover transition-transform" />
+ class="w-100 h-100 object-fit-cover transition-transform" />
                         <img th:unless="${!h.images.isEmpty()}" th:src="@{/images/gallery1-1.jpg}" th:alt="${h.name}" 
-                             class="w-100 h-100 object-fit-cover" />
+ class="w-100 h-100 object-fit-cover" />
                     </div>
                 </a>
 
@@ -55,13 +55,13 @@
                         <div>
                             <span class="small text-muted d-block" style="font-size: 11px;">Phòng tốt nhất từ</span>
                             <span class="fw-bold text-danger fs-6" 
-                                  th:if="${!h.rooms.isEmpty()}" 
-                                  th:text="${#numbers.formatDecimal(h.rooms[0].pricePerNight, 0, 'POINT', 0, 'COMMA')} + ' đ'">800,000 đ</span>
+ th:if="${!h.rooms.isEmpty()}" 
+ th:text="${#numbers.formatDecimal(h.rooms[0].pricePerNight, 0, 'POINT', 0, 'COMMA')} + ' đ'">800,000 đ</span>
                             <span class="text-muted small" th:unless="${!h.rooms.isEmpty()}">Liên hệ</span>
                             <span class="small text-muted">/đêm</span>
                         </div>
-                        <a th:href="@{/homestay/{slug}(slug=${h.slug})}" class="btn btn-sm btn-primary btn-pill px-3">
-                            Xem ngay <i class="fa-solid fa-arrow-right ms-1"></i>
+                        <a th:href="@{/homestay/{slug}(slug=${h.slug})}" class="btn btn-sm btn-primary px-3">
+ Xem ngay <i class="fa-solid fa-arrow-right ms-1"></i>
                         </a>
                     </div>
                 </div>
@@ -70,11 +70,11 @@
     </div>
 
     <!-- Empty State -->
-    <div th:if="${favorites.isEmpty()}" class="p-5 text-center bg-white rounded-4 border my-4">
+    <div th:if="${favorites.isEmpty()}" class="p-5 text-center bg-white border my-4">
         <i class="fa-regular fa-heart display-4 text-muted mb-3"></i>
         <h5 class="fw-bold">Bạn chưa lưu homestay nào</h5>
         <p class="text-muted small mb-4">Khi xem các chỗ nghỉ ưng ý, hãy nhấn nút "Lưu lại" để xem lại danh sách tại đây.</p>
-        <a th:href="@{/tim-kiem}" class="btn btn-primary btn-pill px-4">
+        <a th:href="@{/tim-kiem}" class="btn btn-primary px-4">
             <i class="fa-solid fa-compass me-1"></i> Khám phá chỗ nghỉ ngay
         </a>
     </div>
@@ -82,30 +82,30 @@
 
 <script th:inline="javascript">
 function removeFavorite(btn) {
-    if (!confirm('Bạn có chắc muốn bỏ lưu homestay này khỏi danh sách yêu thích?')) return;
-    const homestayId = btn.getAttribute('data-homestay-id');
-    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+ if (!confirm('Bạn có chắc muốn bỏ lưu homestay này khỏi danh sách yêu thích?')) return;
+ const homestayId = btn.getAttribute('data-homestay-id');
+ const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+ const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
 
-    const headers = {};
-    if (csrfToken) headers[csrfHeader] = csrfToken;
+ const headers = {};
+ if (csrfToken) headers[csrfHeader] = csrfToken;
 
-    fetch('/khach-hang/yeu-thich/toggle?homestayId=' + homestayId, {
-        method: 'POST',
-        headers: headers
+ fetch('/khach-hang/yeu-thich/toggle?homestayId=' + homestayId, {
+ method: 'POST',
+ headers: headers
     })
     .then(r => r.json())
     .then(data => {
-        if (data.success && !data.favorited) {
-            const card = document.getElementById('fav-card-' + homestayId);
-            if (card) {
-                card.style.transition = 'opacity 0.3s, transform 0.3s';
-                card.style.opacity = '0';
-                card.style.transform = 'scale(0.9)';
-                setTimeout(() => {
-                    card.remove();
-                    if (document.querySelectorAll('[id^="fav-card-"]').length === 0) {
-                        location.reload();
+ if (data.success && !data.favorited) {
+ const card = document.getElementById('fav-card-' + homestayId);
+ if (card) {
+ card.style.transition = 'opacity 0.3s, transform 0.3s';
+ card.style.opacity = '0';
+ card.style.transform = 'scale(0.9)';
+ setTimeout(() => {
+ card.remove();
+ if (document.querySelectorAll('[id^="fav-card-"]').length === 0) {
+ location.reload();
                     }
                 }, 300);
             }

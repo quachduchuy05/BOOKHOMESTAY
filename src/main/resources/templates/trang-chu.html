@@ -12,10 +12,10 @@
             <span>Hơn 5,000+ Homestay & Villa Nghỉ Dưỡng Khắp Việt Nam</span>
         </div>
         <h1 class="hero-title">
-            Tìm Chỗ Ở <span class="gradient-text">Hoàn Hảo</span><br>Cho Kỳ Nghỉ Của Bạn
+ Tìm Chỗ Ở <span class="gradient-text">Hoàn Hảo</span><br>Cho Kỳ Nghỉ Của Bạn
         </h1>
         <p class="hero-subtitle">
-            Trải nghiệm không gian ấm cúng, thiết kế độc bản và lưu giữ những khoảnh khắc đáng nhớ cùng người thân.
+ Trải nghiệm không gian ấm cúng, thiết kế độc bản và lưu giữ những khoảnh khắc đáng nhớ cùng người thân.
         </p>
 
         <!-- Floating Search Capsule Card -->
@@ -31,26 +31,20 @@
                             <i class="fa-solid fa-location-dot text-danger"></i> Điểm đến
                         </label>
                         <input type="text" name="province" id="heroProvinceInput" list="dsTinh" class="form-control search-field-input" 
-                               placeholder="Bạn muốn đi đâu? (Đà Lạt, Sa Pa...)" autocomplete="off" th:value="${province}">
+ placeholder="Bạn muốn đi đâu? (Đà Lạt, Sa Pa...)" autocomplete="off" th:value="${province}">
                         <datalist id="dsTinh">
                             <th:block th:replace="~{dung-chung/danh-sach-tinh :: options(selected=null)}"></th:block>
                         </datalist>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-3 col-6">
+                <div class="col-lg-4 col-md-6 col-12">
                     <div class="search-field-box">
                         <label class="search-field-label">
-                            <i class="fa-regular fa-calendar-check text-primary"></i> Nhận phòng
+                            <i class="fa-regular fa-calendar-check text-primary"></i> Thời gian lưu trú
                         </label>
-                        <input type="date" name="checkIn" class="form-control search-field-input">
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-3 col-6">
-                    <div class="search-field-box">
-                        <label class="search-field-label">
-                            <i class="fa-regular fa-calendar-xmark text-primary"></i> Trả phòng
-                        </label>
-                        <input type="date" name="checkOut" class="form-control search-field-input">
+                        <input type="text" id="homeDateRange" class="form-control search-field-input bg-transparent border-0" placeholder="Chọn ngày nhận và trả phòng" readonly style="cursor: pointer; padding: 0; box-shadow: none;">
+                        <input type="hidden" name="checkIn" id="homeCheckIn">
+                        <input type="hidden" name="checkOut" id="homeCheckOut">
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-4 col-6">
@@ -158,8 +152,8 @@
             <h2 class="fw-bold m-0 mt-1">Điểm Đến Homestay Hàng Đầu Toàn Quốc</h2>
             <p class="text-muted small m-0 mt-1">Trải nghiệm kỳ nghỉ tại 63 tỉnh thành với thiên nhiên, văn hóa và ẩm thực độc bản</p>
         </div>
-        <a th:href="@{/tim-kiem}" class="btn btn-sm btn-outline-custom rounded-pill px-3">
-            Khám phá tất cả phòng <i class="fa-solid fa-arrow-right ms-1"></i>
+        <a th:href="@{/tim-kiem}" class="btn btn-sm btn-outline-custom px-3">
+ Khám phá tất cả phòng <i class="fa-solid fa-arrow-right ms-1"></i>
         </a>
     </div>
 
@@ -255,8 +249,8 @@
             <span class="text-uppercase fw-bold small text-danger letter-spacing-1">Gợi ý dành riêng cho bạn</span>
             <h2 class="fw-bold m-0 mt-1">Homestay Nổi Bật Được Đánh Giá Cao</h2>
         </div>
-        <a th:href="@{/tim-kiem}" class="btn btn-sm btn-outline-custom rounded-pill px-3">
-            Xem tất cả chỗ ở <i class="fa-solid fa-arrow-right ms-1"></i>
+        <a th:href="@{/tim-kiem}" class="btn btn-sm btn-outline-custom px-3">
+ Xem tất cả chỗ ở <i class="fa-solid fa-arrow-right ms-1"></i>
         </a>
     </div>
 
@@ -360,7 +354,7 @@
         <!-- Trạng thái & Tag đang lọc -->
         <div class="filter-status-bar">
             <div>
-                Tìm thấy <strong id="liveHomestayCount" class="text-danger" th:text="${featuredHomestays.size()}">12</strong> chỗ nghỉ phù hợp
+ Tìm thấy <strong id="liveHomestayCount" class="text-danger" th:text="${featuredHomestays.size()}">12</strong> chỗ nghỉ phù hợp
             </div>
             <div class="filter-active-tags" id="liveActiveTags"></div>
         </div>
@@ -370,14 +364,14 @@
     <div class="row g-4" id="homestayGridContainer">
         <!-- Render danh sách Homestay từ Controller -->
         <div class="col-lg-4 col-md-6 card-homestay-col" 
-             th:each="home : ${featuredHomestays}"
-             th:attr="data-id=${home.id},
-                      data-name=${#strings.toLowerCase(home.name)},
-                      data-province=${home.province},
-                      data-district=${home.district != null ? home.district : ''},
-                      data-address=${#strings.toLowerCase(home.address)},
-                      data-price=${home.minPrice != null ? home.minPrice : 0},
-                      data-guests=${home.maxGuests != null ? home.maxGuests : 2}">
+ th:each="home : ${featuredHomestays}"
+ th:attr="data-id=${home.id},
+ data-name=${#strings.toLowerCase(home.name)},
+ data-province=${home.province},
+ data-district=${home.district != null ? home.district : ''},
+ data-address=${#strings.toLowerCase(home.address)},
+ data-price=${home.minPrice != null ? home.minPrice : 0},
+ data-guests=${home.maxGuests != null ? home.maxGuests : 2}">
             <div class="card-homestay-modern">
                 <div class="card-image-wrap">
                     <span class="card-badge-province" th:text="${home.province}">Đà Lạt</span>
@@ -407,8 +401,8 @@
                             <span class="card-price-amount" th:unless="${home.minPrice != null}">Giá ưu đãi</span>
                             <span class="card-price-unit">/ đêm</span>
                         </div>
-                        <a th:href="@{/homestay/{slug}(slug=${home.slug})}" class="btn btn-primary btn-sm btn-pill px-3">
-                            Xem phòng <i class="fa-solid fa-angle-right ms-1"></i>
+                        <a th:href="@{/homestay/{slug}(slug=${home.slug})}" class="btn btn-primary btn-sm px-3">
+ Xem phòng <i class="fa-solid fa-angle-right ms-1"></i>
                         </a>
                     </div>
                 </div>
@@ -422,10 +416,10 @@
         <h5 class="fw-bold">Không tìm thấy homestay phù hợp với tiêu chí lọc</h5>
         <p class="text-muted small mb-3">Hiện chưa có chỗ nghỉ nào tại khu vực hoặc tiêu chí đã chọn. Bạn có thể mở rộng tìm kiếm trên trang Tìm kiếm hoặc đặt lại bộ lọc.</p>
         <div class="d-flex justify-content-center gap-2 flex-wrap">
-            <button type="button" class="btn btn-primary btn-pill px-4" onclick="resetAllFilters()">
+            <button type="button" class="btn btn-primary px-4" onclick="resetAllFilters()">
                 <i class="fa-solid fa-rotate-left me-1"></i> Xóa tất cả bộ lọc
             </button>
-            <a id="btnEmptySearchPage" th:href="@{/tim-kiem}" class="btn btn-outline-dark btn-pill px-4">
+            <a id="btnEmptySearchPage" th:href="@{/tim-kiem}" class="btn btn-outline-dark px-4">
                 <i class="fa-solid fa-compass me-1"></i> Khám phá trang tìm kiếm
             </a>
         </div>
@@ -490,14 +484,14 @@
     </div>
     <div class="row g-4">
         <div class="col-md-4">
-            <div class="card p-4 h-100 border-0 shadow-sm rounded-4">
+            <div class="card p-4 h-100 border-0 shadow-sm ">
                 <div class="d-flex align-items-center gap-1 text-warning mb-3">
                     <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                 </div>
                 <p class="text-muted small mb-4">"Gia đình mình vừa có chuyến đi Đà Lạt 4 ngày 3 đêm, homestay đẹp y hệt như trên ảnh, phòng ốc thơm tho sạch sẽ. Quét mã VietQR chuyển khoản cực nhanh!"</p>
                 <div class="d-flex align-items-center gap-3 mt-auto">
-                    <div class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center" style="width:44px; height:44px;">
-                        TH
+                    <div class=" bg-primary text-white fw-bold d-flex align-items-center justify-content-center" style="width:44px; height:44px;">
+ TH
                     </div>
                     <div>
                         <h6 class="fw-bold m-0">Trần Hoàng Long</h6>
@@ -507,14 +501,14 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card p-4 h-100 border-0 shadow-sm rounded-4">
+            <div class="card p-4 h-100 border-0 shadow-sm ">
                 <div class="d-flex align-items-center gap-1 text-warning mb-3">
                     <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                 </div>
                 <p class="text-muted small mb-4">"Giao diện web mới nhìn sang và mượt mà quá, tìm kiếm dễ dàng và có lọc theo khoảng giá rất rõ ràng. Đội ngũ CSKH hỗ trợ nhiệt tình lúc mình đổi giờ nhận phòng."</p>
                 <div class="d-flex align-items-center gap-3 mt-auto">
-                    <div class="rounded-circle bg-danger text-white fw-bold d-flex align-items-center justify-content-center" style="width:44px; height:44px;">
-                        MN
+                    <div class=" bg-danger text-white fw-bold d-flex align-items-center justify-content-center" style="width:44px; height:44px;">
+ MN
                     </div>
                     <div>
                         <h6 class="fw-bold m-0">Mai Phương Nga</h6>
@@ -524,14 +518,14 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card p-4 h-100 border-0 shadow-sm rounded-4">
+            <div class="card p-4 h-100 border-0 shadow-sm ">
                 <div class="d-flex align-items-center gap-1 text-warning mb-3">
                     <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                 </div>
                 <p class="text-muted small mb-4">"Tôi vừa tham gia làm Cộng tác viên giới thiệu khách, hệ thống tính mã giới thiệu hoa hồng rất chuẩn chỉnh và minh bạch. Rất khuyến khích mọi người trải nghiệm!"</p>
                 <div class="d-flex align-items-center gap-3 mt-auto">
-                    <div class="rounded-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center" style="width:44px; height:44px;">
-                        VD
+                    <div class=" bg-success text-white fw-bold d-flex align-items-center justify-content-center" style="width:44px; height:44px;">
+ VD
                     </div>
                     <div>
                         <h6 class="fw-bold m-0">Vũ Đức Thắng</h6>
@@ -546,7 +540,7 @@
 <!-- Call to Action Banner (Host & Collaborator) -->
 <section class="container py-4 my-3">
     <div class="p-5 position-relative overflow-hidden" 
-         style="background: linear-gradient(135deg, #fff5f6 0%, #ffedf1 50%, #ffe4e8 100%); border: 1.5px solid rgba(255, 56, 92, 0.2); box-shadow: var(--bhs-shadow-md);">
+ style="background: linear-gradient(135deg, #fff5f6 0%, #ffedf1 50%, #ffe4e8 100%); border: 1.5px solid rgba(255, 56, 92, 0.2); box-shadow: var(--bhs-shadow-md);">
         <div class="row align-items-center position-relative" style="z-index: 2;">
             <div class="col-lg-8">
                 <span class="badge mb-3 px-3 py-2 fw-bold" style="background: rgba(255, 56, 92, 0.12); color: var(--bhs-primary);"><i class="fa-solid fa-handshake me-1 text-danger"></i>Gia nhập mạng lưới đối tác</span>
@@ -735,141 +729,141 @@
     // JAVASCRIPT REAL-TIME INSTANT FILTER ENGINE (BỘ LỌC TỨC THÌ NGOÀI TRANG CHỦ)
     // =========================================================================
 
-    const filterState = {
-        province: '',
-        district: '',
-        keyword: '',
-        minPrice: null,
-        maxPrice: null,
-        guests: null,
-        sort: 'default'
+ const filterState = {
+ province: '',
+ district: '',
+ keyword: '',
+ minPrice: null,
+ maxPrice: null,
+ guests: null,
+ sort: 'default'
     };
 
     // Wishlist Toggle Button
-    function toggleWishlist(btn) {
-        btn.classList.toggle('active');
-        const icon = btn.querySelector('i');
-        if (btn.classList.contains('active')) {
-            icon.classList.remove('fa-regular');
-            icon.classList.add('fa-solid');
+ function toggleWishlist(btn) {
+ btn.classList.toggle('active');
+ const icon = btn.querySelector('i');
+ if (btn.classList.contains('active')) {
+ icon.classList.remove('fa-regular');
+ icon.classList.add('fa-solid');
         } else {
-            icon.classList.remove('fa-solid');
-            icon.classList.add('fa-regular');
+ icon.classList.remove('fa-solid');
+ icon.classList.add('fa-regular');
         }
     }
 
     // 1. Tab Province Selection
-    function selectProvinceTab(btn, province) {
-        document.querySelectorAll('.tab-dest-btn').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-        filterState.province = province || '';
+ function selectProvinceTab(btn, province) {
+ document.querySelectorAll('.tab-dest-btn').forEach(b => b.classList.remove('active'));
+ if (btn) btn.classList.add('active');
+ filterState.province = province || '';
         
         // Đồng bộ lên Hero search input
-        const heroInput = document.getElementById('heroProvinceInput');
-        if (heroInput) heroInput.value = province || '';
+ const heroInput = document.getElementById('heroProvinceInput');
+ if (heroInput) heroInput.value = province || '';
 
         // Đồng bộ dropdown 63 tỉnh
-        const p63Select = document.getElementById('liveProvince63Select');
-        if (p63Select) p63Select.value = province || '';
+ const p63Select = document.getElementById('liveProvince63Select');
+ if (p63Select) p63Select.value = province || '';
         
         // Đồng bộ modal select
-        const modalProv = document.getElementById('modalProvinceSelect');
-        if (modalProv) {
-            modalProv.value = province || '';
-            onModalProvinceChange(province || '');
+ const modalProv = document.getElementById('modalProvinceSelect');
+ if (modalProv) {
+ modalProv.value = province || '';
+ onModalProvinceChange(province || '');
         }
 
-        applyInstantFilter();
+ applyInstantFilter();
     }
 
     // Chọn tỉnh từ thẻ 63 tỉnh thành và cuộn mượt xuống danh sách homestay
-    function selectAndScrollToProvince(provinceName) {
-        let matchedTab = null;
-        document.querySelectorAll('.tab-dest-btn').forEach(b => {
-            if (b.getAttribute('data-province') === provinceName) {
-                matchedTab = b;
+ function selectAndScrollToProvince(provinceName) {
+ let matchedTab = null;
+ document.querySelectorAll('.tab-dest-btn').forEach(b => {
+ if (b.getAttribute('data-province') === provinceName) {
+ matchedTab = b;
             }
         });
-        selectProvinceTab(matchedTab, provinceName);
+ selectProvinceTab(matchedTab, provinceName);
 
-        const target = document.getElementById('sectionHomestayNgoaiTrangChu');
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+ const target = document.getElementById('sectionHomestayNgoaiTrangChu');
+ if (target) {
+ target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
-    function onLiveProvince63Change(val) {
-        selectAndScrollToProvince(val);
+ function onLiveProvince63Change(val) {
+ selectAndScrollToProvince(val);
     }
 
     // 2. Keyword Search (Debounced)
-    let searchDebounceTimer = null;
-    const liveSearchInput = document.getElementById('liveKeywordSearch');
-    if (liveSearchInput) {
-        liveSearchInput.addEventListener('input', function(e) {
-            clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(() => {
-                filterState.keyword = e.target.value.trim().toLowerCase();
-                applyInstantFilter();
+ let searchDebounceTimer = null;
+ const liveSearchInput = document.getElementById('liveKeywordSearch');
+ if (liveSearchInput) {
+ liveSearchInput.addEventListener('input', function(e) {
+ clearTimeout(searchDebounceTimer);
+ searchDebounceTimer = setTimeout(() => {
+ filterState.keyword = e.target.value.trim().toLowerCase();
+ applyInstantFilter();
             }, 180);
         });
     }
 
     // 3. Price Dropdown Change
-    function onLivePriceChange(val) {
-        if (!val) {
-            filterState.minPrice = null;
-            filterState.maxPrice = null;
+ function onLivePriceChange(val) {
+ if (!val) {
+ filterState.minPrice = null;
+ filterState.maxPrice = null;
         } else {
-            const parts = val.split('-');
-            filterState.minPrice = parts[0] ? parseFloat(parts[0]) : null;
-            filterState.maxPrice = parts[1] && parts[1] !== '999999999' ? parseFloat(parts[1]) : null;
+ const parts = val.split('-');
+ filterState.minPrice = parts[0] ? parseFloat(parts[0]) : null;
+ filterState.maxPrice = parts[1] && parts[1] !== '999999999' ? parseFloat(parts[1]) : null;
         }
-        syncPriceToModal();
-        applyInstantFilter();
+ syncPriceToModal();
+ applyInstantFilter();
     }
 
     // 4. Guest Dropdown Change
-    function onLiveGuestChange(val) {
-        filterState.guests = val ? parseInt(val) : null;
+ function onLiveGuestChange(val) {
+ filterState.guests = val ? parseInt(val) : null;
         
         // Đồng bộ hero select
-        const heroGuest = document.getElementById('heroGuestsSelect');
-        if (heroGuest) heroGuest.value = val || '';
-        const modalGuest = document.getElementById('modalGuestsSelect');
-        if (modalGuest) modalGuest.value = val || '';
+ const heroGuest = document.getElementById('heroGuestsSelect');
+ if (heroGuest) heroGuest.value = val || '';
+ const modalGuest = document.getElementById('modalGuestsSelect');
+ if (modalGuest) modalGuest.value = val || '';
 
-        applyInstantFilter();
+ applyInstantFilter();
     }
 
     // 5. Sort Dropdown Change
-    function onLiveSortChange(val) {
-        filterState.sort = val || 'default';
-        applyInstantFilter();
+ function onLiveSortChange(val) {
+ filterState.sort = val || 'default';
+ applyInstantFilter();
     }
 
     // Modal quick price buttons
-    function setModalPrice(min, max) {
-        document.getElementById('modalMinPrice').value = min !== null ? min : '';
-        document.getElementById('modalMaxPrice').value = max !== null ? max : '';
+ function setModalPrice(min, max) {
+ document.getElementById('modalMinPrice').value = min !== null ? min : '';
+ document.getElementById('modalMaxPrice').value = max !== null ? max : '';
     }
 
     // Modal province change -> Load districts via AJAX
-    function onModalProvinceChange(province) {
-        const districtSelect = document.getElementById('modalDistrictSelect');
-        if (!districtSelect) return;
-        districtSelect.innerHTML = '<option value="">-- Tất cả quận/huyện --</option>';
-        if (!province) return;
+ function onModalProvinceChange(province) {
+ const districtSelect = document.getElementById('modalDistrictSelect');
+ if (!districtSelect) return;
+ districtSelect.innerHTML = '<option value="">-- Tất cả quận/huyện --</option>';
+ if (!province) return;
 
-        fetch('/tim-kiem/api/quan-huyen?province=' + encodeURIComponent(province))
+ fetch('/tim-kiem/api/quan-huyen?province=' + encodeURIComponent(province))
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) {
-                    data.forEach(d => {
-                        const opt = document.createElement('option');
-                        opt.value = d;
-                        opt.textContent = d;
-                        districtSelect.appendChild(opt);
+ if (Array.isArray(data)) {
+ data.forEach(d => {
+ const opt = document.createElement('option');
+ opt.value = d;
+ opt.textContent = d;
+ districtSelect.appendChild(opt);
                     });
                 }
             })
@@ -877,349 +871,373 @@
     }
 
     // Synchronize price to modal fields
-    function syncPriceToModal() {
-        const modalMin = document.getElementById('modalMinPrice');
-        const modalMax = document.getElementById('modalMaxPrice');
-        if (modalMin) modalMin.value = filterState.minPrice !== null ? filterState.minPrice : '';
-        if (modalMax) modalMax.value = filterState.maxPrice !== null ? filterState.maxPrice : '';
+ function syncPriceToModal() {
+ const modalMin = document.getElementById('modalMinPrice');
+ const modalMax = document.getElementById('modalMaxPrice');
+ if (modalMin) modalMin.value = filterState.minPrice !== null ? filterState.minPrice : '';
+ if (modalMax) modalMax.value = filterState.maxPrice !== null ? filterState.maxPrice : '';
     }
 
     // Apply filters from Modal
-    function applyModalFilters() {
-        const minP = document.getElementById('modalMinPrice').value;
-        const maxP = document.getElementById('modalMaxPrice').value;
-        const prov = document.getElementById('modalProvinceSelect').value;
-        const dist = document.getElementById('modalDistrictSelect').value;
-        const g = document.getElementById('modalGuestsSelect').value;
+ function applyModalFilters() {
+ const minP = document.getElementById('modalMinPrice').value;
+ const maxP = document.getElementById('modalMaxPrice').value;
+ const prov = document.getElementById('modalProvinceSelect').value;
+ const dist = document.getElementById('modalDistrictSelect').value;
+ const g = document.getElementById('modalGuestsSelect').value;
 
-        filterState.minPrice = minP !== '' ? parseFloat(minP) : null;
-        filterState.maxPrice = maxP !== '' ? parseFloat(maxP) : null;
-        filterState.province = prov || '';
-        filterState.district = dist || '';
-        filterState.guests = g !== '' ? parseInt(g) : null;
+ filterState.minPrice = minP !== '' ? parseFloat(minP) : null;
+ filterState.maxPrice = maxP !== '' ? parseFloat(maxP) : null;
+ filterState.province = prov || '';
+ filterState.district = dist || '';
+ filterState.guests = g !== '' ? parseInt(g) : null;
 
         // Đồng bộ lại UI chính ngoài trang chủ
-        const heroProv = document.getElementById('heroProvinceInput');
-        if (heroProv) heroProv.value = filterState.province;
-        const heroGuest = document.getElementById('heroGuestsSelect');
-        if (heroGuest) heroGuest.value = filterState.guests || '';
-        const heroMin = document.getElementById('heroMinPrice');
-        if (heroMin) heroMin.value = minP || '';
-        const heroMax = document.getElementById('heroMaxPrice');
-        if (heroMax) heroMax.value = maxP || '';
-        const heroDist = document.getElementById('heroDistrict');
-        if (heroDist) heroDist.value = dist || '';
+ const heroProv = document.getElementById('heroProvinceInput');
+ if (heroProv) heroProv.value = filterState.province;
+ const heroGuest = document.getElementById('heroGuestsSelect');
+ if (heroGuest) heroGuest.value = filterState.guests || '';
+ const heroMin = document.getElementById('heroMinPrice');
+ if (heroMin) heroMin.value = minP || '';
+ const heroMax = document.getElementById('heroMaxPrice');
+ if (heroMax) heroMax.value = maxP || '';
+ const heroDist = document.getElementById('heroDistrict');
+ if (heroDist) heroDist.value = dist || '';
 
         // Đồng bộ tab
-        document.querySelectorAll('.tab-dest-btn').forEach(b => {
-            if (b.getAttribute('data-province') === filterState.province) {
-                b.classList.add('active');
+ document.querySelectorAll('.tab-dest-btn').forEach(b => {
+ if (b.getAttribute('data-province') === filterState.province) {
+ b.classList.add('active');
             } else {
-                b.classList.remove('active');
+ b.classList.remove('active');
             }
         });
 
         // Đồng bộ select giá ngoài trang chủ
-        const livePriceSelect = document.getElementById('livePriceSelect');
-        if (livePriceSelect) {
-            if (filterState.minPrice === 0 && filterState.maxPrice === 500000) livePriceSelect.value = '0-500000';
-            else if (filterState.minPrice === 500000 && filterState.maxPrice === 1000000) livePriceSelect.value = '500000-1000000';
-            else if (filterState.minPrice === 1000000 && filterState.maxPrice === 2000000) livePriceSelect.value = '1000000-2000000';
-            else if (filterState.minPrice === 2000000 && filterState.maxPrice === null) livePriceSelect.value = '2000000-999999999';
-            else livePriceSelect.value = '';
+ const livePriceSelect = document.getElementById('livePriceSelect');
+ if (livePriceSelect) {
+ if (filterState.minPrice === 0 && filterState.maxPrice === 500000) livePriceSelect.value = '0-500000';
+ else if (filterState.minPrice === 500000 && filterState.maxPrice === 1000000) livePriceSelect.value = '500000-1000000';
+ else if (filterState.minPrice === 1000000 && filterState.maxPrice === 2000000) livePriceSelect.value = '1000000-2000000';
+ else if (filterState.minPrice === 2000000 && filterState.maxPrice === null) livePriceSelect.value = '2000000-999999999';
+ else livePriceSelect.value = '';
         }
 
-        const liveGuestSelect = document.getElementById('liveGuestSelect');
-        if (liveGuestSelect) {
-            liveGuestSelect.value = filterState.guests ? filterState.guests.toString() : '';
+ const liveGuestSelect = document.getElementById('liveGuestSelect');
+ if (liveGuestSelect) {
+ liveGuestSelect.value = filterState.guests ? filterState.guests.toString() : '';
         }
 
         // Đóng modal Bootstrap
-        const modalEl = document.getElementById('modalBoLocChiTiet');
-        if (modalEl) {
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) modalInstance.hide();
+ const modalEl = document.getElementById('modalBoLocChiTiet');
+ if (modalEl) {
+ const modalInstance = bootstrap.Modal.getInstance(modalEl);
+ if (modalInstance) modalInstance.hide();
         }
 
-        applyInstantFilter();
+ applyInstantFilter();
 
         // Cuộn mượt tới danh sách homestay
-        const targetSection = document.getElementById('sectionHomestayNgoaiTrangChu');
-        if (targetSection) {
-            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+ const targetSection = document.getElementById('sectionHomestayNgoaiTrangChu');
+ if (targetSection) {
+ targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
     // Reset Modal filters
-    function resetModalFilters() {
-        document.getElementById('modalMinPrice').value = '';
-        document.getElementById('modalMaxPrice').value = '';
-        document.getElementById('modalProvinceSelect').value = '';
-        document.getElementById('modalDistrictSelect').innerHTML = '<option value="">-- Tất cả quận/huyện --</option>';
-        document.getElementById('modalGuestsSelect').value = '';
-        document.querySelectorAll('.amenity-check').forEach(c => c.checked = false);
+ function resetModalFilters() {
+ document.getElementById('modalMinPrice').value = '';
+ document.getElementById('modalMaxPrice').value = '';
+ document.getElementById('modalProvinceSelect').value = '';
+ document.getElementById('modalDistrictSelect').innerHTML = '<option value="">-- Tất cả quận/huyện --</option>';
+ document.getElementById('modalGuestsSelect').value = '';
+ document.querySelectorAll('.amenity-check').forEach(c => c.checked = false);
     }
 
     // Reset All Filters everywhere
-    function resetAllFilters() {
-        filterState.province = '';
-        filterState.district = '';
-        filterState.keyword = '';
-        filterState.minPrice = null;
-        filterState.maxPrice = null;
-        filterState.guests = null;
-        filterState.sort = 'default';
+ function resetAllFilters() {
+ filterState.province = '';
+ filterState.district = '';
+ filterState.keyword = '';
+ filterState.minPrice = null;
+ filterState.maxPrice = null;
+ filterState.guests = null;
+ filterState.sort = 'default';
 
         // Reset UI controls
-        if (liveSearchInput) liveSearchInput.value = '';
-        const livePriceSelect = document.getElementById('livePriceSelect');
-        if (livePriceSelect) livePriceSelect.value = '';
-        const liveGuestSelect = document.getElementById('liveGuestSelect');
-        if (liveGuestSelect) liveGuestSelect.value = '';
-        const liveSortSelect = document.getElementById('liveSortSelect');
-        if (liveSortSelect) liveSortSelect.value = 'default';
+ if (liveSearchInput) liveSearchInput.value = '';
+ const livePriceSelect = document.getElementById('livePriceSelect');
+ if (livePriceSelect) livePriceSelect.value = '';
+ const liveGuestSelect = document.getElementById('liveGuestSelect');
+ if (liveGuestSelect) liveGuestSelect.value = '';
+ const liveSortSelect = document.getElementById('liveSortSelect');
+ if (liveSortSelect) liveSortSelect.value = 'default';
 
         // Reset Hero
-        const heroProv = document.getElementById('heroProvinceInput');
-        if (heroProv) heroProv.value = '';
-        const heroGuest = document.getElementById('heroGuestsSelect');
-        if (heroGuest) heroGuest.value = '';
-        const heroMin = document.getElementById('heroMinPrice');
-        if (heroMin) heroMin.value = '';
-        const heroMax = document.getElementById('heroMaxPrice');
-        if (heroMax) heroMax.value = '';
-        const heroDist = document.getElementById('heroDistrict');
-        if (heroDist) heroDist.value = '';
+ const heroProv = document.getElementById('heroProvinceInput');
+ if (heroProv) heroProv.value = '';
+ const heroGuest = document.getElementById('heroGuestsSelect');
+ if (heroGuest) heroGuest.value = '';
+ const heroMin = document.getElementById('heroMinPrice');
+ if (heroMin) heroMin.value = '';
+ const heroMax = document.getElementById('heroMaxPrice');
+ if (heroMax) heroMax.value = '';
+ const heroDist = document.getElementById('heroDistrict');
+ if (heroDist) heroDist.value = '';
 
         // Reset tabs
-        document.querySelectorAll('.tab-dest-btn').forEach(b => {
-            if (b.getAttribute('data-province') === '') b.classList.add('active');
-            else b.classList.remove('active');
+ document.querySelectorAll('.tab-dest-btn').forEach(b => {
+ if (b.getAttribute('data-province') === '') b.classList.add('active');
+ else b.classList.remove('active');
         });
 
-        resetModalFilters();
-        applyInstantFilter();
+ resetModalFilters();
+ applyInstantFilter();
     }
 
     // Core Filtering & Sorting Engine
-    function applyInstantFilter() {
-        const grid = document.getElementById('homestayGridContainer');
-        if (!grid) return;
-        const cards = Array.from(grid.querySelectorAll('.card-homestay-col'));
-        let visibleCount = 0;
+ function applyInstantFilter() {
+ const grid = document.getElementById('homestayGridContainer');
+ if (!grid) return;
+ const cards = Array.from(grid.querySelectorAll('.card-homestay-col'));
+ let visibleCount = 0;
 
-        cards.forEach(card => {
-            const name = (card.getAttribute('data-name') || '').toLowerCase();
-            const province = (card.getAttribute('data-province') || '').toLowerCase();
-            const district = (card.getAttribute('data-district') || '').toLowerCase();
-            const address = (card.getAttribute('data-address') || '').toLowerCase();
-            const price = parseFloat(card.getAttribute('data-price')) || 0;
-            const guests = parseInt(card.getAttribute('data-guests')) || 2;
+ cards.forEach(card => {
+ const name = (card.getAttribute('data-name') || '').toLowerCase();
+ const province = (card.getAttribute('data-province') || '').toLowerCase();
+ const district = (card.getAttribute('data-district') || '').toLowerCase();
+ const address = (card.getAttribute('data-address') || '').toLowerCase();
+ const price = parseFloat(card.getAttribute('data-price')) || 0;
+ const guests = parseInt(card.getAttribute('data-guests')) || 2;
 
-            let matches = true;
+ let matches = true;
 
             // Check province
-            if (filterState.province) {
-                const targetP = filterState.province.toLowerCase();
-                if (!province.includes(targetP) && !address.includes(targetP)) {
-                    matches = false;
+ if (filterState.province) {
+ const targetP = filterState.province.toLowerCase();
+ if (!province.includes(targetP) && !address.includes(targetP)) {
+ matches = false;
                 }
             }
 
             // Check district
-            if (matches && filterState.district) {
-                const targetD = filterState.district.toLowerCase();
-                if (!district.includes(targetD) && !address.includes(targetD)) {
-                    matches = false;
+ if (matches && filterState.district) {
+ const targetD = filterState.district.toLowerCase();
+ if (!district.includes(targetD) && !address.includes(targetD)) {
+ matches = false;
                 }
             }
 
             // Check keyword
-            if (matches && filterState.keyword) {
-                const kw = filterState.keyword;
-                if (!name.includes(kw) && !address.includes(kw) && !province.includes(kw) && !district.includes(kw)) {
-                    matches = false;
+ if (matches && filterState.keyword) {
+ const kw = filterState.keyword;
+ if (!name.includes(kw) && !address.includes(kw) && !province.includes(kw) && !district.includes(kw)) {
+ matches = false;
                 }
             }
 
             // Check min price
-            if (matches && filterState.minPrice !== null) {
-                if (price < filterState.minPrice) matches = false;
+ if (matches && filterState.minPrice !== null) {
+ if (price < filterState.minPrice) matches = false;
             }
 
             // Check max price
-            if (matches && filterState.maxPrice !== null) {
-                if (price > filterState.maxPrice) matches = false;
+ if (matches && filterState.maxPrice !== null) {
+ if (price > filterState.maxPrice) matches = false;
             }
 
             // Check guests
-            if (matches && filterState.guests !== null) {
-                if (guests < filterState.guests) matches = false;
+ if (matches && filterState.guests !== null) {
+ if (guests < filterState.guests) matches = false;
             }
 
-            if (matches) {
-                card.classList.remove('filter-hidden');
-                visibleCount++;
+ if (matches) {
+ card.classList.remove('filter-hidden');
+ visibleCount++;
             } else {
-                card.classList.add('filter-hidden');
+ card.classList.add('filter-hidden');
             }
         });
 
         // Sắp xếp các card đang hiển thị
-        if (filterState.sort !== 'default') {
-            const sortedCards = cards.filter(c => !c.classList.contains('filter-hidden')).sort((a, b) => {
-                const priceA = parseFloat(a.getAttribute('data-price')) || 0;
-                const priceB = parseFloat(b.getAttribute('data-price')) || 0;
-                const nameA = a.getAttribute('data-name') || '';
-                const nameB = b.getAttribute('data-name') || '';
+ if (filterState.sort !== 'default') {
+ const sortedCards = cards.filter(c => !c.classList.contains('filter-hidden')).sort((a, b) => {
+ const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+ const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+ const nameA = a.getAttribute('data-name') || '';
+ const nameB = b.getAttribute('data-name') || '';
 
-                if (filterState.sort === 'price-asc') return priceA - priceB;
-                if (filterState.sort === 'price-desc') return priceB - priceA;
-                if (filterState.sort === 'name-asc') return nameA.localeCompare(nameB);
-                return 0;
+ if (filterState.sort === 'price-asc') return priceA - priceB;
+ if (filterState.sort === 'price-desc') return priceB - priceA;
+ if (filterState.sort === 'name-asc') return nameA.localeCompare(nameB);
+ return 0;
             });
-            sortedCards.forEach(c => grid.appendChild(c));
+ sortedCards.forEach(c => grid.appendChild(c));
         }
 
         // Cập nhật số lượng
-        const countDisplay = document.getElementById('liveHomestayCount');
-        if (countDisplay) countDisplay.textContent = visibleCount;
+ const countDisplay = document.getElementById('liveHomestayCount');
+ if (countDisplay) countDisplay.textContent = visibleCount;
 
         // Xử lý Empty state
-        const emptyState = document.getElementById('liveFilterEmptyState');
-        if (emptyState) {
-            emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
-            const emptySearchBtn = document.getElementById('btnEmptySearchPage');
-            if (emptySearchBtn) {
-                const searchParams = new URLSearchParams();
-                if (filterState.province) searchParams.set('province', filterState.province);
-                if (filterState.district) searchParams.set('district', filterState.district);
-                if (filterState.guests) searchParams.set('guests', filterState.guests);
-                if (filterState.minPrice !== null) searchParams.set('minPrice', filterState.minPrice);
-                if (filterState.maxPrice !== null) searchParams.set('maxPrice', filterState.maxPrice);
-                const queryStr = searchParams.toString();
-                emptySearchBtn.href = '/tim-kiem' + (queryStr ? '?' + queryStr : '');
+ const emptyState = document.getElementById('liveFilterEmptyState');
+ if (emptyState) {
+ emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+ const emptySearchBtn = document.getElementById('btnEmptySearchPage');
+ if (emptySearchBtn) {
+ const searchParams = new URLSearchParams();
+ if (filterState.province) searchParams.set('province', filterState.province);
+ if (filterState.district) searchParams.set('district', filterState.district);
+ if (filterState.guests) searchParams.set('guests', filterState.guests);
+ if (filterState.minPrice !== null) searchParams.set('minPrice', filterState.minPrice);
+ if (filterState.maxPrice !== null) searchParams.set('maxPrice', filterState.maxPrice);
+ const queryStr = searchParams.toString();
+ emptySearchBtn.href = '/tim-kiem' + (queryStr ? '?' + queryStr : '');
             }
         }
 
         // Cập nhật nút Reset & Badge
-        const hasActiveFilter = Boolean(filterState.province || filterState.district || filterState.keyword || filterState.minPrice !== null || filterState.maxPrice !== null || filterState.guests !== null);
-        const resetBtn = document.getElementById('btnResetLiveFilter');
-        if (resetBtn) resetBtn.style.display = hasActiveFilter ? 'inline-flex' : 'none';
+ const hasActiveFilter = Boolean(filterState.province || filterState.district || filterState.keyword || filterState.minPrice !== null || filterState.maxPrice !== null || filterState.guests !== null);
+ const resetBtn = document.getElementById('btnResetLiveFilter');
+ if (resetBtn) resetBtn.style.display = hasActiveFilter ? 'inline-flex' : 'none';
 
-        const heroBadge = document.getElementById('heroFilterBadge');
-        if (heroBadge) {
-            let filterCount = 0;
-            if (filterState.minPrice !== null || filterState.maxPrice !== null) filterCount++;
-            if (filterState.district) filterCount++;
-            if (filterState.guests) filterCount++;
-            if (filterCount > 0) {
-                heroBadge.textContent = filterCount;
-                heroBadge.style.display = 'flex';
+ const heroBadge = document.getElementById('heroFilterBadge');
+ if (heroBadge) {
+ let filterCount = 0;
+ if (filterState.minPrice !== null || filterState.maxPrice !== null) filterCount++;
+ if (filterState.district) filterCount++;
+ if (filterState.guests) filterCount++;
+ if (filterCount > 0) {
+ heroBadge.textContent = filterCount;
+ heroBadge.style.display = 'flex';
             } else {
-                heroBadge.style.display = 'none';
+ heroBadge.style.display = 'none';
             }
         }
 
         // Render Active Filter Tags
-        renderActiveTags();
+ renderActiveTags();
     }
 
     // Render tag chips for quick removal
-    function renderActiveTags() {
-        const container = document.getElementById('liveActiveTags');
-        if (!container) return;
-        container.innerHTML = '';
+ function renderActiveTags() {
+ const container = document.getElementById('liveActiveTags');
+ if (!container) return;
+ container.innerHTML = '';
 
-        if (filterState.province) {
-            container.appendChild(createTag('Tỉnh: ' + filterState.province, () => selectProvinceTab(null, '')));
+ if (filterState.province) {
+ container.appendChild(createTag('Tỉnh: ' + filterState.province, () => selectProvinceTab(null, '')));
         }
-        if (filterState.district) {
-            container.appendChild(createTag('Huyện: ' + filterState.district, () => {
-                filterState.district = '';
-                const heroDist = document.getElementById('heroDistrict');
-                if (heroDist) heroDist.value = '';
-                applyInstantFilter();
+ if (filterState.district) {
+ container.appendChild(createTag('Huyện: ' + filterState.district, () => {
+ filterState.district = '';
+ const heroDist = document.getElementById('heroDistrict');
+ if (heroDist) heroDist.value = '';
+ applyInstantFilter();
             }));
         }
-        if (filterState.keyword) {
-            container.appendChild(createTag('"' + filterState.keyword + '"', () => {
-                filterState.keyword = '';
-                if (liveSearchInput) liveSearchInput.value = '';
-                applyInstantFilter();
+ if (filterState.keyword) {
+ container.appendChild(createTag('"' + filterState.keyword + '"', () => {
+ filterState.keyword = '';
+ if (liveSearchInput) liveSearchInput.value = '';
+ applyInstantFilter();
             }));
         }
-        if (filterState.minPrice !== null || filterState.maxPrice !== null) {
-            let label = 'Giá: ';
-            if (filterState.minPrice !== null && filterState.maxPrice !== null) {
-                label += (filterState.minPrice / 1000).toLocaleString() + 'k - ' + (filterState.maxPrice / 1000).toLocaleString() + 'k';
+ if (filterState.minPrice !== null || filterState.maxPrice !== null) {
+ let label = 'Giá: ';
+ if (filterState.minPrice !== null && filterState.maxPrice !== null) {
+ label += (filterState.minPrice / 1000).toLocaleString() + 'k - ' + (filterState.maxPrice / 1000).toLocaleString() + 'k';
             } else if (filterState.minPrice !== null) {
-                label += '≥ ' + (filterState.minPrice / 1000).toLocaleString() + 'k';
+ label += '≥ ' + (filterState.minPrice / 1000).toLocaleString() + 'k';
             } else {
-                label += '≤ ' + (filterState.maxPrice / 1000).toLocaleString() + 'k';
+ label += '≤ ' + (filterState.maxPrice / 1000).toLocaleString() + 'k';
             }
-            container.appendChild(createTag(label, () => {
-                filterState.minPrice = null;
-                filterState.maxPrice = null;
-                const lp = document.getElementById('livePriceSelect');
-                if (lp) lp.value = '';
-                syncPriceToModal();
-                applyInstantFilter();
+ container.appendChild(createTag(label, () => {
+ filterState.minPrice = null;
+ filterState.maxPrice = null;
+ const lp = document.getElementById('livePriceSelect');
+ if (lp) lp.value = '';
+ syncPriceToModal();
+ applyInstantFilter();
             }));
         }
-        if (filterState.guests !== null) {
-            container.appendChild(createTag(filterState.guests + '+ khách', () => {
-                filterState.guests = null;
-                const lg = document.getElementById('liveGuestSelect');
-                if (lg) lg.value = '';
-                const hg = document.getElementById('heroGuestsSelect');
-                if (hg) hg.value = '';
-                applyInstantFilter();
+ if (filterState.guests !== null) {
+ container.appendChild(createTag(filterState.guests + '+ khách', () => {
+ filterState.guests = null;
+ const lg = document.getElementById('liveGuestSelect');
+ if (lg) lg.value = '';
+ const hg = document.getElementById('heroGuestsSelect');
+ if (hg) hg.value = '';
+ applyInstantFilter();
             }));
         }
     }
 
-    function createTag(text, onRemove) {
-        const pill = document.createElement('span');
-        pill.className = 'filter-tag-pill';
-        pill.innerHTML = `<span>${text}</span><button type="button" title="Xóa">&times;</button>`;
-        pill.querySelector('button').addEventListener('click', onRemove);
-        return pill;
+ function createTag(text, onRemove) {
+ const pill = document.createElement('span');
+ pill.className = 'filter-tag-pill';
+ pill.innerHTML = `<span>${text}</span><button type="button" title="Xóa">&times;</button>`;
+ pill.querySelector('button').addEventListener('click', onRemove);
+ return pill;
     }
 
     // Khởi tạo trạng thái từ URL Parameters nếu có
-    document.addEventListener('DOMContentLoaded', function() {
+ document.addEventListener('DOMContentLoaded', function() {
         // Khởi tạo lưới 63 tỉnh thành (hiển thị 16 tỉnh ban đầu, sẵn sàng mở rộng)
-        apply63ProvincesFilter();
+ apply63ProvincesFilter();
 
-        const params = new URLSearchParams(window.location.search);
-        const p = params.get('province');
-        const g = params.get('guests');
-        const minP = params.get('minPrice');
-        const maxP = params.get('maxPrice');
-        const d = params.get('district');
+ const params = new URLSearchParams(window.location.search);
+ const p = params.get('province');
+ const g = params.get('guests');
+ const minP = params.get('minPrice');
+ const maxP = params.get('maxPrice');
+ const d = params.get('district');
 
-        if (p) {
-            filterState.province = p;
-            document.querySelectorAll('.tab-dest-btn').forEach(b => {
-                if (b.getAttribute('data-province') === p) b.classList.add('active');
-                else b.classList.remove('active');
+ if (p) {
+ filterState.province = p;
+ document.querySelectorAll('.tab-dest-btn').forEach(b => {
+ if (b.getAttribute('data-province') === p) b.classList.add('active');
+ else b.classList.remove('active');
             });
-            const p63Select = document.getElementById('liveProvince63Select');
-            if (p63Select) p63Select.value = p;
+ const p63Select = document.getElementById('liveProvince63Select');
+ if (p63Select) p63Select.value = p;
         }
-        if (d) filterState.district = d;
-        if (g) {
-            filterState.guests = parseInt(g);
-            const liveG = document.getElementById('liveGuestSelect');
-            if (liveG) liveG.value = g;
+ if (d) filterState.district = d;
+ if (g) {
+ filterState.guests = parseInt(g);
+ const liveG = document.getElementById('liveGuestSelect');
+ if (liveG) liveG.value = g;
         }
-        if (minP) filterState.minPrice = parseFloat(minP);
-        if (maxP) filterState.maxPrice = parseFloat(maxP);
+ if (minP) filterState.minPrice = parseFloat(minP);
+ if (maxP) filterState.maxPrice = parseFloat(maxP);
 
-        if (p || g || minP || maxP || d) {
-            applyInstantFilter();
+ if (p || g || minP || maxP || d) {
+ applyInstantFilter();
         }
+    });
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+ document.addEventListener('DOMContentLoaded', function() {
+ flatpickr("#homeDateRange", {
+ mode: "range",
+ minDate: "today",
+ dateFormat: "Y-m-d",
+ onChange: function(selectedDates, dateStr, instance) {
+ if (selectedDates.length === 2) {
+ document.getElementById('homeCheckIn').value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+ document.getElementById('homeCheckOut').value = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+                } else if (selectedDates.length === 1) {
+ document.getElementById('homeCheckIn').value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+ document.getElementById('homeCheckOut').value = "";
+                } else {
+ document.getElementById('homeCheckIn').value = "";
+ document.getElementById('homeCheckOut').value = "";
+                }
+            }
+        });
     });
 </script>
 </body>

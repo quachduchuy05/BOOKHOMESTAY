@@ -6,11 +6,11 @@
 
 <div class="container py-4">
     <!-- Flash Messages -->
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show shadow-sm mb-4" role="alert">
         <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
         <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -20,14 +20,14 @@
             <h3 class="fw-bold m-0"><i class="fa-solid fa-star text-warning me-2"></i>Đánh Giá Từ Khách Hàng</h3>
             <p class="text-muted small m-0">Xem phản hồi thực tế từ khách lưu trú và gửi câu trả lời chính thức từ chỗ nghỉ</p>
         </div>
-        <a th:href="@{/chu-nha/tong-quan}" class="btn btn-outline-secondary btn-pill btn-sm px-3 mt-2 mt-md-0">
+        <a th:href="@{/chu-nha/tong-quan}" class="btn btn-outline-secondary btn-sm px-3 mt-2 mt-md-0">
             <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Tổng quan
         </a>
     </div>
 
     <!-- Reviews List -->
     <div th:if="${!reviews.isEmpty()}" class="d-flex flex-column gap-4">
-        <div th:each="r : ${reviews}" class="card border-0 shadow-sm rounded-4 p-4">
+        <div th:each="r : ${reviews}" class="card border-0 shadow-sm p-4">
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3 pb-3 border-bottom">
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
@@ -36,9 +36,9 @@
                         <span class="small text-muted" th:text="'Mã đơn: ' + ${r.booking.bookingCode}">BK001</span>
                     </div>
                     <div class="d-flex align-items-center gap-2 mt-2">
-                        <div class="avatar-circle-sm bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
-                             style="width: 36px; height: 36px; font-size: 14px;"
-                             th:text="${#strings.substring(r.user.fullName, 0, 1).toUpperCase()}">N</div>
+                        <div class="avatar-circle-sm bg-secondary text-white d-flex align-items-center justify-content-center fw-bold"
+ style="width: 36px; height: 36px; font-size: 14px;"
+ th:text="${#strings.substring(r.user.fullName, 0, 1).toUpperCase()}">N</div>
                         <div>
                             <div class="fw-bold text-dark small" th:text="${r.user.fullName}">Khách hàng</div>
                             <div class="text-muted" style="font-size: 12px;">
@@ -60,41 +60,41 @@
             <!-- Customer Comment -->
             <div class="mb-3">
                 <label class="small text-muted fw-bold text-uppercase d-block mb-1">Nhận xét của khách:</label>
-                <div class="p-3 bg-light rounded-3 text-secondary" style="white-space: pre-line;" th:text="${r.comment}">Nội dung nhận xét...</div>
+                <div class="p-3 bg-light text-secondary" style="white-space: pre-line;" th:text="${r.comment}">Nội dung nhận xét...</div>
             </div>
 
             <!-- Host Reply Section -->
             <div class="mt-2">
                 <!-- Existing Reply Display -->
-                <div th:if="${r.hostReply != null and !r.hostReply.isBlank()}" class="p-3 bg-primary-subtle rounded-3 border-start border-4 border-primary mb-3">
+                <div th:if="${r.hostReply != null and !r.hostReply.isBlank()}" class="p-3 bg-primary-subtle border-start border-4 border-primary mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="fw-bold text-primary small"><i class="fa-solid fa-reply me-1"></i>Phản hồi của bạn:</span>
                         <span class="small text-muted" th:if="${r.hostReplyAt != null}" 
-                              th:text="${#temporals.format(r.hostReplyAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</span>
+ th:text="${#temporals.format(r.hostReplyAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</span>
                     </div>
                     <p class="text-dark small m-0" style="white-space: pre-line;" th:text="${r.hostReply}">Nội dung phản hồi...</p>
                 </div>
 
                 <!-- Toggle Form for Reply / Edit Reply -->
                 <div>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" type="button" 
-                            th:data-bs-toggle="'collapse'" 
-                            th:data-bs-target="'#replyForm-' + ${r.id}">
+                    <button class="btn btn-sm btn-outline-primary px-3" type="button" 
+ th:data-bs-toggle="'collapse'" 
+ th:data-bs-target="'#replyForm-' + ${r.id}">
                         <i class="fa-solid fa-pen-to-square me-1"></i>
                         <span th:text="${r.hostReply != null and !r.hostReply.isBlank()} ? 'Chỉnh sửa phản hồi' : 'Gửi phản hồi cho khách'">Gửi phản hồi</span>
                     </button>
 
                     <div class="collapse mt-3" th:id="'replyForm-' + ${r.id}">
-                        <form th:action="@{/chu-nha/danh-gia/{reviewId}/phan-hoi(reviewId=${r.id})}" method="post" class="card card-body bg-light rounded-3 border-0">
+                        <form th:action="@{/chu-nha/danh-gia/{reviewId}/phan-hoi(reviewId=${r.id})}" method="post" class="card card-body bg-light border-0">
                             <label class="form-label fw-semibold small text-dark">Nội dung phản hồi từ chỗ nghỉ:</label>
                             <textarea class="form-control mb-3" name="replyContent" rows="3" 
-                                      placeholder="Cảm ơn quý khách đã ghé thăm homestay và để lại đánh giá quý báu..." 
-                                      required th:text="${r.hostReply}"></textarea>
+ placeholder="Cảm ơn quý khách đã ghé thăm homestay và để lại đánh giá quý báu..." 
+ required th:text="${r.hostReply}"></textarea>
                             <div class="d-flex justify-content-end gap-2">
-                                <button type="button" class="btn btn-sm btn-light rounded-pill px-3" 
-                                        th:data-bs-toggle="'collapse'" 
-                                        th:data-bs-target="'#replyForm-' + ${r.id}">Hủy</button>
-                                <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4 fw-bold">
+                                <button type="button" class="btn btn-sm btn-light px-3" 
+ th:data-bs-toggle="'collapse'" 
+ th:data-bs-target="'#replyForm-' + ${r.id}">Hủy</button>
+                                <button type="submit" class="btn btn-sm btn-primary px-4 fw-bold">
                                     <i class="fa-solid fa-paper-plane me-1"></i> Gửi phản hồi
                                 </button>
                             </div>
@@ -106,7 +106,7 @@
     </div>
 
     <!-- Empty State -->
-    <div th:if="${reviews.isEmpty()}" class="p-5 text-center bg-white rounded-4 border">
+    <div th:if="${reviews.isEmpty()}" class="p-5 text-center bg-white border">
         <i class="fa-regular fa-star display-4 text-muted mb-3"></i>
         <h5 class="fw-bold">Chưa có đánh giá nào từ khách hàng</h5>
         <p class="text-muted small mb-0">Khi khách hàng hoàn tất kỳ nghỉ và gửi nhận xét, các đánh giá sẽ hiển thị tại đây.</p>

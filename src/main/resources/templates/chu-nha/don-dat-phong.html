@@ -10,40 +10,40 @@
             <h3 class="fw-bold m-0"><i class="fa-solid fa-clipboard-list text-danger me-2"></i>Danh Sách Đơn Đặt Phòng</h3>
             <p class="text-muted small m-0">Quản lý nhận phòng, trả phòng và trạng thái thanh toán từ khách lưu trú</p>
         </div>
-        <a th:href="@{/chu-nha/tong-quan}" class="btn btn-outline-secondary btn-pill btn-sm px-3">
+        <a th:href="@{/chu-nha/tong-quan}" class="btn btn-outline-secondary btn-sm px-3">
             <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Tổng quan
         </a>
     </div>
 
     <!-- Search Form by Booking Code and Customer Name (Task 10) -->
-    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+    <div class="card border-0 shadow-sm p-3 mb-4 bg-white">
         <form method="get" th:action="@{/chu-nha/don-dat-phong}" class="row g-3 align-items-end">
             <div class="col-md-5 col-12">
                 <label class="form-label small fw-bold text-muted">
                     <i class="fa-solid fa-barcode text-primary me-1"></i>Mã đơn đặt phòng
                 </label>
-                <input type="text" class="form-control rounded-3" name="bookingCode" 
-                       placeholder="VD: BK..." th:value="${bookingCode}">
+                <input type="text" class="form-control " name="bookingCode" 
+ placeholder="VD: BK..." th:value="${bookingCode}">
             </div>
             <div class="col-md-5 col-12">
                 <label class="form-label small fw-bold text-muted">
                     <i class="fa-solid fa-user text-primary me-1"></i>Tên khách hàng
                 </label>
-                <input type="text" class="form-control rounded-3" name="customerName" 
-                       placeholder="VD: Nguyễn Văn A..." th:value="${customerName}">
+                <input type="text" class="form-control " name="customerName" 
+ placeholder="VD: Nguyễn Văn A..." th:value="${customerName}">
             </div>
             <div class="col-md-2 col-12 d-flex gap-2">
-                <button type="submit" class="btn btn-primary rounded-3 w-100 fw-semibold">
+                <button type="submit" class="btn btn-primary w-100 fw-semibold">
                     <i class="fa-solid fa-magnifying-glass me-1"></i> Tìm
                 </button>
-                <a th:href="@{/chu-nha/don-dat-phong}" class="btn btn-outline-secondary rounded-3" title="Đặt lại bộ lọc">
+                <a th:href="@{/chu-nha/don-dat-phong}" class="btn btn-outline-secondary " title="Đặt lại bộ lọc">
                     <i class="fa-solid fa-rotate-left"></i>
                 </a>
             </div>
         </form>
     </div>
 
-    <div class="table-container-modern shadow-sm border-0 rounded-4" th:if="${!bookings.isEmpty()}">
+    <div class="table-container-modern shadow-sm border-0 " th:if="${!bookings.isEmpty()}">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead>
@@ -84,7 +84,7 @@
                     </td>
                     <td>
                         <span th:if="${b.isFullyPaid()}" 
-                              class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+ class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
                             <i class="fa-solid fa-circle-check me-1"></i>Đã thanh toán đủ
                         </span>
                         <div th:unless="${b.isFullyPaid()}">
@@ -98,7 +98,7 @@
                                 <i class="fa-solid fa-money-bill-transfer me-1"></i>Chờ hoàn tiền
                             </span>
                             <div class="small text-muted mt-1" th:if="${b.remainingBalance != null and b.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0 and b.status.name() != 'PENDING_REFUND' and b.status.name() != 'CANCELLED'}">
-                                Nợ: <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.remainingBalance,0,'POINT',0,'COMMA')} + 'đ'"></span>
+ Nợ: <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.remainingBalance,0,'POINT',0,'COMMA')} + 'đ'"></span>
                             </div>
                         </div>
                     </td>
@@ -109,12 +109,12 @@
                         <!-- Xác nhận / Từ chối khi PENDING -->
                         <div th:if="${b.status.name() == 'PENDING'}" class="d-inline-flex gap-1">
                             <form th:action="@{/chu-nha/don-dat-phong/{id}/xac-nhan(id=${b.id})}" method="post" class="d-inline">
-                                <button class="btn btn-sm btn-success rounded-pill px-3" title="Xác nhận đơn">
+                                <button class="btn btn-sm btn-success px-3" title="Xác nhận đơn">
                                     <i class="fa-solid fa-check me-1"></i>Duyệt
                                 </button>
                             </form>
                             <form th:action="@{/chu-nha/don-dat-phong/{id}/tu-choi(id=${b.id})}" method="post" class="d-inline">
-                                <button class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Từ chối đơn" onclick="return confirm('Bạn có chắc muốn từ chối?')">
+                                <button class="btn btn-sm btn-outline-danger px-2" title="Từ chối đơn" onclick="return confirm('Bạn có chắc muốn từ chối?')">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
                             </form>
@@ -122,23 +122,23 @@
 
                         <!-- Check-in khi CONFIRMED -->
                         <form th:if="${b.status.name() == 'CONFIRMED'}" th:action="@{/chu-nha/don-dat-phong/{id}/nhan-phong(id=${b.id})}" method="post" class="d-inline">
-                            <button class="btn btn-sm btn-primary rounded-pill px-3">
+                            <button class="btn btn-sm btn-primary px-3">
                                 <i class="fa-solid fa-key me-1"></i>Nhận phòng
                             </button>
                         </form>
 
                         <!-- Check-out khi CHECKED_IN -->
                         <form th:if="${b.status.name() == 'CHECKED_IN'}" th:action="@{/chu-nha/don-dat-phong/{id}/tra-phong(id=${b.id})}" method="post" class="d-inline">
-                            <button class="btn btn-sm btn-secondary rounded-pill px-3">
+                            <button class="btn btn-sm btn-secondary px-3">
                                 <i class="fa-solid fa-door-open me-1"></i>Trả phòng
                             </button>
                         </form>
 
                         <!-- Xác nhận đã thanh toán nếu chưa PAID -->
                         <form th:if="${!b.isFullyPaid() and b.status.name() != 'CANCELLED' and b.status.name() != 'REJECTED' and b.status.name() != 'PENDING_REFUND'}"
-                              th:action="@{/chu-nha/don-dat-phong/{id}/thanh-toan(id=${b.id})}" method="post" class="d-inline ms-1">
-                            <button class="btn btn-sm btn-outline-success rounded-pill px-2" 
-                                    th:title="${b.status.name() == 'PENDING_PAYMENT' ? (b.paymentPolicy.name() == 'DEPOSIT' ? 'Xác nhận đã nhận tiền cọc' : 'Xác nhận đã nhận đủ thanh toán') : 'Xác nhận khách đã thanh toán'}">
+ th:action="@{/chu-nha/don-dat-phong/{id}/thanh-toan(id=${b.id})}" method="post" class="d-inline ms-1">
+                            <button class="btn btn-sm btn-outline-success px-2" 
+ th:title="${b.status.name() == 'PENDING_PAYMENT' ? (b.paymentPolicy.name() == 'DEPOSIT' ? 'Xác nhận đã nhận tiền cọc' : 'Xác nhận đã nhận đủ thanh toán') : 'Xác nhận khách đã thanh toán'}">
                                 <i class="fa-solid fa-money-bill-wave me-1"></i>
                                 <span th:if="${b.status.name() == 'PENDING_PAYMENT' and b.paymentPolicy.name() == 'DEPOSIT'}">Đã nhận cọc</span>
                                 <span th:unless="${b.status.name() == 'PENDING_PAYMENT' and b.paymentPolicy.name() == 'DEPOSIT'}">Đã thu tiền</span>
@@ -147,14 +147,14 @@
 
                         <!-- Hoàn thành đơn nếu CHECKED_OUT mà chưa hoàn tất -->
                         <form th:if="${b.status.name() == 'CHECKED_OUT'}" th:action="@{/chu-nha/don-dat-phong/{id}/hoan-thanh(id=${b.id})}" method="post" class="d-inline ms-1">
-                            <button class="btn btn-sm btn-info rounded-pill px-2 text-white" title="Hoàn thành chu trình đơn">
+                            <button class="btn btn-sm btn-info px-2 text-white" title="Hoàn thành chu trình đơn">
                                 <i class="fa-solid fa-flag-checkered me-1"></i>Hoàn thành
                             </button>
                         </form>
 
                         <!-- Hoàn tiền cho đơn bị hủy PENDING_REFUND -->
                         <form th:if="${b.status.name() == 'PENDING_REFUND'}" th:action="@{/chu-nha/don-dat-phong/{id}/hoan-tien(id=${b.id})}" method="post" class="d-inline ms-1">
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-2" title="Xác nhận đã chuyển khoản trả lại tiền" onclick="return confirm('Bạn xác nhận đã chuyển khoản hoàn lại tiền cho khách?')">
+                            <button class="btn btn-sm btn-outline-primary px-2" title="Xác nhận đã chuyển khoản trả lại tiền" onclick="return confirm('Bạn xác nhận đã chuyển khoản hoàn lại tiền cho khách?')">
                                 <i class="fa-solid fa-money-bill-transfer me-1"></i>Đã hoàn tiền
                             </button>
                         </form>
@@ -170,7 +170,7 @@
     </div>
 
     <!-- Empty State -->
-    <div th:if="${bookings.isEmpty()}" class="p-5 text-center bg-white rounded-4 border">
+    <div th:if="${bookings.isEmpty()}" class="p-5 text-center bg-white border">
         <i class="fa-regular fa-clipboard display-4 text-muted mb-3"></i>
         <h5 class="fw-bold">Chưa có đơn đặt phòng nào</h5>
         <p class="text-muted small mb-0">Các đơn đặt phòng của khách sẽ hiển thị tại đây khi có phát sinh.</p>
