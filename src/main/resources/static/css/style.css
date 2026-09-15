@@ -911,12 +911,17 @@ button, [type="button"], [type="submit"], [type="reset"] {
 }
 
 .card-homestay-title {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--bhs-dark);
     margin-bottom: 6px;
-    line-height: 1.35;
+    line-height: 1.4;
     transition: color 0.2s ease;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.9rem;
 }
 
 .card-homestay-modern:hover .card-homestay-title {
@@ -928,8 +933,9 @@ button, [type="button"], [type="submit"], [type="reset"] {
     font-size: 0.85rem;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     margin-bottom: 12px;
+    overflow: hidden;
 }
 
 .card-rating-badge {
@@ -1110,12 +1116,14 @@ button, [type="button"], [type="submit"], [type="reset"] {
     flex-direction: column;
     align-items: flex-end;
     gap: 12px;
+    pointer-events: none; /* Khắc phục bug: Cho phép chuột click xuyên qua vùng trong suốt */
 }
 
 .lien-he-main-wrap {
     display: flex;
     align-items: center;
     gap: 10px;
+    pointer-events: none;
 }
 
 .lien-he-message-bubble {
@@ -1137,6 +1145,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
     gap: 8px;
     transition: all 0.2s ease;
     user-select: none;
+    pointer-events: auto; /* Bong bóng nhận click */
 }
 
 .lien-he-message-bubble:hover {
@@ -1168,19 +1177,19 @@ button, [type="button"], [type="submit"], [type="reset"] {
 }
 
 .btn-chinh {
-    width: 58px;
-    height: 58px;
-    min-width: 58px;
-    min-height: 58px;
-    max-width: 58px;
-    max-height: 58px;
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    min-height: 54px;
+    max-width: 54px;
+    max-height: 54px;
     border-radius: 50% !important;
     aspect-ratio: 1 / 1;
     flex-shrink: 0;
     background: var(--bhs-primary-gradient);
     border: none;
     color: #ffffff;
-    font-size: 24px;
+    font-size: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1188,6 +1197,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
+    pointer-events: auto; /* Nút chính nhận click */
 }
 
 .btn-chinh::after {
@@ -1235,6 +1245,7 @@ button, [type="button"], [type="submit"], [type="reset"] {
     flex-direction: column;
     gap: 12px;
     opacity: 0;
+    visibility: hidden; /* Đảm bảo ẩn hoàn toàn khi đóng */
     pointer-events: none;
     transform: translateY(20px) scale(0.85);
     transform-origin: bottom right;
@@ -1243,7 +1254,8 @@ button, [type="button"], [type="submit"], [type="reset"] {
 
 .lien-he-danh-sach.mo {
     opacity: 1;
-    pointer-events: auto;
+    visibility: visible;
+    pointer-events: auto; /* Chỉ nhận click khi menu đang mở */
     transform: translateY(0) scale(1);
 }
 
@@ -1251,6 +1263,30 @@ button, [type="button"], [type="submit"], [type="reset"] {
     display: flex;
     align-items: center;
     gap: 10px;
+    pointer-events: none;
+}
+
+.lien-he-danh-sach.mo .item-lien-he-wrap,
+.lien-he-danh-sach.mo .btn-lien-he,
+.lien-he-danh-sach.mo .item-lien-he-label {
+    pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+    .lien-he-noi {
+        right: 16px;
+        bottom: 16px;
+    }
+    .lien-he-message-bubble {
+        display: none !important; /* Ẩn bong bóng dài trên màn hình nhỏ để tránh choáng chỗ */
+    }
+    .btn-chinh {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        min-height: 48px;
+        font-size: 20px;
+    }
 }
 
 .item-lien-he-label {

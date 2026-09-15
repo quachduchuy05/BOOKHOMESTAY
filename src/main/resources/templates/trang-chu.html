@@ -373,7 +373,7 @@
             <div class="card-homestay-modern">
                 <div class="card-image-wrap">
                     <span class="card-badge-province" th:text="${home.province}">Đà Lạt</span>
-                    <button type="button" class="btn-wishlist" onclick="toggleWishlist(this)" title="Lưu vào danh sách yêu thích">
+                    <button type="button" class="btn-wishlist" onclick="toggleWishlist(this); event.stopPropagation();" title="Lưu vào danh sách yêu thích">
                         <i class="fa-regular fa-heart"></i>
                     </button>
                     <a th:href="@{/homestay/{slug}(slug=${home.slug})}">
@@ -387,19 +387,19 @@
                         <span class="badge bg-success-subtle text-success small">Yêu thích nhất</span>
                     </div>
                     <a th:href="@{/homestay/{slug}(slug=${home.slug})}" class="text-decoration-none">
-                        <h3 class="card-homestay-title text-truncate" th:text="${home.name}">Villa Mộng Mơ Đà Lạt</h3>
+                        <h3 class="card-homestay-title" th:text="${home.name}">Villa Mộng Mơ Đà Lạt</h3>
                     </a>
-                    <div class="card-homestay-address text-truncate">
-                        <i class="fa-solid fa-location-dot text-danger"></i>
-                        <span th:text="${home.address}">123 Đường Mai Anh Đào</span>
+                    <div class="card-homestay-address">
+                        <i class="fa-solid fa-location-dot text-danger flex-shrink-0"></i>
+                        <span class="text-truncate" th:text="${home.address}">123 Đường Mai Anh Đào</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top gap-2">
                         <div class="card-price-block">
                             <span class="card-price-amount" th:if="${home.minPrice != null}" th:text="${#numbers.formatDecimal(home.minPrice, 0, 'POINT', 0, 'COMMA')} + ' đ'">450.000 đ</span>
                             <span class="card-price-amount" th:unless="${home.minPrice != null}">Giá ưu đãi</span>
                             <span class="card-price-unit">/ đêm</span>
                         </div>
-                        <a th:href="@{/homestay/{slug}(slug=${home.slug})}" class="btn btn-primary btn-sm btn-pill px-3">
+                        <a th:href="@{/homestay/{slug}(slug=${home.slug})}" class="btn btn-primary btn-sm btn-pill px-3 text-nowrap">
                             Xem phòng <i class="fa-solid fa-angle-right ms-1"></i>
                         </a>
                     </div>
