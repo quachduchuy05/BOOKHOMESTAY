@@ -214,33 +214,21 @@ public class BookingServiceImpl implements BookingService {
         long daysUntilCheckin = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), checkinDate);
         boolean eligibleForRefund = daysUntilCheckin >= 2;
 
-        boolean hasAdvancePayment = booking.getPaymentPolicy() != PaymentPolicy.PAY_AT_PROPERTY;
-        boolean hasPaid = booking.getPayments() != null && booking.getPayments().stream()
-                .anyMatch(p -> p.getStatus() == PaymentStatus.PAID);
-
-        boolean shouldRefund = eligibleForRefund && (hasAdvancePayment || hasPaid);
+        boolean hasPaid = booking.hasPaid();
+        boolean shouldRefund = hasPaid && eligibleForRefund;
 
         if (shouldRefund) {
             booking.setStatus(BookingStatus.PENDING_REFUND);
-            if (booking.getPayments() != null && !booking.getPayments().isEmpty()) {
+            if (booking.getPayments() != null) {
                 for (Payment p : booking.getPayments()) {
-                    if (p.getStatus() == PaymentStatus.PAID || p.getStatus() == PaymentStatus.UNPAID) {
+                    if (p.getStatus() == PaymentStatus.PAID) {
                         p.setStatus(PaymentStatus.PENDING_REFUND);
+                        paymentRepository.save(p);
+                    } else if (p.getStatus() == PaymentStatus.UNPAID) {
+                        p.setStatus(PaymentStatus.FAILED);
                         paymentRepository.save(p);
                     }
                 }
-            } else if (hasAdvancePayment) {
-                BigDecimal refundAmount = booking.getPaymentPolicy() == PaymentPolicy.DEPOSIT 
-                        ? booking.getRequiredDeposit() 
-                        : booking.getFinalAmount();
-                Payment p = Payment.builder()
-                        .booking(booking)
-                        .paymentMethod(PaymentMethod.BANK_TRANSFER)
-                        .amount(refundAmount)
-                        .status(PaymentStatus.PENDING_REFUND)
-                        .paymentPhase(booking.getPaymentPolicy() == PaymentPolicy.DEPOSIT ? PaymentPhase.DEPOSIT : PaymentPhase.FULL_PAYMENT)
-                        .build();
-                paymentRepository.save(p);
             }
         } else {
             booking.setStatus(BookingStatus.CANCELLED);

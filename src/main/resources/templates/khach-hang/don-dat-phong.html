@@ -181,6 +181,8 @@
                                             th:data-homestay-name="${b.details[0].room.homestay.name}"
                                             th:data-checkin="${b.details[0].checkinDate}" 
                                             th:data-policy="${b.paymentPolicy}"
+                                            th:data-status="${b.status.name()}"
+                                            th:data-has-paid="${b.hasPaid()}"
                                             onclick="openCancelModal(this)">
                                         <i class="fa-solid fa-xmark me-1"></i>Hủy
                                     </button>
@@ -445,8 +447,8 @@
                             <div class="d-flex align-items-start gap-2">
                                 <i class="fa-solid fa-circle-info text-info fs-5 mt-1"></i>
                                 <div>
-                                    <div class="fw-bold text-info mb-1">THANH TOÁN TẠI QUẦY</div>
-                                    <div class="text-secondary">
+                                    <div class="fw-bold text-info mb-1" id="cancelNoticeTitle">THANH TOÁN TẠI QUẦY</div>
+                                    <div class="text-secondary" id="cancelNoticeText">
                                         Đơn đặt này không thanh toán trước. Sau khi hủy, đơn sẽ chuyển về trạng thái
                                         <strong>Đã hủy</strong> và bạn không mất khoản phí nào.
                                     </div>
@@ -475,6 +477,8 @@
             const homestayName = btn.getAttribute('data-homestay-name');
             const checkinStr = btn.getAttribute('data-checkin');
             const policy = btn.getAttribute('data-policy');
+            const status = btn.getAttribute('data-status');
+            const hasPaid = btn.getAttribute('data-has-paid') === 'true';
 
             document.getElementById('cancelBookingForm').action = '/khach-hang/don-dat-phong/' + bookingId + '/huy';
             document.getElementById('cancelModalCode').textContent = '#' + (bookingCode ? bookingCode : bookingId);
@@ -496,8 +500,21 @@
             ineligibleBox.style.display = 'none';
             payAtPropBox.style.display = 'none';
 
-            if (policy === 'PAY_AT_PROPERTY') {
+            if (!hasPaid || policy === 'PAY_AT_PROPERTY' || status === 'PENDING_PAYMENT') {
                 payAtPropBox.style.display = 'block';
+                if (status === 'PENDING_PAYMENT') {
+                    document.getElementById('cancelNoticeTitle').textContent = 'CHƯA THANH TOÁN';
+                    document.getElementById('cancelNoticeText').innerHTML =
+                        'Đơn đặt phòng này chưa được thanh toán. Sau khi hủy, đơn sẽ chuyển về trạng thái <strong>Đã hủy</strong> và bạn không bị mất bất kỳ khoản phí nào.';
+                } else if (policy === 'PAY_AT_PROPERTY') {
+                    document.getElementById('cancelNoticeTitle').textContent = 'THANH TOÁN TẠI QUẦY';
+                    document.getElementById('cancelNoticeText').innerHTML =
+                        'Đơn đặt này không thanh toán trước. Sau khi hủy, đơn sẽ chuyển về trạng thái <strong>Đã hủy</strong> và bạn không mất khoản phí nào.';
+                } else {
+                    document.getElementById('cancelNoticeTitle').textContent = 'CHƯA THANH TOÁN';
+                    document.getElementById('cancelNoticeText').innerHTML =
+                        'Đơn đặt này chưa phát sinh thanh toán thực tế. Sau khi hủy, đơn sẽ chuyển về trạng thái <strong>Đã hủy</strong>.';
+                }
             } else {
                 if (diffDays >= 2) {
                     eligibleBox.style.display = 'block';
