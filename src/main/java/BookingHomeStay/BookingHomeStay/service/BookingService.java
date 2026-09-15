@@ -30,4 +30,5 @@ public interface BookingService {
     List<Booking> searchBookingsOfHost(Long hostUserId, BookingHomeStay.BookingHomeStay.entity.BookingStatus status, String bookingCode, String customerName);
     Booking getBookingForCustomer(Long bookingId, Long customerUserId);
     void refundBooking(Long bookingId, Long hostUserId);
+    List<java.time.LocalDate> getBookedDates(Long roomId);
 }

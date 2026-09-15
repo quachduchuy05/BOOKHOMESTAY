@@ -19,7 +19,7 @@
         </p>
 
         <!-- Floating Search Capsule Card -->
-        <div class="search-capsule-card">
+        <div class="search-capsule-card mb-3">
             <form th:action="@{/tim-kiem}" method="get" id="heroSearchForm" class="row g-2 align-items-center text-start">
                 <input type="hidden" name="district" id="heroDistrict" th:value="${district}">
                 <input type="hidden" name="minPrice" id="heroMinPrice" th:value="${minPrice}">
@@ -53,7 +53,7 @@
                         <input type="date" name="checkOut" class="form-control search-field-input">
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-4 col-6">
+                <div class="col-lg-3 col-md-6 col-6">
                     <div class="search-field-box">
                         <label class="search-field-label">
                             <i class="fa-solid fa-user-group text-success"></i> Số khách
@@ -68,14 +68,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-lg-1 col-md-4 col-6">
-                    <button type="button" class="btn-filter-capsule" data-bs-toggle="modal" data-bs-target="#modalBoLocChiTiet" title="Mở bộ lọc nâng cao">
-                        <i class="fa-solid fa-sliders"></i>
-                        <span class="d-lg-none small">Bộ lọc</span>
-                        <span class="filter-capsule-badge" id="heroFilterBadge" style="display: none;">1</span>
-                    </button>
-                </div>
-                <div class="col-lg-2 col-md-4 col-12">
+                <div class="col-lg-2 col-md-6 col-12">
                     <button type="submit" class="btn-search-capsule">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <span>Tìm kiếm</span>
@@ -83,6 +76,14 @@
                 </div>
             </form>
         </div>
+
+        <!-- AI Booking Floating Button -->
+        <div class="d-flex justify-content-center mb-4 mt-2">
+            <a th:href="@{/ai-booking}" class="btn btn-lg fw-bold" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border-radius: 50px; padding: 12px 30px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); border: 2px solid rgba(255,255,255,0.2); transition: all 0.3s ease;">
+                <i class="fa-solid fa-robot me-2"></i> Trải nghiệm Đặt phòng AI ngay <i class="fa-solid fa-sparkles ms-1 text-warning"></i>
+            </a>
+        </div>
+
 
         <!-- Quick Destination Chips -->
         <div class="quick-chips-wrap">
@@ -720,6 +721,8 @@
 <!-- Footer -->
 <div th:replace="~{dung-chung/layout :: footer}"></div>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     // =========================================================================
     // JAVASCRIPT REAL-TIME INSTANT FILTER ENGINE (BỘ LỌC TỨC THÌ NGOÀI TRANG CHỦ)

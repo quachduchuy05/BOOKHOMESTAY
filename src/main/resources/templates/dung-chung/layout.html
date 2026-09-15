@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/style.css(v='2.2')}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='2.3')}">
 </head>
 <body>
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light navbar-custom" id="mainNavbar">
@@ -46,7 +46,12 @@
             <ul class="navbar-nav me-auto ps-lg-3 gap-1" sec:authorize="!hasAnyRole('ADMIN','HOST','COLLABORATOR')">
                 <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="fa-solid fa-compass me-1"></i>Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/tim-kiem}"><i class="fa-solid fa-magnifying-glass me-1"></i>Khám phá</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/homestay/gan-day}"><i class="fa-solid fa-location-crosshairs me-1 text-danger"></i>Gần bạn</a></li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold d-inline-flex align-items-center" th:href="@{/ai-booking}" style="color: #7c3aed;">
+                        <i class="fa-solid fa-wand-magic-sparkles me-1 text-warning"></i>Trợ lý AI
+                        <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.65rem; padding: 2px 6px;">HOT</span>
+                    </a>
+                </li>
             </ul>
 
             <!-- Host Menu Links -->
@@ -156,24 +161,16 @@
     <div class="lien-he-noi" id="lienHeNoi" sec:authorize="!hasRole('ADMIN')">
         <div class="lien-he-danh-sach" id="lienHeDanhSach">
             <div class="item-lien-he-wrap">
+                <span class="item-lien-he-label">Trợ lý AI</span>
+                <a th:href="@{/ai-booking}" class="btn-lien-he shadow-sm" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff;" title="Chat với AI Đặt phòng"><i class="fa-solid fa-wand-magic-sparkles"></i></a>
+            </div>
+            <div class="item-lien-he-wrap">
                 <span class="item-lien-he-label">Gọi Hotline</span>
                 <a href="tel:+84987654321" class="btn-lien-he btn-dienthoai" title="Gọi điện"><i class="fa-solid fa-phone"></i></a>
             </div>
             <div class="item-lien-he-wrap">
                 <span class="item-lien-he-label">Chat Zalo</span>
                 <a href="https://zalo.me/0987654321" target="_blank" class="btn-lien-he btn-zalo" title="Chat Zalo"><i class="fa-solid fa-comment-dots"></i></a>
-            </div>
-            <div class="item-lien-he-wrap">
-                <span class="item-lien-he-label">Messenger</span>
-                <a href="https://m.me/bookinghomestay" target="_blank" class="btn-lien-he btn-messenger" title="Messenger"><i class="fa-brands fa-facebook-messenger"></i></a>
-            </div>
-            <div class="item-lien-he-wrap">
-                <span class="item-lien-he-label">Telegram</span>
-                <a href="https://t.me/bookinghomestay" target="_blank" class="btn-lien-he btn-telegram" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
-            </div>
-            <div class="item-lien-he-wrap">
-                <span class="item-lien-he-label">Viber</span>
-                <a href="viber://chat?number=%2B84987654321" class="btn-lien-he btn-viber" title="Viber"><i class="fa-brands fa-viber"></i></a>
             </div>
             <div class="item-lien-he-wrap">
                 <span class="item-lien-he-label">Facebook</span>
@@ -215,10 +212,9 @@
                         Nền tảng đặt phòng homestay, villa nghỉ dưỡng hàng đầu Việt Nam. Trải nghiệm không gian ấm cúng, cảnh quan độc đáo và chất lượng dịch vụ chuẩn mực.
                     </p>
                     <div class="d-flex align-items-center">
-                        <a href="https://facebook.com/bookinghomestay" target="_blank" class="social-pill-btn"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="https://zalo.me/0987654321" target="_blank" class="social-pill-btn"><i class="fa-solid fa-comment-dots"></i></a>
-                        <a href="https://tiktok.com/@bookinghomestay" target="_blank" class="social-pill-btn"><i class="fa-brands fa-tiktok"></i></a>
-                        <a href="https://t.me/bookinghomestay" target="_blank" class="social-pill-btn"><i class="fa-brands fa-telegram"></i></a>
+                        <a href="https://facebook.com/bookinghomestay" target="_blank" class="social-pill-btn" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="https://zalo.me/0987654321" target="_blank" class="social-pill-btn" title="Zalo"><i class="fa-solid fa-comment-dots"></i></a>
+                        <a href="https://tiktok.com/@bookinghomestay" target="_blank" class="social-pill-btn" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6 col-6">

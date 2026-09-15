@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('AI Booking Assistant - Homestay')}">
+</head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<style>
+    :root {
+        --primary-bg: #f8f9fa;
+        --chat-bg: #ffffff;
+        --user-bubble: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --ai-bubble: #f1f3f5;
+        --accent: #764ba2;
+    }
+    .chat-wrapper {
+        padding: 30px 0;
+        background-color: var(--primary-bg);
+    }
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        max-width: 900px;
+        margin: 0 auto;
+        width: 100%;
+        background: var(--chat-bg);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border-radius: 15px;
+        height: 75vh;
+        min-height: 600px;
+        overflow: hidden;
+    }
+    .chat-header {
+        padding: 20px;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        z-index: 10;
+    }
+    .chat-header .title {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #333;
+        margin: 0;
+        background: var(--user-bubble);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .chat-box {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+    }
+    .message-row {
+        display: flex;
+        margin-bottom: 20px;
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    .message-row.user {
+        justify-content: flex-end;
+    }
+    .bubble {
+        max-width: 75%;
+        padding: 12px 18px;
+        border-radius: 20px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        position: relative;
+    }
+    .user .bubble {
+        background: var(--user-bubble);
+        color: white;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 4px 15px rgba(118, 75, 162, 0.2);
+    }
+    .ai .bubble {
+        background: var(--ai-bubble);
+        color: #333;
+        border-bottom-left-radius: 4px;
+    }
+    .chat-input-area {
+        padding: 20px;
+        background: #fff;
+        border-top: 1px solid #eee;
+    }
+    .input-group-custom {
+        display: flex;
+        background: #f8f9fa;
+        border-radius: 30px;
+        padding: 5px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    .input-group-custom:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+    }
+    .input-group-custom input {
+        border: none;
+        background: transparent;
+        padding: 10px 20px;
+        flex: 1;
+        outline: none;
+    }
+    .btn-send {
+        background: var(--user-bubble);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .btn-send:hover {
+        transform: scale(1.05);
+    }
+    .btn-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    /* Room Card styling */
+    .room-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        margin-top: 10px;
+        overflow: hidden;
+        transition: transform 0.2s;
+    }
+    .room-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .filter-card-sync {
+        animation: cardHighlight 1.2s ease-in-out;
+    }
+    @keyframes cardHighlight {
+        0% { box-shadow: 0 0 0 0 rgba(118, 75, 162, 0.5); transform: scale(1); }
+        50% { box-shadow: 0 0 0 10px rgba(118, 75, 162, 0.2); transform: scale(1.01); }
+        100% { box-shadow: 0 10px 30px rgba(0,0,0,0.05); transform: scale(1); }
+    }
+    .room-card-header {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-bottom: 1px solid #eee;
+        font-weight: 600;
+    }
+    .room-card-body {
+        padding: 15px;
+    }
+    .price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #d9534f;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 15px 18px;
+    }
+    .dot {
+        width: 8px;
+        height: 8px;
+        background: #aaa;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out both;
+    }
+    .dot:nth-child(1) { animation-delay: -0.32s; }
+    .dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+    }
+</style>
+
+<div class="chat-wrapper">
+    <div class="container-fluid px-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">AI Booking Assistant</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="chat-container">
+            <div class="chat-header">
+                <h1 class="title"><i class="fa-solid fa-robot me-2"></i>AI Booking Assistant</h1>
+                <div></div>
+            </div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="message-row ai">
+            <div class="bubble">
+                Chào bạn! 👋 Mình là trợ lý AI. Mình có thể giúp bạn tìm phòng homestay một cách nhanh chóng. 
+                Bạn muốn đi đâu, vào thời gian nào, đi bao nhiêu người và có yêu cầu gì đặc biệt không? (VD: Mình muốn đi Đà Lạt 2 người, tuần sau, có hồ bơi)
+            </div>
+        </div>
+    </div>
+
+            <div class="chat-input-area">
+                <div class="prompt-chips d-flex gap-2 overflow-x-auto pb-2 mb-2" style="scrollbar-width: thin;">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap py-1 px-3" onclick="fillPrompt('Tìm homestay ở Đà Lạt cho 2 người cuối tuần này có bồn tắm')">
+                        💑 Cặp đôi Đà Lạt
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap py-1 px-3" onclick="fillPrompt('Villa Vũng Tàu cho 8 người có hồ bơi và BBQ')">
+                        🏊 Villa Vũng Tàu hồ bơi
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap py-1 px-3" onclick="fillPrompt('Homestay Sa Pa view núi săn mây giá dưới 1 triệu')">
+                        🏔️ Sa Pa view săn mây
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill text-nowrap py-1 px-3" onclick="fillPrompt('Phòng đẹp Hà Nội khu phố cổ cho 2 người')">
+                        🏛️ Phố cổ Hà Nội
+                    </button>
+                </div>
+                <form id="chatForm" onsubmit="sendMessage(event)">
+                    <div class="input-group-custom">
+                        <input type="text" id="userInput" placeholder="Nhập yêu cầu của bạn (VD: Tìm phòng Đà Lạt cho 2 người)..." autocomplete="off" required>
+                        <button type="submit" class="btn-send" id="sendBtn">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+                </div>
+            </div>
+            
+            <!-- Manual Filter Panel (Bo tròn, đầy đủ 63 tỉnh thành & địa danh hot) -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm border-0 rounded-4" id="manualFilterCard" style="height: 100%;">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold m-0"><i class="fa-solid fa-sliders text-primary me-2"></i>Bộ lọc AI tự điền</h5>
+                            <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1 small" id="filterSyncBadge">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i>Đồng bộ tự động
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-0 mt-1">AI tự động cập nhật khi chat. Bạn có thể sửa trực tiếp ở đây.</p>
+                    </div>
+                    <div class="card-body overflow-auto pt-2">
+                        <form id="manualFilterForm" onsubmit="event.preventDefault(); submitManualFilter();">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-secondary mb-1">
+                                    <i class="fa-solid fa-location-dot text-danger me-1"></i>Tỉnh/Thành phố
+                                </label>
+                                <input type="text" id="filterProvinces" list="dsTinhAi" class="form-control form-control-sm rounded-pill px-3" placeholder="Gõ hoặc chọn tỉnh/thành (Đà Lạt, Sa Pa...)">
+                                <datalist id="dsTinhAi">
+                                    <option value="Đà Lạt">Đà Lạt (Lâm Đồng)</option>
+                                    <option value="Sa Pa">Sa Pa (Lào Cai)</option>
+                                    <option value="Vũng Tàu">Vũng Tàu (Bà Rịa - Vũng Tàu)</option>
+                                    <option value="Phú Quốc">Phú Quốc (Kiên Giang)</option>
+                                    <option value="Hà Nội">Hà Nội</option>
+                                    <option value="Đà Nẵng">Đà Nẵng</option>
+                                    <option value="Nha Trang">Nha Trang (Khánh Hòa)</option>
+                                    <option value="Hạ Long">Hạ Long (Quảng Ninh)</option>
+                                    <option value="Hội An">Hội An (Quảng Nam)</option>
+                                    <option value="Ninh Bình">Ninh Bình</option>
+                                    <option value="Thành phố Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                                    <th:block th:replace="~{dung-chung/danh-sach-tinh :: options(selected=null)}"></th:block>
+                                </datalist>
+                                <!-- Quick chips for popular destinations -->
+                                <div class="d-flex flex-wrap gap-1 mt-1.5">
+                                    <button type="button" class="badge bg-light text-secondary border rounded-pill py-1 px-2 text-decoration-none" onclick="quickSetProvince('Đà Lạt')">Đà Lạt</button>
+                                    <button type="button" class="badge bg-light text-secondary border rounded-pill py-1 px-2 text-decoration-none" onclick="quickSetProvince('Sa Pa')">Sa Pa</button>
+                                    <button type="button" class="badge bg-light text-secondary border rounded-pill py-1 px-2 text-decoration-none" onclick="quickSetProvince('Vũng Tàu')">Vũng Tàu</button>
+                                    <button type="button" class="badge bg-light text-secondary border rounded-pill py-1 px-2 text-decoration-none" onclick="quickSetProvince('Hà Nội')">Hà Nội</button>
+                                    <button type="button" class="badge bg-light text-secondary border rounded-pill py-1 px-2 text-decoration-none" onclick="quickSetProvince('Đà Nẵng')">Đà Nẵng</button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-secondary mb-1">
+                                    <i class="fa-solid fa-map-pin text-primary me-1"></i>Quận/Huyện
+                                </label>
+                                <input type="text" id="filterDistricts" class="form-control form-control-sm rounded-pill px-3" placeholder="Vd: Hoàn Kiếm, Ba Đình...">
+                            </div>
+                            <div class="row mb-3 g-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                        <i class="fa-regular fa-calendar-check text-success me-1"></i>Check-in
+                                    </label>
+                                    <input type="date" id="filterCheckIn" class="form-control form-control-sm rounded-pill px-3">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                        <i class="fa-regular fa-calendar-xmark text-danger me-1"></i>Check-out
+                                    </label>
+                                    <input type="date" id="filterCheckOut" class="form-control form-control-sm rounded-pill px-3">
+                                </div>
+                            </div>
+                            <div class="row mb-3 g-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                        <i class="fa-solid fa-user-group text-info me-1"></i>Số khách
+                                    </label>
+                                    <input type="number" id="filterGuest" class="form-control form-control-sm rounded-pill px-3 text-center" min="1" placeholder="2">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                        <i class="fa-solid fa-door-open text-warning me-1"></i>Số phòng
+                                    </label>
+                                    <input type="number" id="filterRoom" class="form-control form-control-sm rounded-pill px-3 text-center" min="1" placeholder="1">
+                                </div>
+                            </div>
+                            <div class="row mb-3 g-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">Giá Min (VNĐ)</label>
+                                    <input type="number" id="filterPriceMin" class="form-control form-control-sm rounded-pill px-3" step="100000" placeholder="0">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">Giá Max (VNĐ)</label>
+                                    <input type="number" id="filterPriceMax" class="form-control form-control-sm rounded-pill px-3" step="100000" placeholder="Không giới hạn">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-secondary mb-1">
+                                    <i class="fa-solid fa-bell-concierge text-secondary me-1"></i>Tiện ích mong muốn
+                                </label>
+                                <textarea id="filterAmenities" class="form-control form-control-sm rounded-3 px-3 py-2" rows="2" placeholder="Vd: hồ bơi, bồn tắm&#10;BBQ, nấu ăn"></textarea>
+                            </div>
+                            <button type="button" onclick="submitManualFilter()" class="btn btn-primary rounded-pill w-100 py-2 fw-bold shadow-sm">
+                                <i class="fa-solid fa-magnifying-glass me-1"></i> Áp dụng & Tìm kiếm
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{dung-chung/layout :: footer}"></footer>
+
+<script>
+    // Generate a simple session ID
+    let sessionId = sessionStorage.getItem('aiSessionId');
+    if (!sessionId) {
+        sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
+        sessionStorage.setItem('aiSessionId', sessionId);
+    }
+
+    const chatBox = document.getElementById('chatBox');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    let isWaiting = false;
+
+    function fillPrompt(text) {
+        if (isWaiting) return;
+        userInput.value = text;
+        const fakeEvent = { preventDefault: () => {} };
+        sendMessage(fakeEvent);
+    }
+
+    function appendUserMessage(text) {
+        const div = document.createElement('div');
+        div.className = 'message-row user';
+        div.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+        chatBox.appendChild(div);
+        scrollToBottom();
+    }
+
+    function appendAiMessage(htmlContent) {
+        const div = document.createElement('div');
+        div.className = 'message-row ai';
+        div.innerHTML = `<div class="bubble">${htmlContent}</div>`;
+        chatBox.appendChild(div);
+        scrollToBottom();
+    }
+
+    function showTyping() {
+        const div = document.createElement('div');
+        div.className = 'message-row ai';
+        div.id = 'typingIndicator';
+        div.innerHTML = `
+            <div class="bubble typing-indicator">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>`;
+        chatBox.appendChild(div);
+        scrollToBottom();
+    }
+
+    function removeTyping() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) indicator.remove();
+    }
+
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function escapeHtml(unsafe) {
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    }
+
+    async function checkAndBook(roomId, checkIn, checkOut, roomCount) {
+        try {
+            let url = `/api/ai-booking/check-availability/${roomId}`;
+            const params = new URLSearchParams();
+            if (checkIn) params.append('checkIn', checkIn);
+            if (checkOut) params.append('checkOut', checkOut);
+            
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.available) {
+                // Redirect to checkout
+                let redirectUrl = `/khach-hang/dat-phong/moi?roomId=${roomId}`;
+                if (checkIn) redirectUrl += `&checkinDate=${checkIn}`;
+                if (checkOut) redirectUrl += `&checkoutDate=${checkOut}`;
+                if (roomCount) redirectUrl += `&roomCount=${roomCount}`;
+                window.location.href = redirectUrl;
+            } else {
+                alert("Rất tiếc! Phòng này vừa được đặt hoặc không còn trống trong khoảng thời gian bạn chọn. Vui lòng chọn phòng khác.");
+            }
+        } catch (error) {
+            alert("Có lỗi xảy ra khi kiểm tra phòng. Vui lòng thử lại!");
+        }
+    }
+
+    async function sendMessage(e) {
+        e.preventDefault();
+        if (isWaiting) return;
+
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        appendUserMessage(text);
+        userInput.value = '';
+        isWaiting = true;
+        sendBtn.disabled = true;
+        showTyping();
+
+        try {
+            const response = await fetch('/api/ai-booking/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, message: text })
+            });
+
+            if (!response.ok) throw new Error('API Error');
+
+            const data = await response.json();
+            
+            // Update filter UI
+            if (data.currentFilters) {
+                updateFilterUI(data.currentFilters);
+            }
+            
+            removeTyping();
+
+            renderSuggestions(data);
+
+        } catch (error) {
+            console.error("AI Booking error:", error);
+            removeTyping();
+            appendAiMessage("Xin lỗi, hệ thống AI đang gặp chút sự cố. Bạn vui lòng thử lại sau nhé.");
+        } finally {
+            isWaiting = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
+    }
+
+    // Cập nhật bộ lọc ở cột bên phải theo thông tin AI trích xuất
+    function updateFilterUI(filters) {
+        if (!filters) return;
+
+        if (filters.provinces && filters.provinces.length > 0) {
+            document.getElementById('filterProvinces').value = filters.provinces.join(', ');
+        }
+        if (filters.districts && filters.districts.length > 0) {
+            document.getElementById('filterDistricts').value = filters.districts.join(', ');
+        }
+        if (filters.checkInDate) {
+            document.getElementById('filterCheckIn').value = filters.checkInDate;
+        }
+        if (filters.checkOutDate) {
+            document.getElementById('filterCheckOut').value = filters.checkOutDate;
+        }
+        if (filters.guestCount) {
+            document.getElementById('filterGuest').value = filters.guestCount;
+        }
+        if (filters.roomCount) {
+            document.getElementById('filterRoom').value = filters.roomCount;
+        }
+        if (filters.priceMin) {
+            document.getElementById('filterPriceMin').value = filters.priceMin;
+        }
+        if (filters.priceMax) {
+            document.getElementById('filterPriceMax').value = filters.priceMax;
+        }
+        if (filters.amenityGroups && filters.amenityGroups.length > 0) {
+            const lines = filters.amenityGroups.map(g => g.join(', ')).join('\n');
+            document.getElementById('filterAmenities').value = lines;
+        }
+
+        // Hiệu ứng nhấp nháy báo hiệu AI đã tự động điền bộ lọc
+        const card = document.getElementById('manualFilterCard');
+        if (card) {
+            card.classList.remove('filter-card-sync');
+            void card.offsetWidth; // trigger reflow
+            card.classList.add('filter-card-sync');
+        }
+    }
+
+    // Chọn nhanh tỉnh thành
+    function quickSetProvince(name) {
+        const input = document.getElementById('filterProvinces');
+        if (input) {
+            input.value = name;
+            input.focus();
+        }
+    }
+
+    // Hiển thị câu trả lời của AI và danh sách phòng gợi ý
+    function renderSuggestions(data) {
+        if (!data) return;
+
+        // 1. Lời nhắn giải thích của AI
+        if (data.systemPrompt) {
+            appendAiMessage(escapeHtml(data.systemPrompt));
+        }
+
+        // 2. Danh sách phòng gợi ý
+        if (data.suggestions && data.suggestions.length > 0) {
+            let html = '<div class="suggestions-list mt-2 d-flex flex-column gap-3">';
+            data.suggestions.forEach(item => {
+                const img = item.imageUrl || '/images/gallery1-1.jpg';
+                const formattedPrice = formatCurrency(item.price);
+                const roomCountBadge = item.roomCount && item.roomCount > 1 
+                    ? `<span class="badge bg-warning text-dark rounded-pill me-1"><i class="fa-solid fa-door-open me-1"></i>Cần ${item.roomCount} phòng</span>` 
+                    : '';
+                
+                let amenitiesHtml = '';
+                if (item.matchedAmenities && item.matchedAmenities.length > 0) {
+                    amenitiesHtml = item.matchedAmenities.map(a => 
+                        `<span class="badge bg-light text-dark border rounded-pill me-1 small"><i class="fa-solid fa-check text-success me-1"></i>${escapeHtml(a)}</span>`
+                    ).join('');
+                }
+
+                html += `
+                    <div class="room-card p-3 shadow-sm rounded-4 border bg-white">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-sm-4">
+                                <img src="${escapeHtml(img)}" alt="${escapeHtml(item.roomName)}" 
+                                     class="img-fluid rounded-3" style="width: 100%; height: 110px; object-fit: cover;"
+                                     onerror="this.src='/images/gallery1-1.jpg'">
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <div>
+                                        <h6 class="fw-bold mb-0 text-dark">${escapeHtml(item.homestayName)}</h6>
+                                        <small class="text-primary fw-semibold">${escapeHtml(item.roomName)}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="price text-danger fw-bold fs-6">${formattedPrice}</span>
+                                        <div class="text-muted" style="font-size: 11px;">/đêm</div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    ${roomCountBadge}
+                                    ${amenitiesHtml}
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold"
+                                            onclick="checkAndBook(${item.roomId}, '${item.checkInDate || ''}', '${item.checkOutDate || ''}', ${item.roomCount || 1})">
+                                        <i class="fa-solid fa-bolt me-1"></i> Đặt ngay
+                                    </button>
+                                    <a href="/homestay/${item.homestayId}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                        Chi tiết chỗ ở <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            appendAiMessage(html);
+        }
+    }
+
+    // Áp dụng bộ lọc thủ công và tìm kiếm lại
+    async function submitManualFilter() {
+        if (isWaiting) return;
+
+        const provincesRaw = document.getElementById('filterProvinces').value.trim();
+        const districtsRaw = document.getElementById('filterDistricts').value.trim();
+        const checkIn = document.getElementById('filterCheckIn').value;
+        const checkOut = document.getElementById('filterCheckOut').value;
+        const guests = document.getElementById('filterGuest').value;
+        const rooms = document.getElementById('filterRoom').value;
+        const priceMin = document.getElementById('filterPriceMin').value;
+        const priceMax = document.getElementById('filterPriceMax').value;
+        const amenitiesRaw = document.getElementById('filterAmenities').value.trim();
+
+        const filterPayload = {};
+        if (provincesRaw) {
+            filterPayload.provinces = provincesRaw.split(',').map(s => s.trim()).filter(Boolean);
+        }
+        if (districtsRaw) {
+            filterPayload.districts = districtsRaw.split(',').map(s => s.trim()).filter(Boolean);
+        }
+        if (checkIn) filterPayload.checkInDate = checkIn;
+        if (checkOut) filterPayload.checkOutDate = checkOut;
+        if (guests) filterPayload.guestCount = parseInt(guests, 10);
+        if (rooms) filterPayload.roomCount = parseInt(rooms, 10);
+        if (priceMin) filterPayload.priceMin = parseFloat(priceMin);
+        if (priceMax) filterPayload.priceMax = parseFloat(priceMax);
+
+        if (amenitiesRaw) {
+            filterPayload.amenityGroups = amenitiesRaw.split('\n')
+                .map(line => line.split(',').map(s => s.trim()).filter(Boolean))
+                .filter(group => group.length > 0);
+        }
+
+        appendUserMessage("🔄 Tôi đã cập nhật bộ lọc: " + (provincesRaw ? provincesRaw + " " : "") + (guests ? guests + " khách " : "") + "đang tìm lại phòng...");
+        isWaiting = true;
+        sendBtn.disabled = true;
+        showTyping();
+
+        try {
+            const response = await fetch('/api/ai-booking/manual-query?sessionId=' + encodeURIComponent(sessionId), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(filterPayload)
+            });
+
+            if (!response.ok) throw new Error('Manual Query Error');
+
+            const data = await response.json();
+            removeTyping();
+            renderSuggestions(data);
+
+        } catch (error) {
+            console.error("Manual Query error:", error);
+            removeTyping();
+            appendAiMessage("Có lỗi xảy ra khi áp dụng bộ lọc. Bạn vui lòng thử lại nhé!");
+        } finally {
+            isWaiting = false;
+            sendBtn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>

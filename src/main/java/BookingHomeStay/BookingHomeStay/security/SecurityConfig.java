@@ -39,13 +39,15 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.ignoringRequestMatchers(
                 "/dang-ky/gui-otp",
                 "/quen-mat-khau/gui-otp",
-                "/api/v1/sepay/webhook"
+                "/api/v1/sepay/webhook",
+                "/api/ai-booking/**"
             ))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/", "/trang-chu", "/trang-chu/**", "/tim-kiem", "/tim-kiem/**", "/homestay/**", "/dang-nhap", "/dang-ky",
                     "/dang-ky/gui-otp", "/quen-mat-khau", "/quen-mat-khau/**", "/dat-lai-mat-khau", "/dat-lai-mat-khau/**",
-                    "/api/**", "/css/**", "/js/**", "/images/**", "/uploads/**"
+                    "/api/**", "/css/**", "/js/**", "/images/**", "/uploads/**",
+                    "/ai-booking"
                 ).permitAll()
                 // Cong tac vien dung chung khong gian voi Chu nha (ca hai deu "ban hang phong")
                 .requestMatchers("/khach-hang/**").hasAnyRole("CUSTOMER", "COLLABORATOR")

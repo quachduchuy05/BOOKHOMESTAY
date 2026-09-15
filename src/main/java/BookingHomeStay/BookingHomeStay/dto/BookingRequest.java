@@ -7,8 +7,8 @@ import java.time.LocalDate;
 @Data
 public class BookingRequest {
     @NotNull private Long roomId;
-    @NotNull @Future private LocalDate checkinDate;
-    @NotNull private LocalDate checkoutDate;
+    @NotNull @Future @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd") private LocalDate checkinDate;
+    @NotNull @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd") private LocalDate checkoutDate;
     @Min(1) private Integer quantity = 1;
     @NotBlank private String customerName;
     @NotBlank private String customerPhone;

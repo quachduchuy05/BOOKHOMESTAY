@@ -23,6 +23,10 @@ public class CustomUserDetails implements UserDetails {
     public String getFullName() {
         return user.getFullName();
     }
+    
+    public User getUser() {
+        return user;
+    }
 
     public void setFullName(String fullName) {
         user.setFullName(fullName);
@@ -34,10 +38,6 @@ public class CustomUserDetails implements UserDetails {
 
     public void setAvatar(String avatar) {
         user.setAvatar(avatar);
-    }
-
-    public User getUser() {
-        return user;
     }
 
     @Override
