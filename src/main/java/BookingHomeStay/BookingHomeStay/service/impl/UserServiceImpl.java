@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+@lombok.extern.slf4j.Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -47,6 +48,10 @@ public class UserServiceImpl implements UserService {
                 ? request.getEmail() : request.getPhone();
         if (request.getOtpCode() == null || !otpService.verifyOtp(otpDestination, request.getOtpCode())) {
             throw new IllegalArgumentException("Ma OTP khong dung hoac da het han, vui long thu lai.");
+        }
+
+        if (request.isRegisterAsHost() && request.isRegisterAsCollaborator()) {
+            throw new IllegalArgumentException("Không thể đồng thời đăng ký vừa làm Chủ nhà vừa làm Cộng tác viên.");
         }
 
         Set<Role> roles = new HashSet<>();
@@ -101,5 +106,96 @@ public class UserServiceImpl implements UserService {
         );
 
         return user;
+    }
+
+    @Override
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng với ID: " + userId));
+    }
+
+    @Override
+    @Transactional
+    public User capNhatHoSo(Long userId, BookingHomeStay.BookingHomeStay.dto.ProfileForm form) {
+        User user = findById(userId);
+        if (form.getFullName() != null && !form.getFullName().isBlank()) {
+            user.setFullName(form.getFullName().trim());
+        }
+        if (form.getPhone() != null) {
+            user.setPhone(form.getPhone().trim());
+        }
+        if (form.getAddress() != null) {
+            user.setAddress(form.getAddress().trim());
+        }
+
+        // Xu ly upload avatar file neu co
+        if (form.getAvatarFile() != null && !form.getAvatarFile().isEmpty()) {
+            try {
+                String originalFilename = form.getAvatarFile().getOriginalFilename();
+                String ext = (originalFilename != null && originalFilename.contains(".")) 
+                        ? originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
+                String filename = "avatar_" + userId + "_" + System.currentTimeMillis() + ext;
+
+                java.nio.file.Path uploadDir = java.nio.file.Paths.get("uploads", "avatars").toAbsolutePath();
+                if (!java.nio.file.Files.exists(uploadDir)) {
+                    java.nio.file.Files.createDirectories(uploadDir);
+                }
+                java.nio.file.Path filePath = uploadDir.resolve(filename);
+                java.nio.file.Files.copy(form.getAvatarFile().getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+                user.setAvatar("/uploads/avatars/" + filename);
+            } catch (Exception e) {
+                log.error("Lỗi khi tải lên file avatar: {}", e.getMessage(), e);
+                // Neu upload file that bai, fallback sang avatar link neu co
+                if (form.getAvatar() != null && !form.getAvatar().isBlank()) {
+                    user.setAvatar(form.getAvatar().trim());
+                }
+            }
+        } else if (form.getAvatar() != null && !form.getAvatar().isBlank()) {
+            user.setAvatar(form.getAvatar().trim());
+        }
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void doiMatKhau(Long userId, BookingHomeStay.BookingHomeStay.dto.ChangePasswordForm form) {
+        User user = findById(userId);
+        if (!passwordEncoder.matches(form.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác");
+        }
+        if (!form.getNewPassword().equals(form.getConfirmPassword())) {
+            throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không trùng khớp");
+        }
+        user.setPassword(passwordEncoder.encode(form.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public void sendForgotPasswordOtp(String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Vui lòng cung cấp địa chỉ email");
+        }
+        User user = userRepository.findByEmail(email.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản liên kết với email: " + email.trim()));
+        otpService.sendOtp(user.getEmail(), OtpChannel.EMAIL);
+    }
+
+    @Override
+    @Transactional
+    public void datLaiMatKhau(BookingHomeStay.BookingHomeStay.dto.ResetPasswordForm form) {
+        User user = userRepository.findByEmail(form.getEmail().trim())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản với email: " + form.getEmail().trim()));
+
+        if (!form.getNewPassword().equals(form.getConfirmPassword())) {
+            throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không trùng khớp");
+        }
+        if (!otpService.verifyOtp(form.getEmail().trim(), form.getOtpCode().trim())) {
+            throw new IllegalArgumentException("Mã OTP không đúng hoặc đã hết hạn");
+        }
+
+        user.setPassword(passwordEncoder.encode(form.getNewPassword()));
+        userRepository.save(user);
     }
 }

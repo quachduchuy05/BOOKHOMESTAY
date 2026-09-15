@@ -17,18 +17,21 @@ public interface HomestayRepository extends JpaRepository<Homestay, Long> {
     List<Homestay> findByStatus(HomestayStatus status);
 
     Optional<Homestay> findBySlugAndStatus(String slug, HomestayStatus status);
+    boolean existsBySlug(String slug);
 
     @Query("""
         SELECT DISTINCT h FROM Homestay h JOIN h.rooms r
         WHERE h.status = BookingHomeStay.BookingHomeStay.entity.HomestayStatus.ACTIVE
-          AND (:province IS NULL OR LOWER(h.province) LIKE LOWER(CONCAT('%', :province, '%')))
+          AND (:province IS NULL OR LOWER(h.province) LIKE LOWER(CONCAT('%', :province, '%')) OR LOWER(h.address) LIKE LOWER(CONCAT('%', :province, '%')))
           AND (:district IS NULL OR LOWER(h.district) LIKE LOWER(CONCAT('%', :district, '%')))
           AND (:minGuests IS NULL OR r.maxGuests >= :minGuests)
+          AND (:minPrice IS NULL OR r.pricePerNight >= :minPrice)
           AND (:maxPrice IS NULL OR r.pricePerNight <= :maxPrice)
         """)
     List<Homestay> search(@Param("province") String province,
                            @Param("district") String district,
                            @Param("minGuests") Integer minGuests,
+                           @Param("minPrice") BigDecimal minPrice,
                            @Param("maxPrice") BigDecimal maxPrice);
 
     // Task 12: lay danh sach quan/huyen CO THAT (da co homestay dang hoat dong)
@@ -37,11 +40,19 @@ public interface HomestayRepository extends JpaRepository<Homestay, Long> {
     @Query("""
         SELECT DISTINCT h.district FROM Homestay h
         WHERE h.status = BookingHomeStay.BookingHomeStay.entity.HomestayStatus.ACTIVE
-          AND LOWER(h.province) LIKE LOWER(CONCAT('%', :province, '%'))
+          AND (LOWER(h.province) LIKE LOWER(CONCAT('%', :province, '%')) OR LOWER(h.address) LIKE LOWER(CONCAT('%', :province, '%')))
           AND h.district IS NOT NULL
         ORDER BY h.district
         """)
     List<String> findDistinctDistrictsByProvince(@Param("province") String province);
+
+    @Query("""
+        SELECT DISTINCT h.province FROM Homestay h
+        WHERE h.status = BookingHomeStay.BookingHomeStay.entity.HomestayStatus.ACTIVE
+          AND h.province IS NOT NULL AND TRIM(h.province) <> ''
+        ORDER BY h.province
+        """)
+    List<String> findDistinctActiveProvinces();
 
     /** Cong thuc Haversine - tim homestay ACTIVE trong ban kinh radiusKm quanh toa do khach */
     @Query(value = """

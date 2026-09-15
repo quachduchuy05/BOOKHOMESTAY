@@ -21,7 +21,21 @@
         </div>
     </div>
 
-    <!-- Thông báo kết quả -->
+    <!-- Thông báo kết quả cập nhật ngân hàng -->
+    <div th:if="${bankSuccessMessage}" class="alert alert-success border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+        <i class="fa-solid fa-circle-check fs-2 text-success"></i>
+        <div>
+            <strong class="d-block" th:text="${bankSuccessMessage}">Cập nhật thành công!</strong>
+        </div>
+    </div>
+    <div th:if="${bankErrorMessage}" class="alert alert-danger border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+        <i class="fa-solid fa-triangle-exclamation fs-2 text-danger"></i>
+        <div>
+            <strong class="d-block" th:text="${bankErrorMessage}">Lỗi cập nhật</strong>
+        </div>
+    </div>
+
+    <!-- Thông báo kết quả rút tiền -->
     <div th:if="${param.success}" class="alert alert-success border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
         <i class="fa-solid fa-circle-check fs-2 text-success"></i>
         <div>
@@ -70,8 +84,21 @@
                         <div class="form-text text-muted">Số tiền rút tối thiểu: 10.000 VNĐ.</div>
                     </div>
 
+                    <!-- Cảnh báo nếu chưa có tài khoản ngân hàng -->
+                    <div th:if="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}"
+                         class="alert alert-warning py-2 px-3 small rounded-3 mb-3 d-flex align-items-center justify-content-between">
+                        <div>
+                            <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
+                            Bạn cần cập nhật số tài khoản ngân hàng trước khi gửi yêu cầu rút tiền.
+                        </div>
+                        <button type="button" class="btn btn-sm btn-warning rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
+                            Thêm ngay
+                        </button>
+                    </div>
+
                     <!-- Nút submit -->
-                    <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill shadow-sm fw-bold">
+                    <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill shadow-sm fw-bold"
+                            th:disabled="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}">
                         <i class="fa-solid fa-paper-plane me-2"></i>Gửi Yêu Cầu Rút Tiền
                     </button>
                 </form>
@@ -81,8 +108,26 @@
         <!-- Cột thông tin tài khoản nhận tiền -->
         <div class="col-lg-5">
             <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
-                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-building-columns text-primary me-2"></i>Tài khoản thụ hưởng</h6>
-                <div class="p-3 bg-white rounded-3 shadow-sm mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-building-columns text-primary me-2"></i>Tài khoản thụ hưởng</h6>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
+                        <i class="fa-solid fa-pen-to-square me-1"></i>
+                        <span th:text="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()} ? 'Thêm mới' : 'Thay đổi'">Thay đổi</span>
+                    </button>
+                </div>
+
+                <div th:if="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}"
+                     class="p-4 bg-white rounded-3 shadow-sm mb-3 text-center border border-warning">
+                    <i class="fa-solid fa-building-columns text-warning fs-1 mb-2"></i>
+                    <p class="text-danger fw-bold small mb-1">Chưa liên kết tài khoản ngân hàng</p>
+                    <p class="text-muted small mb-3">Vui lòng thêm thông tin ngân hàng để nhận tiền hoa hồng.</p>
+                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#modalBankInfo">
+                        <i class="fa-solid fa-plus me-1"></i> Thêm tài khoản ngân hàng
+                    </button>
+                </div>
+
+                <div th:unless="${collaborator.soTaiKhoanNhanHoaHong == null || collaborator.soTaiKhoanNhanHoaHong.isBlank()}"
+                     class="p-3 bg-white rounded-3 shadow-sm mb-3">
                     <div class="mb-2">
                         <small class="text-muted d-block">Ngân hàng:</small>
                         <strong class="text-dark fs-6" th:text="${collaborator.tenNganHang}">-</strong>
@@ -99,9 +144,74 @@
 
                 <div class="small text-muted">
                     <i class="fa-solid fa-circle-info text-info me-1"></i>
-                    Tiền sẽ được chuyển chính xác vào số tài khoản trên sau khi Quản trị viên duyệt. Nếu muốn đổi số tài khoản, vui lòng liên hệ bộ phận hỗ trợ.
+                    Tiền sẽ được chuyển chính xác vào số tài khoản trên sau khi Quản trị viên duyệt. Bạn có thể thay đổi số tài khoản nhận tiền bất cứ lúc nào.
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cập nhật thông tin ngân hàng -->
+<div class="modal fade" id="modalBankInfo" tabindex="-1" aria-labelledby="modalBankInfoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-primary text-white border-0 py-3">
+                <h5 class="modal-title fw-bold" id="modalBankInfoLabel">
+                    <i class="fa-solid fa-building-columns me-2"></i>Tài khoản ngân hàng nhận hoa hồng
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/cong-tac-vien/cap-nhat-ngan-hang}" method="post">
+                <input type="hidden" name="redirectPage" value="rut-tien">
+                <div class="modal-body p-4">
+                    <p class="small text-muted mb-3">
+                        Vui lòng nhập chính xác thông tin tài khoản ngân hàng chính chủ của bạn để nhận tiền hoa hồng khi rút tiền.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Ngân hàng thụ hưởng <span class="text-danger">*</span></label>
+                        <select name="tenNganHang" class="form-select" required>
+                            <option value="">-- Chọn ngân hàng tại Việt Nam --</option>
+                            <option value="Vietcombank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Vietcombank')}">Vietcombank - Ngân hàng Ngoại thương</option>
+                            <option value="VietinBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('VietinBank')}">VietinBank - Ngân hàng Công thương</option>
+                            <option value="BIDV" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('BIDV')}">BIDV - Ngân hàng Đầu tư và Phát triển</option>
+                            <option value="Agribank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Agribank')}">Agribank - Ngân hàng Nông nghiệp & PTNT</option>
+                            <option value="MB Bank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('MB')}">MB Bank - Ngân hàng Quân đội</option>
+                            <option value="Techcombank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Techcombank')}">Techcombank - Ngân hàng Kỹ thương</option>
+                            <option value="ACB" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('ACB')}">ACB - Ngân hàng Á Châu</option>
+                            <option value="VPBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('VPBank')}">VPBank - Ngân hàng Việt Nam Thịnh vượng</option>
+                            <option value="TPBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('TPBank')}">TPBank - Ngân hàng Tiên Phong</option>
+                            <option value="Sacombank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Sacombank')}">Sacombank - Ngân hàng Sài Gòn Thương Tín</option>
+                            <option value="HDBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('HDBank')}">HDBank - Ngân hàng Phát triển TP.HCM</option>
+                            <option value="VIB" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('VIB')}">VIB - Ngân hàng Quốc Tế</option>
+                            <option value="SHB" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('SHB')}">SHB - Ngân hàng Sài Gòn - Hà Nội</option>
+                            <option value="MSB" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('MSB')}">MSB - Ngân hàng Hàng Hải</option>
+                            <option value="SeABank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('SeABank')}">SeABank - Ngân hàng Đông Nam Á</option>
+                            <option value="OCB" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('OCB')}">OCB - Ngân hàng Phương Đông</option>
+                            <option value="Eximbank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Eximbank')}">Eximbank - Ngân hàng Xuất Nhập Khẩu</option>
+                            <option value="LPBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('LPBank')}">LPBank - Ngân hàng Lộc Phát</option>
+                            <option value="Nam A Bank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Nam A')}">Nam A Bank - Ngân hàng Nam Á</option>
+                            <option value="Bac A Bank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Bac A')}">Bac A Bank - Ngân hàng Bắc Á</option>
+                            <option value="PVcomBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('PVcomBank')}">PVcomBank - Ngân hàng Đại Chúng</option>
+                            <option value="Cake by VPBank" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Cake')}">Cake by VPBank (Ngân hàng số Cake)</option>
+                            <option value="Timo" th:selected="${collaborator.tenNganHang != null && collaborator.tenNganHang.contains('Timo')}">Timo (Ngân hàng số Timo by BVBank)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Số tài khoản ngân hàng <span class="text-danger">*</span></label>
+                        <input type="text" name="soTaiKhoanNhanHoaHong" class="form-control font-monospace fw-bold" th:value="${collaborator.soTaiKhoanNhanHoaHong}" placeholder="VD: 0123456789" required>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border">
+                        <small class="text-muted d-block">Tên chủ tài khoản thụ hưởng (theo họ tên tài khoản):</small>
+                        <strong class="text-dark" th:text="${collaborator.user.fullName}">-</strong>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Lưu thông tin
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

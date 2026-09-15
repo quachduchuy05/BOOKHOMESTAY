@@ -58,13 +58,30 @@
                         <input type="number" min="1" class="form-control" name="guests" placeholder="VD: 2 khách" th:value="${guests}">
                     </div>
 
-                    <!-- Giá tối đa / đêm -->
+                    <!-- Khoảng giá / đêm -->
                     <div class="mb-4">
-                        <label class="form-label small fw-bold text-muted"><i class="fa-solid fa-money-bill-wave me-1"></i>Giá tối đa / đêm (VNĐ)</label>
-                        <input type="number" min="0" step="50000" class="form-control" name="maxPrice" placeholder="VD: 1,500,000" th:value="${maxPrice}">
+                        <label class="form-label small fw-bold text-muted"><i class="fa-solid fa-money-bill-wave me-1"></i>Khoảng giá / đêm (VNĐ)</label>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="small text-muted mb-1" style="font-size: 11px;">Từ:</label>
+                                <input type="number" min="0" step="50000" class="form-control form-control-sm" id="ipMinPrice" name="minPrice" placeholder="Từ 0" th:value="${minPrice}">
+                            </div>
+                            <div class="col-6">
+                                <label class="small text-muted mb-1" style="font-size: 11px;">Đến:</label>
+                                <input type="number" min="0" step="50000" class="form-control form-control-sm" id="ipMaxPrice" name="maxPrice" placeholder="Tối đa" th:value="${maxPrice}">
+                            </div>
+                        </div>
+
+                        <!-- Quick price filter chips -->
+                        <div class="d-flex flex-wrap gap-1 mt-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size: 11px;" onclick="setPriceRange(0, 500000)">Dưới 500k</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size: 11px;" onclick="setPriceRange(500000, 1000000)">500k - 1tr</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size: 11px;" onclick="setPriceRange(1000000, 2000000)">1tr - 2tr</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size: 11px;" onclick="setPriceRange(2000000, null)">Trên 2tr</button>
+                        </div>
                     </div>
 
-                    <button class="btn btn-primary w-100 btn-pill py-2" type="submit">
+                    <button class="btn btn-primary w-100 btn-pill py-2 shadow-sm" type="submit">
                         <i class="fa-solid fa-filter me-1"></i> Áp dụng bộ lọc
                     </button>
                 </form>
@@ -105,7 +122,9 @@
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
                                 <div class="card-price-block">
-                                    <span class="card-price-amount">Chi tiết</span>
+                                    <span class="card-price-amount" th:if="${h.minPrice != null}" th:text="${#numbers.formatDecimal(h.minPrice, 0, 'POINT', 0, 'COMMA')} + ' đ'">450.000 đ</span>
+                                    <span class="card-price-amount" th:unless="${h.minPrice != null}">Chi tiết</span>
+                                    <span class="card-price-unit" th:if="${h.minPrice != null}">/ đêm</span>
                                 </div>
                                 <a th:href="@{/homestay/{slug}(slug=${h.slug})}" class="btn btn-outline-custom btn-sm btn-pill px-3">
                                     Xem phòng <i class="fa-solid fa-angle-right ms-1"></i>
@@ -132,5 +151,12 @@
 </div>
 
 <div th:replace="~{dung-chung/layout :: footer}"></div>
+<script>
+    function setPriceRange(min, max) {
+        document.getElementById('ipMinPrice').value = min !== null ? min : '';
+        document.getElementById('ipMaxPrice').value = max !== null ? max : '';
+        document.getElementById('formLocBoLoc').submit();
+    }
+</script>
 </body>
 </html>

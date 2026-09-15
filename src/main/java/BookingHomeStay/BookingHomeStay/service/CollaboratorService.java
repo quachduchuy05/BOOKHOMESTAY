@@ -24,6 +24,8 @@ public interface CollaboratorService {
 
     List<CollaboratorWithdrawal> getPendingWithdrawals();
 
+    List<CollaboratorWithdrawal> getAllWithdrawals();
+
     void approveWithdrawal(Long withdrawalId);
 
     void rejectWithdrawal(Long withdrawalId, String note);
@@ -31,4 +33,8 @@ public interface CollaboratorService {
     void markWithdrawalPaid(Long withdrawalId);
 
     void createCommissionForBooking(Booking booking);
+
+    BigDecimal getAvailableBalance(Long userId);
+
+    void updateBankInfo(Long userId, String tenNganHang, String soTaiKhoanNhanHoaHong);
 }

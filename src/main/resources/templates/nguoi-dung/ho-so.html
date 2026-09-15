@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{dung-chung/layout :: head('Hồ sơ cá nhân')}"></head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<div class="container py-5">
+    <!-- Flash Messages -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${passwordSuccessMessage}" class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i><span th:text="${passwordSuccessMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${passwordErrorMessage}" class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${passwordErrorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar Profile Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 rounded-4 shadow-sm text-center p-4">
+                <div class="position-relative d-inline-block mx-auto mb-3">
+                    <img id="avatarPreview" 
+                         th:src="${user.avatar != null && !user.avatar.isEmpty() ? user.avatar : 'https://ui-avatars.com/api/?name=' + user.fullName + '&background=e11d48&color=fff&size=160'}" 
+                         alt="Avatar" 
+                         class="rounded-circle shadow-sm border border-3 border-light"
+                         style="width: 140px; height: 140px; object-fit: cover;">
+                </div>
+                <h4 class="fw-bold mb-1" th:text="${user.fullName}">Nguyễn Văn A</h4>
+                <p class="text-muted small mb-3" th:text="${user.email}">user@example.com</p>
+
+                <div class="d-flex flex-wrap justify-content-center gap-1 mb-4">
+                    <span th:each="r : ${user.roles}" class="badge bg-danger-subtle text-danger rounded-pill px-3 py-2 fw-semibold small">
+                        <i class="fa-solid fa-shield-halved me-1" th:if="${r.name == 'ROLE_ADMIN'}"></i>
+                        <i class="fa-solid fa-house-chimney me-1" th:if="${r.name == 'ROLE_HOST'}"></i>
+                        <i class="fa-solid fa-handshake me-1" th:if="${r.name == 'ROLE_COLLABORATOR'}"></i>
+                        <i class="fa-solid fa-user me-1" th:if="${r.name == 'ROLE_CUSTOMER'}"></i>
+                        <span th:text="${r.name == 'ROLE_ADMIN' ? 'Quản trị viên' : (r.name == 'ROLE_HOST' ? 'Chủ nhà' : (r.name == 'ROLE_COLLABORATOR' ? 'Cộng tác viên' : 'Khách hàng'))}"></span>
+                    </span>
+                </div>
+
+                <div class="list-group list-group-flush text-start small border-top pt-3">
+                    <div class="list-group-item border-0 px-0 d-flex justify-content-between">
+                        <span class="text-muted"><i class="fa-solid fa-phone me-2 text-danger"></i>Điện thoại:</span>
+                        <span class="fw-semibold" th:text="${user.phone != null ? user.phone : 'Chưa cập nhật'}">0987654321</span>
+                    </div>
+                    <div class="list-group-item border-0 px-0 d-flex justify-content-between">
+                        <span class="text-muted"><i class="fa-solid fa-map-marker-alt me-2 text-danger"></i>Địa chỉ:</span>
+                        <span class="fw-semibold text-end" th:text="${user.address != null ? user.address : 'Chưa cập nhật'}">Hà Nội</span>
+                    </div>
+                    <div class="list-group-item border-0 px-0 d-flex justify-content-between">
+                        <span class="text-muted"><i class="fa-solid fa-calendar me-2 text-danger"></i>Ngày tham gia:</span>
+                        <span class="fw-semibold" th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy')}">01/01/2026</span>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column gap-2 mt-4 pt-3 border-top" sec:authorize="hasRole('CUSTOMER')">
+                    <a th:href="@{/khach-hang/don-dat-phong}" class="btn btn-outline-primary btn-sm rounded-pill fw-semibold py-2 text-start px-3">
+                        <i class="fa-solid fa-receipt me-2 text-primary"></i> Đơn đặt phòng của tôi
+                    </a>
+                    <a th:href="@{/khach-hang/yeu-thich}" class="btn btn-outline-danger btn-sm rounded-pill fw-semibold py-2 text-start px-3">
+                        <i class="fa-solid fa-heart me-2 text-danger"></i> Homestay yêu thích
+                    </a>
+                    <a th:href="@{/tim-kiem}" class="btn btn-light btn-sm rounded-pill fw-semibold py-2 text-start px-3 border">
+                        <i class="fa-solid fa-compass me-2 text-success"></i> Khám phá chỗ ở mới
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Form Tabs -->
+        <div class="col-lg-8">
+            <div class="card border-0 rounded-4 shadow-sm p-4">
+                <ul class="nav nav-pills mb-4 gap-2" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill px-4" 
+                                th:classappend="${activeTab == null || activeTab == 'info' ? 'active' : ''}"
+                                id="info-tab" data-bs-toggle="pill" data-bs-target="#info-pane" type="button" role="tab">
+                            <i class="fa-solid fa-user-pen me-2"></i>Thông tin cá nhân
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill px-4" 
+                                th:classappend="${activeTab == 'password' ? 'active' : ''}"
+                                id="password-tab" data-bs-toggle="pill" data-bs-target="#password-pane" type="button" role="tab">
+                            <i class="fa-solid fa-key me-2"></i>Đổi mật khẩu
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="profileTabContent">
+                    <!-- Tab 1: Profile Info -->
+                    <div class="tab-pane fade" 
+                         th:classappend="${activeTab == null || activeTab == 'info' ? 'show active' : ''}"
+                         id="info-pane" role="tabpanel">
+                        <h5 class="fw-bold mb-3 text-dark">Cập nhật thông tin tài khoản</h5>
+                        <form th:action="@{/ho-so}" th:object="${profileForm}" method="post" enctype="multipart/form-data">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Họ và tên <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control rounded-3" th:field="*{fullName}" placeholder="Nhập họ và tên đầy đủ">
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Địa chỉ Email <span class="text-muted">(Cố định)</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-lock text-muted"></i></span>
+                                        <input type="email" class="form-control bg-light border-start-0 rounded-end-3" th:value="${user.email}" readonly disabled>
+                                    </div>
+                                    <small class="text-muted">Email đã được xác thực bảo mật và không thể tự thay đổi.</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Số điện thoại</label>
+                                    <input type="text" class="form-control rounded-3" th:field="*{phone}" placeholder="Ví dụ: 0987654321">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Địa chỉ liên hệ</label>
+                                    <input type="text" class="form-control rounded-3" th:field="*{address}" placeholder="Ví dụ: Ba Đình, Hà Nội">
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small">Tải lên ảnh đại diện mới</label>
+                                    <input type="file" class="form-control rounded-3" id="avatarFileInput" name="avatarFile" accept="image/*">
+                                    <div class="form-text small">Hỗ trợ định dạng JPG, PNG, WEBP (tối đa 5MB).</div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small">Hoặc nhập liên kết ảnh đại diện (URL hoặc đường dẫn)</label>
+                                    <input type="text" class="form-control rounded-3" th:field="*{avatar}" id="avatarUrlInput" placeholder="https://example.com/my-photo.jpg hoặc /images/avatar.jpg">
+                                </div>
+
+                                <div class="col-12 mt-4 pt-2 border-top">
+                                    <button type="submit" class="btn btn-primary btn-pill px-4 shadow-sm">
+                                        <i class="fa-solid fa-floppy-disk me-1"></i> Lưu thay đổi
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab 2: Change Password -->
+                    <div class="tab-pane fade" 
+                         th:classappend="${activeTab == 'password' ? 'show active' : ''}"
+                         id="password-pane" role="tabpanel">
+                        <h5 class="fw-bold mb-3 text-dark">Đổi mật khẩu bảo vệ tài khoản</h5>
+                        <form th:action="@{/ho-so/doi-mat-khau}" th:object="${changePasswordForm}" method="post">
+                            <div class="row g-3" style="max-width: 500px;">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small">Mật khẩu hiện tại <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control rounded-start-3" th:field="*{currentPassword}" required placeholder="••••••••">
+                                        <button class="btn btn-outline-secondary rounded-end-3" type="button" onclick="togglePass(this)"><i class="fa-regular fa-eye"></i></button>
+                                    </div>
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}"></div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small">Mật khẩu mới <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control rounded-start-3" th:field="*{newPassword}" required placeholder="Tối thiểu 6 ký tự">
+                                        <button class="btn btn-outline-secondary rounded-end-3" type="button" onclick="togglePass(this)"><i class="fa-regular fa-eye"></i></button>
+                                    </div>
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}"></div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control rounded-start-3" th:field="*{confirmPassword}" required placeholder="Nhập lại mật khẩu mới">
+                                        <button class="btn btn-outline-secondary rounded-end-3" type="button" onclick="togglePass(this)"><i class="fa-regular fa-eye"></i></button>
+                                    </div>
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+                                </div>
+
+                                <div class="col-12 mt-4 pt-2 border-top">
+                                    <button type="submit" class="btn btn-danger btn-pill px-4 shadow-sm">
+                                        <i class="fa-solid fa-lock me-1"></i> Cập nhật mật khẩu
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{dung-chung/layout :: footer}"></div>
+
+<script>
+    // Live avatar preview when file selected
+    const fileInput = document.getElementById('avatarFileInput');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const urlInput = document.getElementById('avatarUrlInput');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    avatarPreview.src = evt.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+
+    if (urlInput) {
+        urlInput.addEventListener('blur', function() {
+            if (this.value && this.value.trim() !== '') {
+                avatarPreview.src = this.value.trim();
+            }
+        });
+    }
+
+    function togglePass(btn) {
+        const input = btn.previousElementSibling;
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
+</body>
+</html>

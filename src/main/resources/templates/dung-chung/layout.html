@@ -16,66 +16,129 @@
 </head>
 <body>
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light navbar-custom" id="mainNavbar">
-    <div class="container-fluid px-4 px-xl-5">
-        <a class="navbar-brand" th:href="@{/}">
+    <div class="container">
+        <!-- Dynamic Brand Link based on Role -->
+        <a class="navbar-brand" sec:authorize="hasRole('ADMIN')" th:href="@{/quan-tri/tong-quan}">
+            <img th:src="@{/images/icons/homestay-svgrepo-com.svg}" alt="BookingHomeStay Logo" class="brand-logo-img">
+            <span>Booking<span style="color:var(--bhs-primary);">HomeStay</span></span>
+            <span class="badge bg-danger ms-1 small fw-normal">Quản trị</span>
+        </a>
+        <a class="navbar-brand" sec:authorize="hasRole('HOST') and !hasRole('ADMIN')" th:href="@{/chu-nha/tong-quan}">
+            <img th:src="@{/images/icons/homestay-svgrepo-com.svg}" alt="BookingHomeStay Logo" class="brand-logo-img">
+            <span>Booking<span style="color:var(--bhs-primary);">HomeStay</span></span>
+            <span class="badge bg-success ms-1 small fw-normal">Chủ nhà</span>
+        </a>
+        <a class="navbar-brand" sec:authorize="hasRole('COLLABORATOR') and !hasAnyRole('ADMIN','HOST')" th:href="@{/cong-tac-vien/tong-quan}">
+            <img th:src="@{/images/icons/homestay-svgrepo-com.svg}" alt="BookingHomeStay Logo" class="brand-logo-img">
+            <span>Booking<span style="color:var(--bhs-primary);">HomeStay</span></span>
+            <span class="badge bg-warning text-dark ms-1 small fw-normal">CTV</span>
+        </a>
+        <a class="navbar-brand" sec:authorize="!hasAnyRole('ADMIN','HOST','COLLABORATOR')" th:href="@{/}">
             <img th:src="@{/images/icons/homestay-svgrepo-com.svg}" alt="BookingHomeStay Logo" class="brand-logo-img">
             <span>Booking<span style="color:var(--bhs-primary);">HomeStay</span></span>
         </a>
+
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <i class="fa-solid fa-bars text-dark fs-4"></i>
         </button>
         <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav me-auto ps-lg-3 gap-1">
+            <!-- Customer / Public Links -->
+            <ul class="navbar-nav me-auto ps-lg-3 gap-1" sec:authorize="!hasAnyRole('ADMIN','HOST','COLLABORATOR')">
                 <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="fa-solid fa-compass me-1"></i>Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/tim-kiem}"><i class="fa-solid fa-magnifying-glass me-1"></i>Khám phá</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/homestay/gan-day}"><i class="fa-solid fa-location-crosshairs me-1 text-danger"></i>Gần bạn</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/ai-booking}" style="color: #8b5cf6; font-weight: 600;"><i class="fa-solid fa-robot me-1"></i>Đặt phòng AI</a></li>
             </ul>
+
+            <!-- Host Menu Links -->
+            <ul class="navbar-nav me-auto ps-lg-3 gap-1" sec:authorize="hasRole('HOST') and !hasRole('ADMIN')">
+                <li class="nav-item"><a class="nav-link" th:href="@{/chu-nha/tong-quan}"><i class="fa-solid fa-chart-line me-1 text-primary"></i>Tổng quan</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/chu-nha/danh-sach-homestay}"><i class="fa-solid fa-hotel me-1 text-info"></i>Homestay của tôi</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/chu-nha/don-dat-phong}"><i class="fa-solid fa-receipt me-1 text-success"></i>Đơn đặt phòng</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/chu-nha/danh-gia}"><i class="fa-solid fa-star me-1 text-warning"></i>Đánh giá khách</a></li>
+            </ul>
+
+            <!-- Collaborator Menu Links -->
+            <ul class="navbar-nav me-auto ps-lg-3 gap-1" sec:authorize="hasRole('COLLABORATOR') and !hasAnyRole('ADMIN','HOST')">
+                <li class="nav-item"><a class="nav-link" th:href="@{/cong-tac-vien/tong-quan}"><i class="fa-solid fa-handshake me-1 text-warning"></i>Tổng quan CTV</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/cong-tac-vien/rut-tien}"><i class="fa-solid fa-money-bill-transfer me-1 text-success"></i>Rút hoa hồng</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/cong-tac-vien/lich-su-rut-tien}"><i class="fa-solid fa-clock-rotate-left me-1 text-info"></i>Lịch sử rút</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/cong-tac-vien/hoa-hong}"><i class="fa-solid fa-receipt me-1 text-primary"></i>Chi tiết hoa hồng</a></li>
+            </ul>
+
+            <!-- Admin Brand Center Indicator (Spacious & Clean) -->
+            <div class="d-none d-lg-flex align-items-center gap-3 ms-4 me-auto" sec:authorize="hasRole('ADMIN')">
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1.5 fw-semibold small">
+                    <i class="fa-solid fa-shield-halved me-1"></i> Bảng điều khiển Quản trị viên
+                </span>
+                <a class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 text-dark fw-semibold" th:href="@{/}" target="_blank" title="Mở trang chủ người dùng trong tab mới">
+                    <i class="fa-solid fa-arrow-up-right-from-square me-1 text-primary"></i> Xem website
+                </a>
+            </div>
+
             <ul class="navbar-nav align-items-lg-center gap-2">
-                <li class="nav-item" sec:authorize="hasAnyRole('CUSTOMER','COLLABORATOR')">
+                <!-- Customer specific links -->
+                <li class="nav-item" sec:authorize="hasRole('CUSTOMER') and !hasAnyRole('ADMIN','HOST','COLLABORATOR')">
                     <a class="nav-link" th:href="@{/khach-hang/yeu-thich}"><i class="fa-solid fa-heart me-1 text-danger"></i>Yêu thích</a>
                 </li>
-                <li class="nav-item" sec:authorize="hasAnyRole('CUSTOMER','COLLABORATOR')">
+                <li class="nav-item" sec:authorize="hasRole('CUSTOMER') and !hasAnyRole('ADMIN','HOST','COLLABORATOR')">
                     <a class="nav-link" th:href="@{/khach-hang/don-dat-phong}"><i class="fa-regular fa-calendar-check me-1"></i>Đơn của tôi</a>
                 </li>
-                <li class="nav-item dropdown" sec:authorize="hasAnyRole('HOST','COLLABORATOR')">
-                    <a class="nav-link dropdown-toggle text-warning" href="#" data-bs-toggle="dropdown">
-                        <i class="fa-solid fa-store me-1"></i>Kênh đối tác
+
+                <!-- Authenticated User Profile Dropdown: works natively via Bootstrap 5 -->
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-dark fw-semibold user-profile-toggle" 
+                       href="javascript:void(0);" 
+                       id="userProfileDropdown" 
+                       role="button" 
+                       data-bs-toggle="dropdown" 
+                       aria-expanded="false">
+                        <span class="user-avatar shadow-sm overflow-hidden d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2);">
+                            <img th:if="${#authentication.principal != null and #authentication.principal.avatar != null and !#authentication.principal.avatar.isEmpty()}"
+                                 th:src="${#authentication.principal.avatar}" 
+                                 alt="Avatar" 
+                                 class="rounded-circle"
+                                 style="width: 100%; height: 100%; object-fit: cover;"
+                                 onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
+                            <i class="fa-solid fa-user" th:style="${#authentication.principal != null and #authentication.principal.avatar != null and !#authentication.principal.avatar.isEmpty()} ? 'display: none;' : ''"></i>
+                        </span>
+                        <span class="fw-semibold small" th:text="${#authentication.principal != null and #authentication.principal.fullName != null and !#authentication.principal.fullName.isEmpty() ? #authentication.principal.fullName : #authentication.name}">Tài khoản</span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
-                        <li><a class="dropdown-item" th:href="@{/chu-nha/tong-quan}"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Tổng quan</a></li>
-                        <li><a class="dropdown-item" th:href="@{/chu-nha/danh-sach-homestay}"><i class="fa-solid fa-hotel me-2 text-info"></i>Homestay của tôi</a></li>
-                        <li><a class="dropdown-item" th:href="@{/chu-nha/don-dat-phong}"><i class="fa-solid fa-receipt me-2 text-success"></i>Đơn đặt phòng</a></li>
-                        <li><a class="dropdown-item" th:href="@{/chu-nha/danh-gia}"><i class="fa-solid fa-star me-2 text-warning"></i>Đánh giá của khách</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2 user-profile-menu" aria-labelledby="userProfileDropdown">
+                        <li><h6 class="dropdown-header text-uppercase fw-bold small text-muted">Tài khoản cá nhân</h6></li>
+                        <li><a class="dropdown-item" th:href="@{/ho-so}"><i class="fa-solid fa-id-badge me-2 text-danger"></i>Hồ sơ của tôi</a></li>
+                        
+                        <!-- Quick Role Portal Links -->
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/quan-tri/tong-quan}"><i class="fa-solid fa-shield-halved me-2 text-warning"></i>Bảng quản trị hệ thống</a>
+                        </li>
+                        <li sec:authorize="hasRole('HOST') and !hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/chu-nha/tong-quan}"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Kênh quản lý Chủ nhà</a>
+                        </li>
+                        <li sec:authorize="hasRole('COLLABORATOR') and !hasAnyRole('ADMIN','HOST')">
+                            <a class="dropdown-item" th:href="@{/cong-tac-vien/tong-quan}"><i class="fa-solid fa-handshake me-2 text-warning"></i>Kênh Cộng tác viên</a>
+                        </li>
+                        <li sec:authorize="hasRole('CUSTOMER') and !hasAnyRole('ADMIN','HOST','COLLABORATOR')">
+                            <a class="dropdown-item" th:href="@{/khach-hang/don-dat-phong}"><i class="fa-regular fa-calendar-check me-2 text-primary"></i>Đơn của tôi</a>
+                        </li>
+                        <li sec:authorize="hasRole('CUSTOMER') and !hasAnyRole('ADMIN','HOST','COLLABORATOR')">
+                            <a class="dropdown-item" th:href="@{/khach-hang/yeu-thich}"><i class="fa-solid fa-heart me-2 text-danger"></i>Homestay yêu thích</a>
+                        </li>
                     </ul>
                 </li>
-                <li class="nav-item dropdown" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link dropdown-toggle btn btn-sm btn-outline-dark px-3 py-1 text-dark" href="#" data-bs-toggle="dropdown">
-                        <i class="fa-solid fa-shield-halved me-1 text-warning"></i>Quản trị
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
-                        <li><h6 class="dropdown-header text-uppercase fw-bold small text-muted">Bảng điều khiển</h6></li>
-                        <li><a class="dropdown-item" th:href="@{/quan-tri/tong-quan}"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Tổng quan hệ thống</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" th:href="@{/quan-tri/nguoi-dung}"><i class="fa-solid fa-users me-2 text-info"></i>Người dùng</a></li>
-                        <li><a class="dropdown-item" th:href="@{/quan-tri/chu-nha}"><i class="fa-solid fa-user-check me-2 text-success"></i>Duyệt chủ nhà</a></li>
-                        <li><a class="dropdown-item" th:href="@{/quan-tri/cong-tac-vien}"><i class="fa-solid fa-handshake me-2 text-warning"></i>Duyệt cộng tác viên</a></li>
-                        <li><a class="dropdown-item" th:href="@{/quan-tri/homestay}"><i class="fa-solid fa-hotel me-2 text-danger"></i>Duyệt homestay</a></li>
-                        <li><a class="dropdown-item" th:href="@{/quan-tri/phong}"><i class="fa-solid fa-bed me-2 text-secondary"></i>Quản lý phòng</a></li>
-                        <li><a class="dropdown-item" th:href="@{/quan-tri/don-dat-phong}"><i class="fa-solid fa-receipt me-2 text-success"></i>Đơn đặt phòng</a></li>
-                    </ul>
-                </li>
+
+                <!-- Direct 1-Click Logout Button on Navbar (Sửa lại như nãy, nằm trực tiếp trên thanh, không lo kẹt trong menu) -->
                 <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <div class="nav-item-user d-flex align-items-center">
-                        <span class="user-avatar"><i class="fa-solid fa-user"></i></span>
-                        <span class="text-dark fw-semibold small pe-2" sec:authentication="name">Tài khoản</span>
-                        <form th:action="@{/logout}" method="post" class="d-inline m-0">
-                            <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" title="Đăng xuất" type="submit">
-                                <i class="fa-solid fa-right-from-bracket ms-1"></i>
-                            </button>
-                        </form>
-                    </div>
+                    <a th:href="@{/logout}" 
+                       onclick="window.location.href='/logout'; return true;" 
+                       class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 ms-1 d-inline-flex align-items-center gap-1.5 shadow-sm" 
+                       title="Đăng xuất khỏi hệ thống" 
+                       style="font-size: 13px; font-weight: 600; cursor: pointer;">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Đăng xuất</span>
+                    </a>
                 </li>
+
                 <li class="nav-item" sec:authorize="!isAuthenticated()">
                     <a class="nav-link" th:href="@{/dang-nhap}">Đăng nhập</a>
                 </li>
@@ -91,7 +154,7 @@
 
 <!-- Speed Dial Floating Contact Widget -->
 <div th:fragment="footer">
-    <div class="lien-he-noi" id="lienHeNoi">
+    <div class="lien-he-noi" id="lienHeNoi" sec:authorize="!hasRole('ADMIN')">
         <div class="lien-he-danh-sach" id="lienHeDanhSach">
             <div class="item-lien-he-wrap">
                 <span class="item-lien-he-label">Gọi Hotline</span>
@@ -122,13 +185,26 @@
                 <a href="https://tiktok.com/@bookinghomestay" target="_blank" class="btn-lien-he btn-tiktok" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
             </div>
         </div>
-        <button type="button" class="btn-lien-he btn-chinh" id="btnLienHeChinh" title="Hỗ trợ & Liên hệ nhanh">
-            <i class="fa-solid fa-headset"></i>
-        </button>
+        <div class="lien-he-main-wrap d-flex align-items-center gap-2">
+            <div class="lien-he-message-bubble shadow-sm" id="lienHeMessageBubble" title="Nhấp để xem kênh hỗ trợ">
+                <span>Bạn có vấn đề liên quan đến phòng hãy liên hệ chúng tôi</span>
+                <button type="button" class="bubble-close-btn" id="bubbleCloseBtn" title="Đóng">&times;</button>
+            </div>
+            <button type="button" class="btn-lien-he btn-chinh" id="btnLienHeChinh" title="Hỗ trợ & Liên hệ nhanh">
+                <i class="fa-solid fa-headset"></i>
+            </button>
+        </div>
     </div>
 
-    <!-- Modern Luxury Footer -->
-    <footer class="footer-modern">
+    <!-- Clean Compact Admin Footer -->
+    <footer class="py-3 mt-4 text-center small text-muted border-top bg-white" sec:authorize="hasRole('ADMIN')">
+        <div class="container-fluid">
+            &copy; 2026 BookingHomeStay - Bảng Quản Trị Hệ Thống.
+        </div>
+    </footer>
+
+    <!-- Modern Luxury Footer (Customer & Public) -->
+    <footer class="footer-modern" sec:authorize="!hasRole('ADMIN')">
         <div class="container">
             <div class="row g-4 mb-5">
                 <div class="col-lg-4 col-md-6">
@@ -196,10 +272,33 @@
     <script>
         // Speed dial toggle
         const btnLienHeChinh = document.getElementById('btnLienHeChinh');
+        const lienHeMessageBubble = document.getElementById('lienHeMessageBubble');
+        const bubbleCloseBtn = document.getElementById('bubbleCloseBtn');
+
+        function toggleSpeedDial() {
+            const list = document.getElementById('lienHeDanhSach');
+            if (list) list.classList.toggle('mo');
+            if (btnLienHeChinh) btnLienHeChinh.classList.toggle('dang-mo');
+        }
+
         if (btnLienHeChinh) {
-            btnLienHeChinh.addEventListener('click', function () {
-                document.getElementById('lienHeDanhSach').classList.toggle('mo');
-                this.classList.toggle('dang-mo');
+            btnLienHeChinh.addEventListener('click', toggleSpeedDial);
+        }
+
+        if (lienHeMessageBubble) {
+            lienHeMessageBubble.addEventListener('click', function (e) {
+                if (e.target !== bubbleCloseBtn) {
+                    toggleSpeedDial();
+                }
+            });
+        }
+
+        if (bubbleCloseBtn) {
+            bubbleCloseBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (lienHeMessageBubble) {
+                    lienHeMessageBubble.style.display = 'none';
+                }
             });
         }
 

@@ -6,6 +6,7 @@ import BookingHomeStay.BookingHomeStay.repository.*;
 import BookingHomeStay.BookingHomeStay.service.CollaboratorService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,9 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     private final CollaboratorWithdrawalRepository withdrawalRepository;
     private final CollaboratorReferralClickRepository clickRepository;
     private final HomestayRepository homestayRepository;
+
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
 
     @Override
     public Collaborator getMyCollaborator(Long userId) {
@@ -60,13 +64,23 @@ public class CollaboratorServiceImpl implements CollaboratorService {
                 )
         );
 
+        BigDecimal availableBalance = getAvailableBalance(userId);
+        long clicks = clickRepository.countByCollaboratorId(c.getId());
+        long bookings = commissionRepository.countByCollaboratorId(c.getId());
+        String referralLink = baseUrl + "/trang-chu?ref=" + (c.getMaGioiThieu() != null ? c.getMaGioiThieu() : "");
+
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("collaborator", c);
-        data.put("clicks", clickRepository.countByCollaboratorId(c.getId()));
-        data.put("bookings", commissionRepository.countByCollaboratorId(c.getId()));
+        data.put("clicks", clicks);
+        data.put("clickCount", clicks);
+        data.put("bookings", bookings);
+        data.put("bookingCount", bookings);
         data.put("available", available);
+        data.put("availableBalance", availableBalance);
+        data.put("totalCommission", available.add(paid).add(pending));
         data.put("paid", paid);
         data.put("pending", pending);
+        data.put("referralLink", referralLink);
         data.put("homestays", getShareableHomestays());
 
         return data;
@@ -120,26 +134,11 @@ public class CollaboratorServiceImpl implements CollaboratorService {
             throw new IllegalStateException("Cộng tác viên chưa được Admin duyệt");
         }
 
-        BigDecimal available = nz(
-                commissionRepository.sumCommissionAmountByCollaboratorIdAndStatus(
-                        c.getId(),
-                        CommissionStatus.AVAILABLE
-                )
-        );
-
-        // Trừ các khoản đang chờ xử lý/rút
-        BigDecimal reserved = withdrawalRepository
-                .findByStatusOrderByCreatedAtAsc(WithdrawalStatus.PENDING)
-                .stream()
-                .filter(w -> w.getCollaborator().getId().equals(c.getId()))
-                .map(CollaboratorWithdrawal::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal realAvailable = available.subtract(reserved);
+        BigDecimal realAvailable = getAvailableBalance(userId);
 
         if (amount.compareTo(realAvailable) > 0) {
             throw new IllegalArgumentException(
-                    "Số dư khả dụng không đủ. Số dư có thể rút: " + realAvailable
+                    "Số dư khả dụng không đủ. Số dư có thể rút: " + realAvailable + " VNĐ"
             );
         }
 
@@ -162,6 +161,11 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @Override
     public List<CollaboratorWithdrawal> getPendingWithdrawals() {
         return withdrawalRepository.findByStatusOrderByCreatedAtAsc(WithdrawalStatus.PENDING);
+    }
+
+    @Override
+    public List<CollaboratorWithdrawal> getAllWithdrawals() {
+        return withdrawalRepository.findAllByOrderByCreatedAtDesc();
     }
 
     @Override
@@ -280,6 +284,43 @@ public class CollaboratorServiceImpl implements CollaboratorService {
                 .build();
 
         commissionRepository.save(commission);
+    }
+
+    @Override
+    public BigDecimal getAvailableBalance(Long userId) {
+        Collaborator c = getMyCollaborator(userId);
+        BigDecimal available = nz(
+                commissionRepository.sumCommissionAmountByCollaboratorIdAndStatus(
+                        c.getId(),
+                        CommissionStatus.AVAILABLE
+                )
+        );
+
+        BigDecimal reserved = withdrawalRepository
+                .findByStatusOrderByCreatedAtAsc(WithdrawalStatus.PENDING)
+                .stream()
+                .filter(w -> w.getCollaborator().getId().equals(c.getId()))
+                .map(CollaboratorWithdrawal::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal realAvailable = available.subtract(reserved);
+        return realAvailable.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : realAvailable;
+    }
+
+    @Override
+    @Transactional
+    public void updateBankInfo(Long userId, String tenNganHang, String soTaiKhoanNhanHoaHong) {
+        if (tenNganHang == null || tenNganHang.trim().isBlank()) {
+            throw new IllegalArgumentException("Vui lòng nhập tên ngân hàng");
+        }
+        if (soTaiKhoanNhanHoaHong == null || soTaiKhoanNhanHoaHong.trim().isBlank()) {
+            throw new IllegalArgumentException("Vui lòng nhập số tài khoản ngân hàng");
+        }
+
+        Collaborator c = getMyCollaborator(userId);
+        c.setTenNganHang(tenNganHang.trim());
+        c.setSoTaiKhoanNhanHoaHong(soTaiKhoanNhanHoaHong.trim());
+        collaboratorRepository.save(c);
     }
 
     private BigDecimal nz(BigDecimal value) {

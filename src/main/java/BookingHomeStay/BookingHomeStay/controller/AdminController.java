@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 /**
  * Toan bo chuc nang danh cho Quan tri vien (ADMIN).
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
  * chu - route la duong dan tren trinh duyet, view name la duong dan file .html.
  */
 @Controller
-@RequestMapping("/quan-tri")
+@RequestMapping({"/quan-tri", "/admin"})
 @RequiredArgsConstructor
 public class AdminController {
 
@@ -30,6 +31,13 @@ public class AdminController {
     private final HomestayService homestayService;
     private final BookingService bookingService;
     private final PromotionService promotionService;
+    private final BookingHomeStay.BookingHomeStay.service.CollaboratorService collaboratorService;
+
+    // Dieu huong mac dinh ve trang tong quan khi truy cap /quan-tri hoac /admin
+    @GetMapping({"", "/"})
+    public String index() {
+        return "redirect:/quan-tri/tong-quan";
+    }
 
     // ================= TONG QUAN =================
 
@@ -246,10 +254,115 @@ public class AdminController {
 
     // ================= DON DAT PHONG =================
 
-    // Xem TOAN BO don dat phong trong he thong (moi Chu nha, moi trang thai).
+    // Xem TOAN BO don dat phong trong he thong (moi Chu nha, moi trang thai), ho tro tim kiem theo ma don & ten khach.
     @GetMapping("/don-dat-phong")
-    public String bookings(Model model) {
-        model.addAttribute("bookings", bookingService.getAllBookings());
+    public String bookings(@RequestParam(required = false) String bookingCode,
+                           @RequestParam(required = false) String customerName,
+                           Model model) {
+        model.addAttribute("bookings", bookingService.searchBookingsForAdmin(bookingCode, customerName));
+        model.addAttribute("bookingCode", bookingCode);
+        model.addAttribute("customerName", customerName);
         return "quan-tri/don-dat-phong";
+    }
+
+    // ================= QUAN LY GIAO DICH THANH TOAN (task 2.4) =================
+
+    @GetMapping("/giao-dich")
+    public String payments(
+            @RequestParam(required = false) BookingHomeStay.BookingHomeStay.entity.PaymentStatus status,
+            @RequestParam(required = false) BookingHomeStay.BookingHomeStay.entity.PaymentMethod method,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fromDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate toDate,
+            @RequestParam(required = false) String keyword,
+            Model model) {
+
+        List<BookingHomeStay.BookingHomeStay.entity.Payment> payments = adminService.getPayments(status, method, fromDate, toDate, keyword);
+
+        java.math.BigDecimal totalPaid = payments.stream()
+                .filter(p -> p.getStatus() == BookingHomeStay.BookingHomeStay.entity.PaymentStatus.PAID)
+                .map(BookingHomeStay.BookingHomeStay.entity.Payment::getAmount)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+        java.math.BigDecimal totalPending = payments.stream()
+                .filter(p -> p.getStatus() != BookingHomeStay.BookingHomeStay.entity.PaymentStatus.PAID)
+                .map(BookingHomeStay.BookingHomeStay.entity.Payment::getAmount)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+        long reconciledCount = payments.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getIsReconciled()))
+                .count();
+
+        model.addAttribute("payments", payments);
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("selectedMethod", method);
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("totalPaid", totalPaid);
+        model.addAttribute("totalPending", totalPending);
+        model.addAttribute("reconciledCount", reconciledCount);
+
+        return "quan-tri/giao-dich";
+    }
+
+    @PostMapping("/giao-dich/{id}/doi-soat")
+    public String reconcilePayment(@PathVariable Long id,
+                                   @org.springframework.security.core.annotation.AuthenticationPrincipal BookingHomeStay.BookingHomeStay.security.CustomUserDetails currentUser,
+                                   org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            adminService.reconcilePayment(id, currentUser != null ? currentUser.getUsername() : "Admin");
+            redirectAttributes.addFlashAttribute("successMessage", "Đã đối soát giao dịch #" + id + " thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/quan-tri/giao-dich";
+    }
+
+    // ================= QUAN LY RUT TIEN CONG TAC VIEN =================
+
+    @GetMapping("/rut-tien")
+    public String withdrawals(Model model) {
+        java.util.List<BookingHomeStay.BookingHomeStay.entity.CollaboratorWithdrawal> list = collaboratorService.getAllWithdrawals();
+        long pendingCount = list.stream()
+                .filter(w -> w.getStatus() == BookingHomeStay.BookingHomeStay.entity.WithdrawalStatus.PENDING)
+                .count();
+        model.addAttribute("withdrawals", list);
+        model.addAttribute("pendingCount", pendingCount);
+        return "quan-tri/rut-tien-cong-tac-vien";
+    }
+
+    @PostMapping("/rut-tien/{id}/duyet")
+    public String approveWithdrawal(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            collaboratorService.approveWithdrawal(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã duyệt yêu cầu rút tiền #" + id + "!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/quan-tri/rut-tien";
+    }
+
+    @PostMapping("/rut-tien/{id}/tu-choi")
+    public String rejectWithdrawal(@PathVariable Long id,
+                                   @RequestParam(required = false, defaultValue = "Không đủ điều kiện hoặc thông tin sai") String note,
+                                   org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            collaboratorService.rejectWithdrawal(id, note);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã từ chối yêu cầu rút tiền #" + id + ".");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/quan-tri/rut-tien";
+    }
+
+    @PostMapping("/rut-tien/{id}/da-chuyen")
+    public String markWithdrawalPaid(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            collaboratorService.markWithdrawalPaid(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận thanh toán thành công cho yêu cầu #" + id + "!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/quan-tri/rut-tien";
     }
 }

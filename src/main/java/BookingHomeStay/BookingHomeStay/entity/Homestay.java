@@ -2,6 +2,7 @@ package BookingHomeStay.BookingHomeStay.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -81,5 +82,23 @@ public class Homestay {
                 .findFirst()
                 .map(HomestayTranslation::getName)
                 .orElse(this.name);
+    }
+
+    public BigDecimal getMinPrice() {
+        if (rooms == null || rooms.isEmpty()) return null;
+        return rooms.stream()
+                .map(Room::getPricePerNight)
+                .filter(java.util.Objects::nonNull)
+                .min(BigDecimal::compareTo)
+                .orElse(null);
+    }
+
+    public Integer getMaxGuests() {
+        if (rooms == null || rooms.isEmpty()) return null;
+        return rooms.stream()
+                .map(Room::getMaxGuests)
+                .filter(java.util.Objects::nonNull)
+                .max(Integer::compareTo)
+                .orElse(null);
     }
 }

@@ -6,16 +6,21 @@ import BookingHomeStay.BookingHomeStay.entity.Room;
 import BookingHomeStay.BookingHomeStay.security.CustomUserDetails;
 import BookingHomeStay.BookingHomeStay.service.BookingService;
 import BookingHomeStay.BookingHomeStay.service.HomestayService;
+import BookingHomeStay.BookingHomeStay.service.RoomAvailabilityService;
 import BookingHomeStay.BookingHomeStay.service.ReviewService;
 import BookingHomeStay.BookingHomeStay.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDate;
+import java.util.Map;
 
 /**
  * Chuc nang danh cho Chu nha cho thue (HOST) va Cong tac vien (COLLABORATOR).
@@ -30,6 +35,7 @@ public class HostController {
     private final RoomService roomService;
     private final BookingService bookingService;
     private final ReviewService reviewService;
+    private final RoomAvailabilityService roomAvailabilityService;
 
     // Trang tong quan cua Chu nha: so luong homestay dang co + tat ca don dat
     // phong cua cac homestay do (KHONG dung chung du lieu voi Dashboard Admin).
@@ -122,10 +128,91 @@ public class HostController {
         return "redirect:/chu-nha/homestay/" + homestayId + "/phong";
     }
 
-    // Danh sach TOAN BO don dat phong thuoc cac homestay cua Chu nha nay.
+    // ================= LICH PHONG THEO NGAY =================
+
+    @GetMapping("/homestay/{homestayId}/phong/{roomId}/lich")
+    public String roomCalendar(@PathVariable Long homestayId,
+                               @PathVariable Long roomId,
+                               @RequestParam(required = false) Integer year,
+                               @RequestParam(required = false) Integer month,
+                               @AuthenticationPrincipal CustomUserDetails currentUser,
+                               Model model) {
+        LocalDate now = LocalDate.now();
+        int y = (year != null && year >= 2020 && year <= 2035) ? year : now.getYear();
+        int m = (month != null && month >= 1 && month <= 12) ? month : now.getMonthValue();
+
+        model.addAttribute("homestay", homestayService.getByIdForHost(homestayId, currentUser.getId()));
+        model.addAttribute("room", roomService.getByIdForHost(roomId, currentUser.getId()));
+        model.addAttribute("calendarDays", roomAvailabilityService.getMonthCalendar(roomId, y, m));
+        model.addAttribute("currentYear", y);
+        model.addAttribute("currentMonth", m);
+        model.addAttribute("homestayId", homestayId);
+        model.addAttribute("roomId", roomId);
+        return "chu-nha/lich-phong";
+    }
+
+    @PostMapping("/homestay/{homestayId}/phong/{roomId}/lich/khoa")
+    public String lockRoomDate(@PathVariable Long homestayId,
+                               @PathVariable Long roomId,
+                               @RequestParam String date,
+                               @AuthenticationPrincipal CustomUserDetails currentUser,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            LocalDate d = LocalDate.parse(date);
+            roomAvailabilityService.lockDate(roomId, d, currentUser.getId());
+            redirectAttributes.addFlashAttribute("successMessage", "Đã khóa ngày " + d + " thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/chu-nha/homestay/" + homestayId + "/phong/" + roomId + "/lich";
+    }
+
+    @PostMapping("/homestay/{homestayId}/phong/{roomId}/lich/mo")
+    public String unlockRoomDate(@PathVariable Long homestayId,
+                                 @PathVariable Long roomId,
+                                 @RequestParam String date,
+                                 @AuthenticationPrincipal CustomUserDetails currentUser,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            LocalDate d = LocalDate.parse(date);
+            roomAvailabilityService.unlockDate(roomId, d, currentUser.getId());
+            redirectAttributes.addFlashAttribute("successMessage", "Đã mở ngày " + d + " thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/chu-nha/homestay/" + homestayId + "/phong/" + roomId + "/lich";
+    }
+
+    @PostMapping("/homestay/{homestayId}/phong/{roomId}/lich/toggle")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> toggleRoomDateAjax(@PathVariable Long homestayId,
+                                                                   @PathVariable Long roomId,
+                                                                   @RequestParam String date,
+                                                                   @AuthenticationPrincipal CustomUserDetails currentUser) {
+        try {
+            LocalDate d = LocalDate.parse(date);
+            var nextStatus = roomAvailabilityService.toggleDate(roomId, d, currentUser.getId());
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "status", nextStatus.name(),
+                    "message", "Đã cập nhật trạng thái ngày " + d + " thành " + nextStatus
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    // Danh sach TOAN BO don dat phong thuoc cac homestay cua Chu nha nay, ho tro tim kiem theo ma don & ten khach.
     @GetMapping("/don-dat-phong")
-    public String bookings(@AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
-        model.addAttribute("bookings", bookingService.getBookingsOfHost(currentUser.getId()));
+    public String bookings(@RequestParam(required = false) String bookingCode,
+                           @RequestParam(required = false) String customerName,
+                           @AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
+        model.addAttribute("bookings", bookingService.searchBookingsOfHost(currentUser.getId(), bookingCode, customerName));
+        model.addAttribute("bookingCode", bookingCode);
+        model.addAttribute("customerName", customerName);
         return "chu-nha/don-dat-phong";
     }
 

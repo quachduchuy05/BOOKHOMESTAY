@@ -1,6 +1,7 @@
 package BookingHomeStay.BookingHomeStay.controller;
 
 import BookingHomeStay.BookingHomeStay.dto.RegisterRequest;
+import BookingHomeStay.BookingHomeStay.dto.ResetPasswordForm;
 import BookingHomeStay.BookingHomeStay.entity.OtpChannel;
 import BookingHomeStay.BookingHomeStay.service.OtpService;
 import BookingHomeStay.BookingHomeStay.service.UserService;
@@ -87,5 +88,59 @@ public class AuthController {
     @GetMapping("/khong-co-quyen")
     public String accessDenied() {
         return "loi/403";
+    }
+
+    // ================= QUEN MAT KHAU & DAT LAI MAT KHAU =================
+
+    @GetMapping("/quen-mat-khau")
+    public String forgotPasswordPage() {
+        return "xac-thuc/quen-mat-khau";
+    }
+
+    @PostMapping("/quen-mat-khau")
+    public String processForgotPassword(@RequestParam String email,
+                                        org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes,
+                                        Model model) {
+        if (email == null || email.trim().isBlank()) {
+            model.addAttribute("errorMessage", "Vui lòng nhập địa chỉ email tài khoản.");
+            return "xac-thuc/quen-mat-khau";
+        }
+        try {
+            userService.sendForgotPasswordOtp(email.trim());
+            redirectAttributes.addFlashAttribute("successMessage", "Mã xác thực OTP đã được gửi tới email của bạn. Vui lòng kiểm tra hộp thư!");
+            return "redirect:/dat-lai-mat-khau?email=" + java.net.URLEncoder.encode(email.trim(), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("email", email);
+            return "xac-thuc/quen-mat-khau";
+        }
+    }
+
+    @GetMapping("/dat-lai-mat-khau")
+    public String resetPasswordPage(@RequestParam(required = false) String email, Model model) {
+        ResetPasswordForm form = new ResetPasswordForm();
+        if (email != null) {
+            form.setEmail(email.trim());
+        }
+        model.addAttribute("resetPasswordForm", form);
+        return "xac-thuc/dat-lai-mat-khau";
+    }
+
+    @PostMapping("/dat-lai-mat-khau")
+    public String processResetPassword(@Valid @ModelAttribute("resetPasswordForm") ResetPasswordForm form,
+                                       BindingResult result,
+                                       org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes,
+                                       Model model) {
+        if (result.hasErrors()) {
+            return "xac-thuc/dat-lai-mat-khau";
+        }
+        try {
+            userService.datLaiMatKhau(form);
+            redirectAttributes.addFlashAttribute("resetSuccessMessage", "Đặt lại mật khẩu thành công! Mời bạn đăng nhập bằng mật khẩu mới.");
+            return "redirect:/dang-nhap";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "xac-thuc/dat-lai-mat-khau";
+        }
     }
 }

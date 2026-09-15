@@ -2,12 +2,10 @@ package BookingHomeStay.BookingHomeStay.service.impl;
 
 import BookingHomeStay.BookingHomeStay.entity.OtpChannel;
 import BookingHomeStay.BookingHomeStay.service.OtpService;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -93,10 +91,12 @@ public class OtpServiceImpl implements OtpService {
         otpStore.put(destination, new OtpEntry(code, Instant.now().plus(TTL)));
 
         try {
-            switch (channel) {
-                case EMAIL -> sendViaEmail(destination, code);
-                case SMS -> sendViaSms(destination, code);
-                case ZALO -> sendViaZalo(destination, code);
+            if (channel == OtpChannel.EMAIL) {
+                sendViaEmail(destination, code);
+            } else if (channel == OtpChannel.SMS) {
+                sendViaSms(destination, code);
+            } else if (channel == OtpChannel.ZALO) {
+                sendViaZalo(destination, code);
             }
         } catch (Exception e) {
             otpStore.remove(destination);
@@ -113,6 +113,13 @@ public class OtpServiceImpl implements OtpService {
         OtpEntry entry = otpStore.get(destination);
         if (entry == null)
             return false;
+
+        // Kiểm tra số lần thử sai trước đó (tối đa 5 lần)
+        if (entry.getAttempts().get() >= 5) {
+            otpStore.remove(destination);
+            log.warn("[OTP] Mã OTP cho {} đã bị vô hiệu hóa do nhập sai quá 5 lần", destination);
+            return false;
+        }
 
         // Kiểm tra hết hạn (TTL 5 phút)
         if (Instant.now().isAfter(entry.getExpireAt())) {
@@ -131,7 +138,12 @@ public class OtpServiceImpl implements OtpService {
             log.info("[OTP] Xác thực OTP thành công cho {}", destination);
             return true;
         } else {
-            log.warn("[OTP] Sai mã OTP cho {}", destination);
+            int attempts = entry.getAttempts().incrementAndGet();
+            log.warn("[OTP] Sai mã OTP cho {} (lần thử {}/5)", destination, attempts);
+            if (attempts >= 5) {
+                otpStore.remove(destination);
+                log.warn("[OTP] Đã hủy mã OTP của {} do nhập sai quá 5 lần", destination);
+            }
             return false;
         }
     }

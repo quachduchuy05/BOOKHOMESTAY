@@ -20,24 +20,32 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                          Authentication authentication) throws IOException, ServletException {
 
-        // Neu nguoi dung bi chan boi Spring Security khi dang truy cap 1 trang can dang nhap
-        // (vd: bam "Dat phong" luc chua login) thi uu tien quay lai dung trang do sau khi login thanh cong.
+        clearAuthenticationAttributes(request);
+
+        // Định hướng thẳng sang giao diện quản lý tương ứng cho Admin, CTV và Chủ nhà
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            String role = authority.getAuthority();
+            if ("ROLE_ADMIN".equals(role)) {
+                getRedirectStrategy().sendRedirect(request, response, "/quan-tri/tong-quan");
+                return;
+            }
+            if ("ROLE_COLLABORATOR".equals(role)) {
+                getRedirectStrategy().sendRedirect(request, response, "/cong-tac-vien/tong-quan");
+                return;
+            }
+            if ("ROLE_HOST".equals(role)) {
+                getRedirectStrategy().sendRedirect(request, response, "/chu-nha/tong-quan");
+                return;
+            }
+        }
+
+        // Đối với Khách hàng (ROLE_CUSTOMER): nếu có savedRequest thì quay lại, nếu không thì về trang chủ
         SavedRequest savedRequest = requestCache.getRequest(request, response);
         if (savedRequest != null) {
-            clearAuthenticationAttributes(request);
             getRedirectStrategy().sendRedirect(request, response, savedRequest.getRedirectUrl());
             return;
         }
 
-        // Khong co trang nao duoc luu lai (nguoi dung vao thang /login) -> dieu huong theo vai tro
-        String redirectUrl = "/";
-        for (GrantedAuthority authority : authentication.getAuthorities()) {
-            String role = authority.getAuthority();
-            if (role.equals("ROLE_ADMIN")) { redirectUrl = "/quan-tri/tong-quan"; break; }
-            if (role.equals("ROLE_COLLABORATOR")) { redirectUrl = "/cong-tac-vien/tong-quan"; break; }
-            if (role.equals("ROLE_HOST")) { redirectUrl = "/chu-nha/tong-quan"; break; }
-        }
-        clearAuthenticationAttributes(request);
-        response.sendRedirect(request.getContextPath() + redirectUrl);
+        getRedirectStrategy().sendRedirect(request, response, "/");
     }
 }

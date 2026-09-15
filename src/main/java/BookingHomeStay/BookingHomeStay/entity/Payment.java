@@ -42,6 +42,12 @@ public class Payment {
 
     private LocalDateTime paymentTime;
 
+    @Builder.Default
+    private Boolean isReconciled = false;
+
+    private LocalDateTime reconciledAt;
+    private String reconciledBy;
+
     private LocalDateTime refundTime;
 
     @Builder.Default

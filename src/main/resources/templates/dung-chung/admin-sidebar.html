@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Mobile Trigger Button -->
+<div th:fragment="toggle" class="d-lg-none mb-3">
+    <button class="btn btn-dark btn-sm rounded-pill px-3 shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas">
+        <i class="fa-solid fa-bars me-1"></i> Bảng điều khiển Quản trị
+    </button>
+</div>
+
+<!-- Desktop Sticky Sidebar -->
+<div th:fragment="sidebar(activePage)" class="col-lg-3 col-xl-2 d-none d-lg-block">
+    <div class="admin-sidebar-card card border-0 rounded-4 p-3 sticky-top shadow-sm" style="top: 85px; max-height: calc(100vh - 100px); overflow-y: auto;">
+        <div class="d-flex align-items-center gap-2 pb-2 mb-2 border-bottom">
+            <div class="rounded-3 bg-danger-subtle text-danger p-2 d-flex align-items-center justify-content-center" style="width:34px; height:34px;">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <span class="fw-bold small d-block text-dark lh-sm">Quản trị viên</span>
+                <small class="text-muted" style="font-size: 11px;">Admin Dashboard</small>
+            </div>
+        </div>
+
+        <nav class="nav flex-column gap-1">
+            <div class="text-uppercase text-muted fw-bold small px-2 pt-1" style="font-size: 10px; letter-spacing: 0.05em;">Hệ thống</div>
+            <a th:href="@{/quan-tri/tong-quan}" class="admin-nav-link" th:classappend="${activePage == 'tong-quan' ? 'active' : ''}">
+                <i class="fa-solid fa-chart-pie me-2 text-primary"></i> Tổng quan
+            </a>
+            <a th:href="@{/quan-tri/nguoi-dung}" class="admin-nav-link" th:classappend="${activePage == 'nguoi-dung' ? 'active' : ''}">
+                <i class="fa-solid fa-users me-2 text-info"></i> Người dùng
+            </a>
+            <a th:href="@{/quan-tri/chu-nha}" class="admin-nav-link" th:classappend="${activePage == 'chu-nha' ? 'active' : ''}">
+                <i class="fa-solid fa-user-check me-2 text-success"></i> Duyệt Host
+            </a>
+            <a th:href="@{/quan-tri/cong-tac-vien}" class="admin-nav-link" th:classappend="${activePage == 'cong-tac-vien' ? 'active' : ''}">
+                <i class="fa-solid fa-handshake me-2 text-warning"></i> Duyệt CTV
+            </a>
+            <a th:href="@{/quan-tri/rut-tien}" class="admin-nav-link" th:classappend="${activePage == 'rut-tien' ? 'active' : ''}">
+                <i class="fa-solid fa-wallet me-2 text-info"></i> Rút tiền CTV
+            </a>
+
+            <div class="text-uppercase text-muted fw-bold small px-2 pt-2 border-top mt-1" style="font-size: 10px; letter-spacing: 0.05em;">Dịch vụ & Phòng</div>
+            <a th:href="@{/quan-tri/homestay}" class="admin-nav-link" th:classappend="${activePage == 'homestay' ? 'active' : ''}">
+                <i class="fa-solid fa-hotel me-2 text-danger"></i> Homestay
+            </a>
+            <a th:href="@{/quan-tri/phong}" class="admin-nav-link" th:classappend="${activePage == 'phong' ? 'active' : ''}">
+                <i class="fa-solid fa-bed me-2 text-primary"></i> Quản lý phòng
+            </a>
+            <a th:href="@{/quan-tri/don-dat-phong}" class="admin-nav-link" th:classappend="${activePage == 'don-dat-phong' ? 'active' : ''}">
+                <i class="fa-solid fa-receipt me-2 text-success"></i> Đơn đặt phòng
+            </a>
+            <a th:href="@{/quan-tri/giao-dich}" class="admin-nav-link" th:classappend="${activePage == 'giao-dich' ? 'active' : ''}">
+                <i class="fa-solid fa-money-bill-wave me-2 text-warning"></i> Giao dịch
+            </a>
+            <a th:href="@{/quan-tri/ma-giam-gia}" class="admin-nav-link" th:classappend="${activePage == 'ma-giam-gia' ? 'active' : ''}">
+                <i class="fa-solid fa-ticket me-2 text-primary"></i> Mã giảm giá
+            </a>
+
+            <div class="text-uppercase text-muted fw-bold small px-2 pt-2 border-top mt-1" style="font-size: 10px; letter-spacing: 0.05em;">Tài khoản</div>
+            <a th:href="@{/ho-so}" class="admin-nav-link" th:classappend="${activePage == 'ho-so' ? 'active' : ''}">
+                <i class="fa-solid fa-id-badge me-2 text-danger"></i> Hồ sơ cá nhân
+            </a>
+            <a th:href="@{/logout}" 
+               onclick="window.location.href='/logout'; return true;" 
+               class="admin-nav-link text-danger fw-semibold bg-danger-subtle mt-1 rounded-3" 
+               style="cursor: pointer;">
+                <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i> Đăng xuất
+            </a>
+        </nav>
+    </div>
+</div>
+
+<!-- Mobile Offcanvas Drawer -->
+<div th:fragment="offcanvas(activePage)" class="offcanvas offcanvas-start" tabindex="-1" id="adminSidebarOffcanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold text-dark"><i class="fa-solid fa-shield-halved text-danger me-2"></i>Bảng Quản Trị</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-3">
+        <nav class="nav flex-column gap-1">
+            <div class="text-uppercase text-muted fw-bold small px-2 pt-1" style="font-size: 10px; letter-spacing: 0.05em;">Hệ thống</div>
+            <a th:href="@{/quan-tri/tong-quan}" class="admin-nav-link" th:classappend="${activePage == 'tong-quan' ? 'active' : ''}">
+                <i class="fa-solid fa-chart-pie me-2 text-primary"></i> Tổng quan
+            </a>
+            <a th:href="@{/quan-tri/nguoi-dung}" class="admin-nav-link" th:classappend="${activePage == 'nguoi-dung' ? 'active' : ''}">
+                <i class="fa-solid fa-users me-2 text-info"></i> Người dùng
+            </a>
+            <a th:href="@{/quan-tri/chu-nha}" class="admin-nav-link" th:classappend="${activePage == 'chu-nha' ? 'active' : ''}">
+                <i class="fa-solid fa-user-check me-2 text-success"></i> Duyệt Host
+            </a>
+            <a th:href="@{/quan-tri/cong-tac-vien}" class="admin-nav-link" th:classappend="${activePage == 'cong-tac-vien' ? 'active' : ''}">
+                <i class="fa-solid fa-handshake me-2 text-warning"></i> Duyệt CTV
+            </a>
+            <a th:href="@{/quan-tri/rut-tien}" class="admin-nav-link" th:classappend="${activePage == 'rut-tien' ? 'active' : ''}">
+                <i class="fa-solid fa-wallet me-2 text-info"></i> Rút tiền CTV
+            </a>
+
+            <div class="text-uppercase text-muted fw-bold small px-2 pt-2 border-top mt-1" style="font-size: 10px; letter-spacing: 0.05em;">Dịch vụ & Phòng</div>
+            <a th:href="@{/quan-tri/homestay}" class="admin-nav-link" th:classappend="${activePage == 'homestay' ? 'active' : ''}">
+                <i class="fa-solid fa-hotel me-2 text-danger"></i> Homestay
+            </a>
+            <a th:href="@{/quan-tri/phong}" class="admin-nav-link" th:classappend="${activePage == 'phong' ? 'active' : ''}">
+                <i class="fa-solid fa-bed me-2 text-primary"></i> Quản lý phòng
+            </a>
+            <a th:href="@{/quan-tri/don-dat-phong}" class="admin-nav-link" th:classappend="${activePage == 'don-dat-phong' ? 'active' : ''}">
+                <i class="fa-solid fa-receipt me-2 text-success"></i> Đơn đặt phòng
+            </a>
+            <a th:href="@{/quan-tri/giao-dich}" class="admin-nav-link" th:classappend="${activePage == 'giao-dich' ? 'active' : ''}">
+                <i class="fa-solid fa-money-bill-wave me-2 text-warning"></i> Giao dịch
+            </a>
+            <a th:href="@{/quan-tri/ma-giam-gia}" class="admin-nav-link" th:classappend="${activePage == 'ma-giam-gia' ? 'active' : ''}">
+                <i class="fa-solid fa-ticket me-2 text-primary"></i> Mã giảm giá
+            </a>
+
+            <div class="text-uppercase text-muted fw-bold small px-2 pt-2 border-top mt-1" style="font-size: 10px; letter-spacing: 0.05em;">Tài khoản</div>
+            <a th:href="@{/ho-so}" class="admin-nav-link" th:classappend="${activePage == 'ho-so' ? 'active' : ''}">
+                <i class="fa-solid fa-id-badge me-2 text-danger"></i> Hồ sơ cá nhân
+            </a>
+            <a th:href="@{/logout}" 
+               onclick="window.location.href='/logout'; return true;" 
+               class="admin-nav-link text-danger fw-semibold bg-danger-subtle mt-1 rounded-3" 
+               style="cursor: pointer;">
+                <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i> Đăng xuất
+            </a>
+        </nav>
+    </div>
+</div>
+
+</body>
+</html>

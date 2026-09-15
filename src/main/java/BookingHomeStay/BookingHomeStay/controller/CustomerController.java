@@ -41,7 +41,8 @@ public class CustomerController {
     private final BookingHomeStay.BookingHomeStay.repository.RoomRepository roomRepository;
 
     @GetMapping("/dat-phong/moi")
-    public String newBookingForm(@RequestParam Long roomId, 
+    public String newBookingForm(@RequestParam Long roomId,
+                                 @RequestParam(required = false) String ref,
                                  @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate checkinDate,
                                  @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate checkoutDate,
                                  @RequestParam(required = false) Integer roomCount,
@@ -49,6 +50,9 @@ public class CustomerController {
                                  Model model) {
         BookingRequest form = new BookingRequest();
         form.setRoomId(roomId);
+        if (ref != null && !ref.isBlank()) {
+            form.setReferralCode(ref.trim());
+        }
         form.setCheckinDate(checkinDate);
         form.setCheckoutDate(checkoutDate);
         if (roomCount != null && roomCount > 0) {

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
+    Optional<User> findByPhone(String phone);
     boolean existsByEmail(String email);
 
     // Dung cho trang /quan-tri/nguoi-dung: liet ke tat ca user co 1 vai tro cu the (theo ten Role, vd "ROLE_ADMIN")

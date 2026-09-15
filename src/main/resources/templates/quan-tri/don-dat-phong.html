@@ -1,27 +1,133 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{dung-chung/layout :: head('Quản lý Booking')}"></head>
+<head th:replace="~{dung-chung/layout :: head('Quản lý Đơn đặt phòng')}"></head>
 <body>
 <nav th:replace="~{dung-chung/layout :: navbar}"></nav>
-<div class="container mt-4">
-    <h3>Toàn bộ Booking hệ thống</h3>
-    <table class="table bg-white">
-        <thead><tr><th>Mã đơn</th><th>Khách</th><th>Homestay</th><th>Tổng tiền</th><th>Thanh toán</th><th>Trạng thái</th></tr></thead>
-        <tbody>
-        <tr th:each="b : ${bookings}">
-            <td th:text="${b.bookingCode}">BK001</td>
-            <td th:text="${b.customerName}">Khách</td>
-            <td th:text="${b.details[0].room.homestay.name}">Homestay</td>
-            <td th:text="${#numbers.formatDecimal(b.finalAmount,0,'POINT',0,'COMMA')} + ' VNĐ'">Giá</td>
-            <td>
-                <span th:if="${b.isFullyPaid()}" class="badge bg-success-subtle text-success">Đã thanh toán đủ</span>
-                <span th:unless="${b.isFullyPaid()}" class="badge bg-warning-subtle text-warning">Chưa thanh toán đủ</span>
-            </td>
-            <td><span class="badge" th:classappend="'badge-status-' + ${b.status}" th:text="${b.status}"></span></td>
-        </tr>
-        </tbody>
-    </table>
+
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Mobile Sidebar Trigger -->
+    <div th:replace="~{dung-chung/admin-sidebar :: toggle}"></div>
+
+    <div class="row g-4">
+        <!-- Admin Slidebar (Sidebar) -->
+        <div th:replace="~{dung-chung/admin-sidebar :: sidebar('don-dat-phong')}"></div>
+        <div th:replace="~{dung-chung/admin-sidebar :: offcanvas('don-dat-phong')}"></div>
+
+        <!-- Main Content Column -->
+        <div class="col-lg-9 col-xl-10">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <div>
+                    <h3 class="fw-bold m-0 text-dark"><i class="fa-solid fa-receipt text-success me-2"></i>Quản Lý Toàn Bộ Đơn Đặt Phòng</h3>
+                    <p class="text-muted small m-0 mt-1">Tra cứu, theo dõi trạng thái thanh toán và thông tin đặt phòng toàn hệ thống.</p>
+                </div>
+                <span class="badge bg-success-subtle text-success px-3 py-2 fw-semibold rounded-pill">
+                    <i class="fa-solid fa-database me-1"></i>Hệ Thống Booking
+                </span>
+            </div>
+
+            <!-- Search Card by Booking Code and Customer Name (Task 10) -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background: #ffffff;">
+                <form method="get" th:action="@{/quan-tri/don-dat-phong}" class="row g-3 align-items-end">
+                    <div class="col-md-5 col-12">
+                        <label class="form-label small fw-bold text-muted">
+                            <i class="fa-solid fa-barcode text-primary me-1"></i>Mã đơn đặt phòng
+                        </label>
+                        <input type="text" class="form-control rounded-3" name="bookingCode" 
+                               placeholder="VD: BK..." th:value="${bookingCode}">
+                    </div>
+                    <div class="col-md-5 col-12">
+                        <label class="form-label small fw-bold text-muted">
+                            <i class="fa-solid fa-user text-primary me-1"></i>Tên khách hàng
+                        </label>
+                        <input type="text" class="form-control rounded-3" name="customerName" 
+                               placeholder="VD: Nguyễn Văn A..." th:value="${customerName}">
+                    </div>
+                    <div class="col-md-2 col-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary rounded-3 w-100 fw-semibold">
+                            <i class="fa-solid fa-magnifying-glass me-1"></i> Tìm
+                        </button>
+                        <a th:href="@{/quan-tri/don-dat-phong}" class="btn btn-outline-secondary rounded-3" title="Đặt lại bộ lọc">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Booking List Card -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-dark small">
+                        <i class="fa-solid fa-list-check text-primary me-1"></i> Danh sách đơn: 
+                        <strong class="text-danger" th:text="${bookings.size()}">0</strong> đơn tìm thấy
+                    </span>
+                    <span th:if="${(bookingCode != null and !bookingCode.isEmpty()) or (customerName != null and !customerName.isEmpty())}" 
+                          class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                        Đang lọc kết quả
+                    </span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-secondary small">
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Homestay / Phòng</th>
+                                <th>Tổng tiền</th>
+                                <th>Thanh toán</th>
+                                <th>Trạng thái đơn</th>
+                                <th>Thời gian tạo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="b : ${bookings}">
+                                <td>
+                                    <span class="fw-bold text-primary font-monospace" th:text="${b.bookingCode}">BK001</span>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark" th:text="${b.customerName}">Nguyễn Văn A</div>
+                                    <small class="text-muted d-block"><i class="fa-solid fa-phone me-1 text-secondary"></i><span th:text="${b.customerPhone}">0901234567</span></small>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark" th:if="${!b.details.isEmpty()}" th:text="${b.details[0].room.homestay.name}">Homestay Đà Lạt View</div>
+                                    <small class="text-muted" th:if="${!b.details.isEmpty()}" th:text="${b.details[0].room.name}">Phòng VIP</small>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(b.finalAmount,0,'POINT',0,'COMMA')} + ' đ'">1,200,000 đ</span>
+                                </td>
+                                <td>
+                                    <span th:if="${b.isFullyPaid()}" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">
+                                        <i class="fa-solid fa-circle-check me-1"></i>Đủ
+                                    </span>
+                                    <span th:unless="${b.isFullyPaid()}" class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1">
+                                        <i class="fa-solid fa-clock me-1"></i>Chưa đủ
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-1 fw-semibold"
+                                          th:classappend="${b.status.name() == 'COMPLETED'} ? 'bg-success text-white' : (${b.status.name() == 'CONFIRMED'} ? 'bg-primary text-white' : (${b.status.name() == 'CANCELLED' || b.status.name() == 'REJECTED'} ? 'bg-danger text-white' : 'bg-warning text-dark'))"
+                                          th:text="${b.status}">PENDING</span>
+                                </td>
+                                <td class="small text-muted" th:text="${#temporals.format(b.createdAt, 'dd/MM/yyyy HH:mm')}">12/09/2026 14:00</td>
+                            </tr>
+
+                            <tr th:if="${bookings.isEmpty()}">
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i class="fa-regular fa-folder-open display-6 mb-2 d-block text-secondary"></i>
+                                    <p class="mb-2">Không tìm thấy đơn đặt phòng nào phù hợp với điều kiện tìm kiếm.</p>
+                                    <a th:href="@{/quan-tri/don-dat-phong}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        <i class="fa-solid fa-rotate-left me-1"></i> Xem toàn bộ đơn
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
 <div th:replace="~{dung-chung/layout :: footer}"></div>
 </body>
 </html>

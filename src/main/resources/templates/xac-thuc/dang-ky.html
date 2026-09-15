@@ -24,6 +24,16 @@
             <!-- Register Form -->
             <div class="col-lg-7">
                 <div class="auth-form-wrap">
+                    <!-- Nav Tabs: Dang Nhap / Dang Ky -->
+                    <div class="d-flex bg-light p-1 rounded-pill mb-4 border">
+                        <a th:href="@{/dang-nhap}" class="btn btn-light btn-pill flex-fill py-2 fw-semibold text-muted">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i> Đăng nhập
+                        </a>
+                        <a th:href="@{/dang-ky}" class="btn btn-primary btn-pill flex-fill py-2 fw-bold shadow-sm">
+                            <i class="fa-solid fa-user-plus me-1"></i> Đăng ký
+                        </a>
+                    </div>
+
                     <div class="mb-4">
                         <h3 class="fw-bold mb-1">Đăng ký tài khoản</h3>
                         <p class="text-muted small">Điền các thông tin dưới đây để đăng ký thành viên</p>
@@ -96,36 +106,59 @@
                             <div class="small fw-semibold mt-1" id="otpStatus"></div>
                         </div>
 
-                        <!-- Partner Checkboxes -->
-                        <div class="p-3 border rounded-3 bg-white mb-3">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" th:field="*{registerAsHost}" id="ckHost">
-                                <label class="form-check-label small fw-semibold" for="ckHost">
-                                    Đăng ký làm <strong>Chủ nhà cho thuê</strong> (cần Admin duyệt)
+                        <!-- Mutually Exclusive Role / Partner Selection -->
+                        <div class="p-3 border rounded-4 bg-white mb-3 shadow-sm">
+                            <label class="form-label small fw-bold text-dark mb-2">
+                                <i class="fa-solid fa-user-tag text-primary me-1"></i>Loại tài khoản đăng ký:
+                            </label>
+
+                            <!-- Hidden inputs bound to RegisterRequest -->
+                            <input type="hidden" th:field="*{registerAsHost}" id="hidRegisterAsHost">
+                            <input type="hidden" th:field="*{registerAsCollaborator}" id="hidRegisterAsCollaborator">
+
+                            <div class="d-flex flex-column gap-2">
+                                <label class="role-select-card p-2 px-3 border rounded-3 d-flex align-items-center justify-content-between cursor-pointer" for="roleCustomer">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input m-0" type="radio" name="roleChoice" id="roleCustomer" value="CUSTOMER"
+                                               th:checked="${!registerRequest.registerAsHost && !registerRequest.registerAsCollaborator}">
+                                        <div>
+                                            <span class="fw-semibold small text-dark d-block">Khách hàng thành viên</span>
+                                            <small class="text-muted">Đặt phòng nhanh chóng, nhận voucher ưu đãi</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-light text-muted small border">Mặc định</span>
+                                </label>
+
+                                <label class="role-select-card p-2 px-3 border rounded-3 d-flex align-items-center justify-content-between cursor-pointer" for="roleHost">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input m-0" type="radio" name="roleChoice" id="roleHost" value="HOST"
+                                               th:checked="${registerRequest.registerAsHost}">
+                                        <div>
+                                            <span class="fw-semibold small text-dark d-block">Chủ nhà cho thuê (Host)</span>
+                                            <small class="text-muted">Đăng phòng, quản lý homestay (cần Admin duyệt)</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-success-subtle text-success small border border-success-subtle">Đối tác</span>
+                                </label>
+
+                                <label class="role-select-card p-2 px-3 border rounded-3 d-flex align-items-center justify-content-between cursor-pointer" for="roleCtv">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input m-0" type="radio" name="roleChoice" id="roleCtv" value="COLLABORATOR"
+                                               th:checked="${registerRequest.registerAsCollaborator}">
+                                        <div>
+                                            <span class="fw-semibold small text-dark d-block">Cộng tác viên / Tiếp thị (CTV)</span>
+                                            <small class="text-muted">Chia sẻ link nhận hoa hồng 5% mỗi đơn phòng</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-warning-subtle text-warning small border border-warning-subtle">Hoa hồng</span>
                                 </label>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" th:field="*{registerAsCollaborator}" id="ckCtv">
-                                <label class="form-check-label small fw-semibold" for="ckCtv">
-                                    Đăng ký làm <strong>Cộng tác viên / Sale</strong> (hưởng hoa hồng giới thiệu)
-                                </label>
-                            </div>
-                            <!-- CTV Bank Fields -->
-                            <div id="ctvFields" class="pt-3 border-top mt-2" style="display:none;">
-                                <div class="row g-2">
-                                    <div class="col-sm-6">
-                                        <label class="small fw-semibold text-muted">Ngân hàng thụ hưởng</label>
-                                        <input class="form-control form-control-sm" th:field="*{bankName}" placeholder="VD: Vietcombank, MB Bank">
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label class="small fw-semibold text-muted">Số tài khoản nhận hoa hồng</label>
-                                        <input class="form-control form-control-sm" th:field="*{bankAccountNumber}" placeholder="Số tài khoản ngân hàng">
-                                    </div>
-                                </div>
+                            <div class="form-text small text-muted mt-2">
+                                <i class="fa-solid fa-circle-info text-primary me-1"></i>Một tài khoản chỉ có thể chọn làm <strong>Chủ nhà</strong> hoặc <strong>Cộng tác viên</strong>.
                             </div>
                         </div>
 
-                        <button class="btn btn-primary btn-pill w-100 py-2 fw-bold" type="submit">
+                        <button class="btn btn-primary btn-pill w-100 py-2 fw-bold shadow-sm" type="submit">
                             <i class="fa-solid fa-user-check me-1"></i> Hoàn tất đăng ký
                         </button>
                     </form>
@@ -142,9 +175,29 @@
 
 <div th:replace="~{dung-chung/layout :: footer}"></div>
 <script th:inline="javascript">
-    document.getElementById('ckCtv').addEventListener('change', function () {
-        document.getElementById('ctvFields').style.display = this.checked ? 'block' : 'none';
+
+    function syncRoleChoice() {
+        const selected = document.querySelector('input[name=roleChoice]:checked');
+        const hidHost = document.getElementById('hidRegisterAsHost');
+        const hidCtv = document.getElementById('hidRegisterAsCollaborator');
+        if (!selected || !hidHost || !hidCtv) return;
+
+        if (selected.value === 'HOST') {
+            hidHost.value = 'true';
+            hidCtv.value = 'false';
+        } else if (selected.value === 'COLLABORATOR') {
+            hidHost.value = 'false';
+            hidCtv.value = 'true';
+        } else {
+            hidHost.value = 'false';
+            hidCtv.value = 'false';
+        }
+    }
+
+    document.querySelectorAll('input[name=roleChoice]').forEach(function (radio) {
+        radio.addEventListener('change', syncRoleChoice);
     });
+    syncRoleChoice();
 
     document.querySelectorAll('input[name=kenhOtpRadio]').forEach(function (radio) {
         radio.addEventListener('change', function () {

@@ -20,6 +20,7 @@ import java.util.List;
 public class BookingCleanupService {
 
     private final BookingRepository bookingRepository;
+    private final BookingHomeStay.BookingHomeStay.service.RoomAvailabilityService roomAvailabilityService;
 
     /**
      * Chạy định kỳ mỗi phút một lần.
@@ -54,9 +55,17 @@ public class BookingCleanupService {
                         }
                     }
                 }
+                // Giải phóng lịch phòng theo ngày
+                if (booking.getDetails() != null) {
+                    for (var d : booking.getDetails()) {
+                        if (d.getRoom() != null && d.getCheckinDate() != null && d.getCheckoutDate() != null) {
+                            roomAvailabilityService.releaseBookingDays(d.getRoom().getId(), d.getCheckinDate(), d.getCheckoutDate());
+                        }
+                    }
+                }
             }
             bookingRepository.saveAll(expiredBookings);
-            log.info("Đã hủy thành công {} đơn đặt phòng quá hạn.", expiredBookings.size());
+            log.info("Đã hủy thành công {} đơn đặt phòng quá hạn và giải phóng lịch phòng.", expiredBookings.size());
         }
     }
 }

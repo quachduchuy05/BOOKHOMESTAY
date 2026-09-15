@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dung-chung/layout :: head('Quên mật khẩu')}"></head>
+<body>
+<nav th:replace="~{dung-chung/layout :: navbar}"></nav>
+
+<div class="auth-wrapper">
+    <div class="auth-card-modern">
+        <div class="row g-0">
+            <!-- Side Image / Brand Showcase -->
+            <div class="col-lg-5 d-none d-lg-block auth-side-image">
+                <div class="mb-4">
+                    <span class="badge bg-white text-dark px-3 py-2 fw-bold mb-3"><i class="fa-solid fa-shield-halved text-danger me-1"></i>Bảo mật tài khoản</span>
+                    <h3 class="fw-bold text-white mb-2">Khôi phục mật khẩu</h3>
+                    <p class="small text-white-50">Đừng lo lắng! Nhập địa chỉ email tài khoản đã đăng ký, hệ thống sẽ gửi mã xác thực an toàn để bạn đặt lại mật khẩu mới.</p>
+                </div>
+                <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px);">
+                    <small class="d-block text-white mb-1"><i class="fa-solid fa-clock-rotate-left me-1"></i>Mã OTP có hiệu lực trong 5 phút</small>
+                    <small class="d-block text-white-50">Vui lòng kiểm tra kỹ cả hộp thư chính và thư rác (Spam).</small>
+                </div>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div class="col-lg-7">
+                <div class="auth-form-wrap">
+                    <div class="mb-4">
+                        <h3 class="fw-bold mb-1">Quên mật khẩu?</h3>
+                        <p class="text-muted small">Nhập email của bạn để nhận mã xác thực OTP</p>
+                    </div>
+
+                    <!-- Alerts -->
+                    <div class="alert alert-danger py-2 small d-flex align-items-center gap-2" th:if="${errorMessage}">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span th:text="${errorMessage}"></span>
+                    </div>
+
+                    <form th:action="@{/quen-mat-khau}" method="post">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">Địa chỉ Email đăng ký</label>
+                            <div class="input-icon-group">
+                                <i class="fa-regular fa-envelope input-icon"></i>
+                                <input type="email" name="email" class="form-control" th:value="${email}" placeholder="name@example.com" required autocomplete="email">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary btn-pill w-100 py-2 fw-bold mb-3" type="submit">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Gửi mã OTP xác thực
+                        </button>
+                    </form>
+
+                    <div class="text-center pt-3 border-top">
+                        <span class="small text-muted">Nhớ lại mật khẩu?</span>
+                        <a th:href="@{/dang-nhap}" class="small fw-bold text-danger ms-1 text-decoration-none">Quay lại Đăng nhập</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{dung-chung/layout :: footer}"></div>
+</body>
+</html>

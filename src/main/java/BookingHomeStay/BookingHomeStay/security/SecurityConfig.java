@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -37,20 +38,22 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.ignoringRequestMatchers(
                 "/dang-ky/gui-otp",
+                "/quen-mat-khau/gui-otp",
                 "/api/v1/sepay/webhook",
                 "/api/ai-booking/**"
             ))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/", "/trang-chu", "/tim-kiem", "/tim-kiem/**", "/homestay/**", "/dang-nhap", "/dang-ky",
-                    "/dang-ky/gui-otp", "/api/v1/sepay/webhook", "/api/v1/bookings/*/status", "/css/**", "/js/**", "/images/**",
-                    "/ai-booking", "/api/ai-booking/**"
+                    "/", "/trang-chu", "/trang-chu/**", "/tim-kiem", "/tim-kiem/**", "/homestay/**", "/dang-nhap", "/dang-ky",
+                    "/dang-ky/gui-otp", "/quen-mat-khau", "/quen-mat-khau/**", "/dat-lai-mat-khau", "/dat-lai-mat-khau/**",
+                    "/api/**", "/css/**", "/js/**", "/images/**", "/uploads/**",
+                    "/ai-booking"
                 ).permitAll()
                 // Cong tac vien dung chung khong gian voi Chu nha (ca hai deu "ban hang phong")
                 .requestMatchers("/khach-hang/**").hasAnyRole("CUSTOMER", "COLLABORATOR")
                 .requestMatchers("/chu-nha/**").hasAnyRole("HOST", "COLLABORATOR")
                 .requestMatchers("/cong-tac-vien/**").hasAnyRole("COLLABORATOR", "ADMIN")
-                .requestMatchers("/quan-tri/**").hasRole("ADMIN")
+                .requestMatchers("/quan-tri/**", "/admin", "/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -60,8 +63,11 @@ public class SecurityConfig {
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutUrl("/logout")
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/dang-nhap?logout=true")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
                 .permitAll()
             )
             .exceptionHandling(ex -> ex.accessDeniedPage("/khong-co-quyen"))
